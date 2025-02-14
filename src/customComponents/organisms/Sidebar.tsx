@@ -18,7 +18,7 @@ export const Sidebar: React.FC = () => {
   return (
     <div
       className={`
-        bg-secondary text-white h-full flex flex-col 
+        bg-secondary-light text-white h-full flex flex-col 
         ${isExpanded ? 'w-54' : 'w-16'} transition-all duration-300
       `}
     >

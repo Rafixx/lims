@@ -6,11 +6,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Define tus colores personalizados
-        primary: '#1D4ED8', // Ejemplo: azul primario
-        secondary: '#64748B', // Ejemplo: gris azulado
-        accent: '#F59E0B' // Ejemplo: naranja/acento
-        // Puedes agregar más colores o paletas personalizadas aquí
+        primary: {
+          DEFAULT: '#1E3A8A',
+          light: '#3B82F6',
+          dark: '#1D4ED8'
+        },
+        secondary: {
+          DEFAULT: '#047857',
+          light: '#10B981',
+          dark: '#065F46'
+        },
+        accent: {
+          DEFAULT: '#0EA5E9'
+        }
       },
       fontFamily: {
         // Define tus familias tipográficas globales

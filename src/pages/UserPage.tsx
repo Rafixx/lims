@@ -12,8 +12,7 @@ const UserPage: React.FC = () => {
     <div>
       <h1>User Info</h1>
       <p>ID: {data.id}</p>
-      <p>First Name: {data.firstName}</p>
-      <p>Last Name: {data.lastName}</p>
+      <p>Name: {data.name}</p>
     </div>
   )
 }

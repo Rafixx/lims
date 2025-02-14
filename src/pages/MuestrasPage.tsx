@@ -16,13 +16,22 @@ const MuestrasPage: React.FC = () => {
 
   return (
     <div>
-      <h1>Lista de Muestras</h1>
-      <UpdateMuestrasButton />
+      <h1 className="text-2xl font-bold mb-4">Lista de Muestras</h1>
+      <div className="mb-4">
+        <UpdateMuestrasButton />
+      </div>
       <Card title="Muestras">
         <ul>
           {data &&
             data.map(muestra => (
-              <li key={muestra.id}>
+              <li
+                key={muestra.id}
+                className={`p-2 rounded mb-2 text-white ${
+                  muestra.estado === 'Actualizado'
+                    ? 'bg-accent/40 text-primary'
+                    : 'bg-primary-light/100'
+                }`}
+              >
                 {muestra.codigoInterno} - {muestra.estado}
               </li>
             ))}
