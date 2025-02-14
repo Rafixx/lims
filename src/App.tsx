@@ -1,13 +1,20 @@
-import './App.css'
-import UserPage from './pages/UserPage'
-import MuestrasPage from './pages/MuestrasPage'
+// src/App.tsx
+import React from 'react'
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import ProfilePage from './pages/ProfilePage'
 
-function App() {
+const App: React.FC = () => {
   return (
-    <>
-      <UserPage />
-      <MuestrasPage />
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Outlet />}>
+          <Route index element={<HomePage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          {/* Otras rutas */}
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 
