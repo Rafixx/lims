@@ -1,7 +1,6 @@
 // src/pages/HomePage.tsx
 import React from 'react'
-import ProfilePage from './ProfilePage'
-import MuestrasPage from './MuestrasPage'
+// import { Outlet } from 'react-router-dom'
 
 const HomePage: React.FC = () => {
   return (
@@ -11,9 +10,7 @@ const HomePage: React.FC = () => {
         Este es el sistema de gestión de información de laboratorio. Aquí podrás gestionar muestras,
         consultar resultados y más.
       </p>
-      <ProfilePage />
-      <MuestrasPage />
-      {/* Agrega más componentes o información relevante para la página principal */}
+      {/* <Outlet /> */}
     </div>
   )
 }

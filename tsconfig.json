@@ -19,7 +19,12 @@
       "DOM",
       "ESNext"
     ],
-    "jsx": "react-jsx", // Esto habilita la compilación de JSX (para React 17+)
+    "jsx": "react-jsx",
+    "types": [
+      "vite/client",
+      "react",
+      "react-dom"
+    ],
     "skipLibCheck": true
   },
   "include": [

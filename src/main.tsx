@@ -4,8 +4,11 @@ import './index.css'
 import App from './App'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { UserProvider } from './contexts/UserContext'
+import { MenuProvider } from './contexts/MenuContext'
+
 import { worker } from './mocks/browser'
-import { Layout } from './customComponents/organisms/Layout' // Importa el layout
+import { Layout } from './layouts/Layout'
+import { BrowserRouter } from 'react-router-dom'
 
 // Aquí podrías condicionar el uso de MSW según una variable de entorno
 if (process.env.NODE_ENV === 'development' && import.meta.env.VITE_USE_MSW === 'true') {
@@ -17,11 +20,15 @@ const queryClient = new QueryClient()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <UserProvider>
-      <QueryClientProvider client={queryClient}>
-        <Layout>
-          <App />
-        </Layout>
-      </QueryClientProvider>
+      <MenuProvider>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <Layout>
+              <App />
+            </Layout>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </MenuProvider>
     </UserProvider>
   </StrictMode>
 )
