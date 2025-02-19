@@ -8,6 +8,7 @@ import ListadoPage from '../pages/ListadoPage'
 import FiltrosPage from '../pages/FiltrosPage'
 import GraficosPage from '../pages/GraficosPage'
 import ReportesPage from '../pages/ReportesPage'
+import MaquinasPage from '../pages/MaquinasPage'
 
 const MyRoutes: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const MyRoutes: React.FC = () => {
       <Route index element={<HomePage />} />
       <Route path="profile" element={<ProfilePage />} />
       <Route path="settings" element={<UserPage />} />
+      <Route path="settings/maquinas" element={<MaquinasPage />} />
       <Route path="resultados/listado" element={<ListadoPage />} />
       <Route path="resultados/filtros" element={<FiltrosPage />} />
       <Route path="estadistica/graficos" element={<GraficosPage />} />

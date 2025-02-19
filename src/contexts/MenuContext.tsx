@@ -29,7 +29,10 @@ export const MenuProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   let dynamicMenuItems: MenuItem[] = []
   switch (menuState) {
     case 'inicio':
-      dynamicMenuItems = [{ icon: <FiSettings size={20} />, label: 'Ajustes', to: '/settings' }]
+      dynamicMenuItems = [
+        { icon: <FiSettings size={20} />, label: 'Ajustes', to: '/settings' },
+        { icon: <FiSettings size={20} />, label: 'Maquinas', to: '/settings/maquinas' }
+      ]
       break
     case 'resultados':
       dynamicMenuItems = [
