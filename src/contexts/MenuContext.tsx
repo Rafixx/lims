@@ -1,15 +1,26 @@
 // src/contexts/MenuContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react'
-import { FiHome, FiUser, FiSettings, FiList, FiBarChart2, FiLayers } from 'react-icons/fi'
+import {
+  FiHome,
+  FiUser,
+  FiSettings,
+  FiList,
+  FiBarChart2,
+  FiLayers,
+  FiFileText,
+  FiPower
+} from 'react-icons/fi'
 import { MenuItem } from '../customComponents/organisms/Sidebar'
 import { useUser } from './UserContext'
 
-export type MenuState = 'inicio' | 'resultados' | 'estadistica'
+export type MenuState = 'inicio' | 'resultados' | 'estadistica' | 'catalogo'
 
 interface MenuContextValue {
   menuState: MenuState
   menuItems: MenuItem[]
   setMenuState: (state: MenuState) => void
+  menuBackgroundColor: string
+  menuHoverColor: string
 }
 
 const MenuContext = createContext<MenuContextValue | undefined>(undefined)
@@ -31,7 +42,13 @@ export const MenuProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     case 'inicio':
       dynamicMenuItems = [
         { icon: <FiSettings size={20} />, label: 'Ajustes', to: '/settings' },
-        { icon: <FiSettings size={20} />, label: 'Maquinas', to: '/settings/maquinas' }
+        { icon: <FiFileText size={20} />, label: 'Maquinas', to: '/settings/maquinas' }
+      ]
+      break
+    case 'catalogo':
+      dynamicMenuItems = [
+        { icon: <FiPower size={20} />, label: 'Productos', to: '/catalogo/productos' },
+        { icon: <FiPower size={20} />, label: 'Tecnicas', to: '/catalogo/tecnicas' }
       ]
       break
     case 'resultados':
@@ -54,8 +71,28 @@ export const MenuProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Combinamos el menú base con el dinámico.
   const menuItems: MenuItem[] = [...baseMenuItems, ...dynamicMenuItems]
 
-  const value: MenuContextValue = { menuState, menuItems, setMenuState }
+  // Definimos colores para cada menú:
+  const backgroundColors: Record<MenuState, string> = {
+    inicio: 'bg-blue-500',
+    resultados: 'bg-green-500',
+    estadistica: 'bg-purple-500',
+    catalogo: 'bg-orange-500'
+  }
 
+  const hoverColors: Record<MenuState, string> = {
+    inicio: 'hover:bg-blue-400/80',
+    resultados: 'hover:bg-green-400/80',
+    estadistica: 'hover:bg-purple-400/80',
+    catalogo: 'hover:bg-orange-400/80'
+  }
+
+  const value: MenuContextValue = {
+    menuState,
+    menuItems,
+    setMenuState,
+    menuBackgroundColor: backgroundColors[menuState],
+    menuHoverColor: hoverColors[menuState]
+  }
   return <MenuContext.Provider value={value}>{children}</MenuContext.Provider>
 }
 

@@ -2,12 +2,13 @@
 import React from 'react'
 import { useMenu } from '../contexts/MenuContext'
 import Button from '../customComponents/atoms/Button'
+import { MenuState } from '../contexts/MenuContext'
 
 const ProfilePage: React.FC = () => {
   const { menuState, setMenuState } = useMenu()
 
   // Función genérica para alternar el menú hacia un estado dado o volver a 'inicio'
-  const toggleMenuState = (targetState: 'resultados' | 'estadistica'): void => {
+  const toggleMenuState = (targetState: MenuState): void => {
     setMenuState(menuState !== targetState ? targetState : 'inicio')
   }
 
@@ -21,6 +22,7 @@ const ProfilePage: React.FC = () => {
       <div className="flex flex-col gap-4">
         <Button onClick={() => toggleMenuState('resultados')}>Cambiar Menú Resultados</Button>
         <Button onClick={() => toggleMenuState('estadistica')}>Cambiar Menú Estadística</Button>
+        <Button onClick={() => toggleMenuState('catalogo')}>Cambiar Menú Catalogo</Button>
       </div>
     </div>
   )

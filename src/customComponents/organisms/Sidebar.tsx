@@ -9,16 +9,14 @@ export interface MenuItem {
   to: string
 }
 
-// Eliminamos la interfaz SidebarProps, ya que usaremos el context
 export const Sidebar: React.FC = () => {
   const [isExpanded, setIsExpanded] = React.useState(false)
-  // Usamos el hook del MenuContext para obtener los ítems del menú
-  const { menuItems } = useMenu()
+  const { menuItems, menuBackgroundColor, menuHoverColor } = useMenu()
 
   return (
     <div
       className={`
-        bg-secondary-light text-white h-full flex flex-col 
+        ${menuBackgroundColor} text-white h-full flex flex-col 
         ${isExpanded ? 'w-54' : 'w-16'} transition-all duration-300
       `}
     >
@@ -27,7 +25,10 @@ export const Sidebar: React.FC = () => {
           <Link
             key={index}
             to={item.to}
-            className="flex items-center p-3 hover:bg-secondary/80 cursor-pointer"
+            className={`
+              flex items-center p-3 cursor-pointer 
+              ${menuHoverColor} 
+            `}
           >
             <div className="flex-shrink-0">{item.icon}</div>
             {isExpanded && <span className="ml-3">{item.label}</span>}
@@ -35,12 +36,12 @@ export const Sidebar: React.FC = () => {
         ))}
       </div>
       <div
-        className="p-3 border-t border-secondary/50 cursor-pointer"
+        className={`p-3 border-t border-white/20 cursor-pointer ${menuHoverColor}`}
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-center justify-center">
+        <div className={`flex items-center justify-center ${menuHoverColor}`}>
           <span className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-            <svg width="20" height="20" viewBox="0 0 24 24">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
               <path d="M8.59 16.34L13.17 12 8.59 7.66 10 6.25l6 6-6 6z" />
             </svg>
           </span>
