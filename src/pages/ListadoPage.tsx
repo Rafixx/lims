@@ -1,5 +1,6 @@
 // src/pages/ListadoPage.tsx
 import React from 'react'
+import MuestrasTable from '../customComponents/organisms/MuestrasTable'
 
 const ListadoPage: React.FC = () => {
   return (
@@ -8,6 +9,7 @@ const ListadoPage: React.FC = () => {
       <p className="text-gray-700">
         Aquí se muestran todas las muestras registradas en el sistema.
       </p>
+      <MuestrasTable />
     </div>
   )
 }

@@ -2,6 +2,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import { apiClient } from '../services/apiClient'
+import { Producto } from './useProductos'
 
 export interface Muestra {
   id: string
@@ -10,9 +11,7 @@ export interface Muestra {
   fechaIngreso: string
   estado: string
   ubicacion: string
-  // productos: any[] // Puedes tipar esto más específicamente si lo deseas
-
-  // Puedes incluir otros campos según necesites
+  productos: Producto[] // Ahora es un array de Producto
 }
 
 const fetchMuestras = async (): Promise<Muestra[]> => {

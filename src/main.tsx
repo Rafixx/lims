@@ -9,6 +9,7 @@ import { MenuProvider } from './contexts/MenuContext'
 import { worker } from './mocks/browser'
 import { Layout } from './layouts/Layout'
 import { BrowserRouter } from 'react-router-dom'
+import { FilterProvider } from './hooks/useFilter'
 
 // Aquí podrías condicionar el uso de MSW según una variable de entorno
 if (process.env.NODE_ENV === 'development' && import.meta.env.VITE_USE_MSW === 'true') {
@@ -23,9 +24,11 @@ createRoot(document.getElementById('root')!).render(
       <MenuProvider>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
-            <Layout>
-              <App />
-            </Layout>
+            <FilterProvider>
+              <Layout>
+                <App />
+              </Layout>
+            </FilterProvider>
           </BrowserRouter>
         </QueryClientProvider>
       </MenuProvider>

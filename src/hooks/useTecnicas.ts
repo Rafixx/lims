@@ -2,12 +2,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../services/apiClient'
 
+export interface Resultado {
+  id: string
+  valor: string | number
+  unidad: string | null
+  fechaResultado: string
+}
+
 export interface Tecnica {
   id: string
   nombre: string
   productoId: string
   maquinaId: string | null
-  parametros: []
+  estado: string
+  resultados: Resultado[]
 }
 
 const fetchTecnicas = async (): Promise<Tecnica[]> => {

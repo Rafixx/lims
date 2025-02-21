@@ -18,12 +18,12 @@ const MyRoutes: React.FC = () => {
       {/* <Route path="/" element={<HomePage />}> */}
       <Route index element={<HomePage />} />
       <Route path="profile" element={<ProfilePage />} />
-      <Route path="settings" element={<UserPage />} />
-      <Route path="settings/maquinas" element={<MaquinasPage />} />
+      <Route path="configuracion/usuarios" element={<UserPage />} />
+      <Route path="configuracion/maquinas" element={<MaquinasPage />} />
       <Route path="resultados/listado" element={<ListadoPage />} />
       <Route path="resultados/filtros" element={<FiltrosPage />} />
-      <Route path="catalogo/productos" element={<ProductosPage />} />
-      <Route path="catalogo/tecnicas" element={<TecnicasPage />} />
+      <Route path="configuracion/productos" element={<ProductosPage />} />
+      <Route path="configuracion/tecnicas" element={<TecnicasPage />} />
       <Route path="estadistica/graficos" element={<GraficosPage />} />
       <Route path="estadistica/reportes" element={<ReportesPage />} />
       <Route path="resultados/muestras" element={<MuestrasPage />} />

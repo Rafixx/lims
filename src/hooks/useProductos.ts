@@ -1,11 +1,13 @@
 // src/hooks/useProductos.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '../services/apiClient'
+import { Tecnica } from './useTecnicas'
 
 export interface Producto {
   id: string
   nombre: string
-  tecnicas: string[] // IDs de las técnicas asociadas
+  tecnicas: [Tecnica]
+  estado: string
 }
 
 // Función para obtener todos los productos

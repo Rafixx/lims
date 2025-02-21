@@ -8,12 +8,14 @@ import {
   FiBarChart2,
   FiLayers,
   FiFileText,
-  FiPower
+  FiPrinter,
+  FiSearch,
+  FiUsers
 } from 'react-icons/fi'
 import { MenuItem } from '../customComponents/organisms/Sidebar'
 import { useUser } from './UserContext'
 
-export type MenuState = 'inicio' | 'resultados' | 'estadistica' | 'catalogo'
+export type MenuState = 'inicio' | 'resultados' | 'estadistica' | 'configuracion'
 
 interface MenuContextValue {
   menuState: MenuState
@@ -31,31 +33,30 @@ export const MenuProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [menuState, setMenuState] = useState<MenuState>('inicio')
 
   // Definimos el menú base, que siempre se mostrará.
-  const baseMenuItems: MenuItem[] = [
-    { icon: <FiHome size={20} />, label: 'Inicio', to: '/' },
-    { icon: <FiUser size={20} />, label: username || 'Usuario', to: '/profile' }
-  ]
+  const baseMenuItems: MenuItem[] = [{ icon: <FiHome size={20} />, label: 'Inicio', to: '/' }]
 
   // Derivamos los ítems dinámicos según el estado del menú.
   let dynamicMenuItems: MenuItem[] = []
   switch (menuState) {
     case 'inicio':
       dynamicMenuItems = [
-        { icon: <FiSettings size={20} />, label: 'Ajustes', to: '/settings' },
-        { icon: <FiFileText size={20} />, label: 'Maquinas', to: '/settings/maquinas' }
+        // { icon: <FiSettings size={20} />, label: 'Ajustes', to: '/settings' },
+        { icon: <FiUser size={20} />, label: username || 'Usuario', to: '/profile' }
       ]
       break
-    case 'catalogo':
+    case 'configuracion':
       dynamicMenuItems = [
-        { icon: <FiPower size={20} />, label: 'Productos', to: '/catalogo/productos' },
-        { icon: <FiPower size={20} />, label: 'Tecnicas', to: '/catalogo/tecnicas' }
+        { icon: <FiUsers size={20} />, label: 'Usuarios', to: '/configuracion/usuarios' },
+        { icon: <FiPrinter size={20} />, label: 'Maquinas', to: '/configuracion/maquinas' },
+        { icon: <FiFileText size={20} />, label: 'Productos', to: '/configuracion/productos' },
+        { icon: <FiSearch size={20} />, label: 'Tecnicas', to: '/configuracion/tecnicas' }
       ]
       break
     case 'resultados':
       dynamicMenuItems = [
+        { icon: <FiLayers size={20} />, label: 'Muestras', to: '/resultados/muestras' },
         { icon: <FiList size={20} />, label: 'Listado', to: '/resultados/listado' },
-        { icon: <FiSettings size={20} />, label: 'Filtros', to: '/resultados/filtros' },
-        { icon: <FiLayers size={20} />, label: 'Muestras', to: '/resultados/muestras' }
+        { icon: <FiSettings size={20} />, label: 'Filtros', to: '/resultados/filtros' }
       ]
       break
     case 'estadistica':
@@ -76,14 +77,14 @@ export const MenuProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     inicio: 'bg-blue-500',
     resultados: 'bg-green-500',
     estadistica: 'bg-purple-500',
-    catalogo: 'bg-orange-500'
+    configuracion: 'bg-orange-500'
   }
 
   const hoverColors: Record<MenuState, string> = {
     inicio: 'hover:bg-blue-400/80',
     resultados: 'hover:bg-green-400/80',
     estadistica: 'hover:bg-purple-400/80',
-    catalogo: 'hover:bg-orange-400/80'
+    configuracion: 'hover:bg-orange-400/80'
   }
 
   const value: MenuContextValue = {
