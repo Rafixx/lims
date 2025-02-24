@@ -23,6 +23,21 @@ export const useMuestras = () => {
   return useQuery<Muestra[]>({ queryKey: ['muestras'], queryFn: fetchMuestras })
 }
 
+export const getClassEstado = (estado: string): string => {
+  switch (estado) {
+    case 'Pendiente':
+      return 'bg-estados-pendiente-200 text-black'
+    case 'En Curso':
+      return 'bg-estados-en_proceso-200 text-black'
+    case 'Actualizado':
+      return 'bg-estados-actualizado-200 text-black'
+    case 'Finalizada':
+      return 'bg-estados-completado-200 text-black'
+    default:
+      return 'bg-estados-default-200 text-black'
+  }
+}
+
 export const useCreateMuestra = () => {
   const queryClient = useQueryClient()
   return useMutation<Muestra, Error, Omit<Muestra, 'id'>, unknown>({

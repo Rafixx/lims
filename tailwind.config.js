@@ -7,17 +7,39 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#1E3A8A',
-          light: '#3B82F6',
-          dark: '#1D4ED8'
+          DEFAULT: '#2C3E50', // Azul oscuro elegante
+          light: '#34495E', // Variante más clara
+          dark: '#22313F' // Variante más intensa
         },
         secondary: {
-          DEFAULT: '#047857',
-          light: '#10B981',
-          dark: '#065F46'
+          DEFAULT: '#7F8C8D', // Gris azulado neutro
+          light: '#95A5A6',
+          dark: '#606F73'
         },
         accent: {
-          DEFAULT: '#0EA5E9'
+          DEFAULT: '#E67E22' // Naranja apagado, con carácter sin ser estridente
+        },
+        estados: {
+          default: {
+            200: '#BFC9CA',
+            800: '#95A5A6'
+          },
+          pendiente: {
+            200: '#F8C471',
+            800: '#F39C12'
+          },
+          en_proceso: {
+            200: '#7FB3D5',
+            800: '#2980B9'
+          },
+          actualizado: {
+            200: '#7DCEA0',
+            800: '#27AE60'
+          },
+          completado: {
+            200: '#BB8FCE',
+            800: '#8E44AD'
+          }
         }
       },
       fontFamily: {

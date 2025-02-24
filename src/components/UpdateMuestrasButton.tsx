@@ -2,6 +2,7 @@
 import React from 'react'
 import { apiClient } from '../services/apiClient'
 import Button from '../customComponents/atoms/Button'
+import { FiRotateCcw } from 'react-icons/fi'
 
 interface UpdateMuestraButtonProps {
   id: string
@@ -19,7 +20,11 @@ const UpdateMuestraButton: React.FC<UpdateMuestraButtonProps> = ({ id }) => {
     }
   }
 
-  return <Button onClick={handleClick}>Actualizar muestra</Button>
+  return (
+    <Button onClick={handleClick}>
+      <FiRotateCcw />
+    </Button>
+  )
 }
 
 export default UpdateMuestraButton

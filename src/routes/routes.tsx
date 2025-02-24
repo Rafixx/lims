@@ -1,6 +1,7 @@
 //src/routes/routes.tsx
 import { Routes, Route } from 'react-router-dom'
 import HomePage from '../pages/HomePage'
+import Login from '../pages/Login'
 import ProfilePage from '../pages/ProfilePage'
 import MuestrasPage from '../pages/MuestrasPage'
 import UserPage from '../pages/UserPage'
@@ -17,6 +18,7 @@ const MyRoutes: React.FC = () => {
     <Routes>
       {/* <Route path="/" element={<HomePage />}> */}
       <Route index element={<HomePage />} />
+      <Route path="login" element={<Login />} />
       <Route path="profile" element={<ProfilePage />} />
       <Route path="configuracion/usuarios" element={<UserPage />} />
       <Route path="configuracion/maquinas" element={<MaquinasPage />} />

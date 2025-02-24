@@ -2,9 +2,9 @@
 import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { io } from 'socket.io-client'
-
+import { env_BaseURL } from '../services/apiClient'
 // Crea la instancia del socket apuntando al backend
-export const socket = io('http://localhost:3000', {
+export const socket = io(env_BaseURL, {
   transports: ['websocket'] // Forzamos el uso exclusivo de WebSocket
 })
 
@@ -12,7 +12,7 @@ export const useMuestraSync = () => {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    const onActualizar = (updatedMuestras?: any) => {
+    const onActualizar = () => {
       // Opcionalmente, podrías usar 'updatedMuestras' para actualizar el estado local,
       // pero lo habitual es invalidar la query para refetch de los datos.
       queryClient.invalidateQueries({ queryKey: ['muestras'] })

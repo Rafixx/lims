@@ -17,6 +17,10 @@ test('Debe mostrar la lista de muestras', async () => {
     </QueryClientProvider>
   )
 
+  // await waitFor(() => screen.getByText(/INT-001/i))
+  // expect(screen.getByText(/En Curso/i)).toBeInTheDocument()
+
+  // Y ahora compruebas que exista algún "Pendiente" en la página
   await waitFor(() => screen.getByText(/M001/i))
   expect(screen.getByText(/Pendiente/i)).toBeInTheDocument()
 })

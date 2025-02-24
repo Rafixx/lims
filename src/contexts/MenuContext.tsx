@@ -1,7 +1,7 @@
 // src/contexts/MenuContext.tsx
 import React, { createContext, useContext, useState, ReactNode } from 'react'
 import {
-  FiHome,
+  // FiHome,
   FiUser,
   FiSettings,
   FiList,
@@ -13,7 +13,6 @@ import {
   FiUsers
 } from 'react-icons/fi'
 import { MenuItem } from '../customComponents/organisms/Sidebar'
-import { useUser } from './UserContext'
 
 export type MenuState = 'inicio' | 'resultados' | 'estadistica' | 'configuracion'
 
@@ -29,11 +28,10 @@ const MenuContext = createContext<MenuContextValue | undefined>(undefined)
 
 export const MenuProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Obtenemos el nombre de usuario desde UserContext.
-  const { username } = useUser()
   const [menuState, setMenuState] = useState<MenuState>('inicio')
 
   // Definimos el menú base, que siempre se mostrará.
-  const baseMenuItems: MenuItem[] = [{ icon: <FiHome size={20} />, label: 'Inicio', to: '/' }]
+  const baseMenuItems: MenuItem[] = [] //[{ icon: <FiHome size={20} />, label: 'Inicio', to: '/' }]
 
   // Derivamos los ítems dinámicos según el estado del menú.
   let dynamicMenuItems: MenuItem[] = []
@@ -41,7 +39,7 @@ export const MenuProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     case 'inicio':
       dynamicMenuItems = [
         // { icon: <FiSettings size={20} />, label: 'Ajustes', to: '/settings' },
-        { icon: <FiUser size={20} />, label: username || 'Usuario', to: '/profile' }
+        { icon: <FiUser size={20} />, label: 'Usuario', to: '/profile' }
       ]
       break
     case 'configuracion':
