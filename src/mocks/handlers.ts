@@ -1,6 +1,6 @@
 // src/tests/mocks/handlers.ts
 import { http, HttpResponse } from 'msw'
-import { env_BaseURL } from '../services/apiClient'
+import { env_BaseURL } from '../shared/services/apiClient'
 
 export const handlers = [
   http.get(`${env_BaseURL}/api/muestras`, () => {

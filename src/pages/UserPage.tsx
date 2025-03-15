@@ -1,6 +1,12 @@
 // src/pages/UserPage.tsx
 import React, { useState } from 'react'
-import { useUsers, useCreateUser, useUpdateUser, useDeleteUser, User } from '../hooks/useUser'
+import {
+  useUsers,
+  useCreateUser,
+  useUpdateUser,
+  useDeleteUser,
+  User
+} from '../shared/hooks/useUser'
 
 const UserPage: React.FC = () => {
   const { data: users, isLoading, error } = useUsers()

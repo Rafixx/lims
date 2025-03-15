@@ -1,9 +1,9 @@
 // src/pages/Login.tsx
 import React, { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom' // O el hook de navegación que uses (por ejemplo, de react-router-dom v6)
-import { loginService } from '../services/authService'
-import { UserContext } from '../contexts/UserContext'
-import Card from '../customComponents/molecules/Card'
+import { loginService } from '../shared/services/authService'
+import { UserContext } from '../shared/contexts/UserContext'
+import Card from '../shared/components/molecules/Card'
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('')
