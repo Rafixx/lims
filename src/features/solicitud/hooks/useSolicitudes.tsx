@@ -5,8 +5,7 @@ import { getSolicitudes } from '../services/solicitudes.service'
 export const useSolicitudes = () => {
   const solicitudesQuery = useQuery({
     queryKey: ['solicitudes'],
-    queryFn: () => getSolicitudes(),
-    staleTime: 1000 * 60
+    queryFn: () => getSolicitudes()
   })
 
   return solicitudesQuery

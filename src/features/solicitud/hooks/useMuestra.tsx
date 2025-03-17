@@ -5,8 +5,7 @@ import { getMuestra } from '../services/muestra.service'
 export const useMuestra = (idSolicitud: string) => {
   const muestraQuery = useQuery({
     queryKey: ['muestra', idSolicitud],
-    queryFn: () => getMuestra(idSolicitud),
-    staleTime: 1000 * 60 // 1 minuto
+    queryFn: () => getMuestra(idSolicitud)
   })
 
   return muestraQuery
