@@ -1,14 +1,16 @@
 //src/features/solicitud/interfaces/solicitud.interface.tsx
+import { Muestra } from '../../muestras/interfaces/muestra.interface'
+
 export interface Solicitud {
   id: string
   fechaSolicitud: string
   solicitante: string
-  estado: EstadoSolicitud
-  // muestras: Muestra[];
+  estado: string
+  muestras: Muestra[]
 }
 
 export enum EstadoSolicitud {
-  PENDIENTE = 'pendiente',
-  EN_PROCESO = 'en_proceso',
-  FINALIZADA = 'finalizada'
+  PENDIENTE = 'Pendiente',
+  EN_PROCESO = 'En Proceso',
+  FINALIZADA = 'Finalizada'
 }

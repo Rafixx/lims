@@ -1,5 +1,6 @@
 // src/pages/HomePage.tsx
 import React from 'react'
+import SortableList from '../shared/components/molecules/SortableList'
 // import { useMenu } from '../contexts/MenuContext'
 // import Button from '../customComponents/atoms/Button'
 // import { MenuState } from '../contexts/MenuContext'
@@ -11,6 +12,16 @@ const HomePage: React.FC = () => {
   // const toggleMenuState = (targetState: MenuState): void => {
   //   setMenuState(menuState !== targetState ? targetState : 'inicio')
   // }
+  const elementosDisponibles = [
+    { descripcion: 'Elemento 1' },
+    { descripcion: 'Elemento 2' },
+    { descripcion: 'Elemento 3' },
+    { descripcion: 'Elemento 4' }
+  ]
+
+  const handleSortableListChange = (items: { posicion: number; valor: string }[]) => {
+    console.warn('Items actualizados:', items)
+  }
 
   return (
     <div className="p-6">
@@ -20,8 +31,9 @@ const HomePage: React.FC = () => {
         consultar resultados y más.
       </p>
       <p className="mb-6 text-gray-700">
-        {/* Aquí se muestran los datos del usuario. Actualmente el estado del menú es:{' '} */}
-        {/* <strong>{menuState}</strong> */}
+        <div className="max-w-lg mx-auto p-4">
+          <SortableList list_in={elementosDisponibles} onChange={handleSortableListChange} />
+        </div>
       </p>
     </div>
   )

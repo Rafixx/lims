@@ -2,7 +2,7 @@
 import { Proceso } from '../../proceso/interfaces/proceso.interface'
 
 export interface Estudio {
-  estudioId: string
+  id: string
   nombre: string
   estado: string
   procesos: Proceso[]

@@ -12,7 +12,7 @@ export interface LoginResponse {
 
 export const loginService = async (email: string, password: string): Promise<LoginResponse> => {
   const env_BaseURL = import.meta.env.VITE_BASE_URL
-  const response = await fetch(`${env_BaseURL}/api/login`, {
+  const response = await fetch(`${env_BaseURL}/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

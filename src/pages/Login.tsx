@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom' // O el hook de navegación que u
 import { loginService } from '../shared/services/authService'
 import { UserContext } from '../shared/contexts/UserContext'
 import Card from '../shared/components/molecules/Card'
+import Button, { ButtonVariants } from '../shared/components/atoms/Button'
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -60,13 +61,14 @@ const Login: React.FC = () => {
               required
             />
           </div>
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-primary text-white p-2 mt-2"
+            variant={ButtonVariants.PRIMARY}
+            className="w-full p-2 mt-2"
           >
             {loading ? 'Ingresando...' : 'Login'}
-          </button>
+          </Button>
         </form>
       </Card>
     </div>

@@ -10,6 +10,7 @@ import { worker } from './mocks/browser'
 import { Layout } from './shared/layouts/Layout'
 import { BrowserRouter } from 'react-router-dom'
 import { FilterProvider } from './shared/hooks/useFilter'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 // Aquí podrías condicionar el uso de MSW según una variable de entorno
 if (process.env.NODE_ENV === 'development' && import.meta.env.VITE_USE_MSW === 'true') {
@@ -29,6 +30,7 @@ createRoot(document.getElementById('root')!).render(
     <UserProvider>
       <MenuProvider>
         <QueryClientProvider client={queryClient}>
+          <ReactQueryDevtools initialIsOpen={false} />
           <BrowserRouter>
             <FilterProvider>
               <Layout>

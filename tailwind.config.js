@@ -6,25 +6,40 @@ export default {
   theme: {
     extend: {
       colors: {
+        menuText: {
+          light: 'gray-600',
+          dark: 'gray-100'
+        },
         primary: {
-          DEFAULT: '#2C3E50', // Azul oscuro elegante
-          light: '#34495E', // Variante más clara
-          dark: '#22313F' // Variante más intensa
+          DEFAULT: '#CC533D', // Naranja oscuro
+          light: '#E67E22', // Naranja claro
+          dark: '#A04000' // Naranja oscuro
         },
         secondary: {
-          DEFAULT: '#7F8C8D', // Gris azulado neutro
-          light: '#95A5A6',
-          dark: '#606F73'
+          DEFAULT: '#67BDC3', // Azul verdoso
+          light: '#7FB3D5', // Azul claro
+          dark: '#2980B9', // Azul oscuro
+          byNumber: {
+            100: '#E0F7FA'
+          }
         },
         accent: {
-          DEFAULT: '#E67E22' // Naranja apagado, con carácter sin ser estridente
+          DEFAULT: '#F2AD4A', // Amarillo
+          light: '#F8C471', // Amarillo claro
+          dark: '#F39C12', // Amarillo oscuro
+          byNumber: {
+            100: '#FFF3E0'
+          }
+        },
+        white: {
+          DEFAULT: '#F9FCFB'
         },
         estados: {
           default: {
             200: '#BFC9CA',
             800: '#95A5A6'
           },
-          pendiente: {
+          Pendiente: {
             200: '#F8C471',
             800: '#F39C12'
           },
@@ -37,6 +52,10 @@ export default {
             800: '#27AE60'
           },
           completado: {
+            200: '#BB8FCE',
+            800: '#8E44AD'
+          },
+          Finalizada: {
             200: '#BB8FCE',
             800: '#8E44AD'
           }
