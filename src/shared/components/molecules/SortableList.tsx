@@ -1,6 +1,6 @@
 //src/shared/components/molecules/SortableList.tsx
 import React, { useState } from 'react'
-import { FiPlus, FiMinus } from 'react-icons/fi'
+import { FiPlus, FiMinus, FiArrowDown } from 'react-icons/fi'
 import Button, { ButtonVariants } from '../atoms/Button'
 import { animations } from '@formkit/drag-and-drop'
 import { useDragAndDrop } from '@formkit/drag-and-drop/react'
@@ -86,13 +86,16 @@ const SortableList: React.FC<SortableListProps> = ({
           disabled={!selectedOption}
           className="ml-3"
         >
-          <FiPlus className="h-5 w-5" />
+          <FiArrowDown className="h-5 w-5" />
         </Button>
       </div>
       <ul
         ref={parentRef}
-        className="mt-4 space-y-2 w-full p-2 border border-gray-200 rounded bg-white"
+        className="mt-4 space-y-2 w-full p-2 border border-gray-300 rounded-lg min-h-12"
       >
+        {dndItems.length === 0 && (
+          <li className="text-center text-gray-500">No hay elementos en la lista</li>
+        )}
         {dndItems.map(item => (
           <li
             className="flex items-center justify-between p-2 bg-gray-100 rounded shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-lg cursor-move"

@@ -56,14 +56,14 @@ export const menuConfig: MenuItem[] = [
     ]
   },
   {
-    id: 'workList',
+    id: 'listasTrabajo',
     label: 'Listas de trabajo',
     children: [
       {
-        id: 'wl_tecnicas',
+        id: 'listasTrabajo',
         // icon: <FiLayers size={20} />,
         label: 'Listas de trabajo de técnicas',
-        to: '/wl/tecnicas'
+        to: '/listasTrabajo'
       }
     ]
   },
@@ -76,6 +76,18 @@ export const menuConfig: MenuItem[] = [
         // icon: <FiBarChart2 size={20} />,
         label: 'Aparatos',
         to: '/catalogo/aparatos'
+      },
+      {
+        id: 'pipetas',
+        // icon: <FiBarChart2 size={20} />,
+        label: 'Pipetas',
+        to: '/catalogo/pipetas'
+      },
+      {
+        id: 'reactivos',
+        // icon: <FiBarChart2 size={20} />,
+        label: 'Reactivos',
+        to: '/catalogo/reactivos'
       },
       {
         id: 'usuarios',

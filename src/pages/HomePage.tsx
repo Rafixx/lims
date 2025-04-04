@@ -1,26 +1,42 @@
 // src/pages/HomePage.tsx
-import React from 'react'
-import SortableList from '../shared/components/molecules/SortableList'
-// import { useMenu } from '../contexts/MenuContext'
-// import Button from '../customComponents/atoms/Button'
-// import { MenuState } from '../contexts/MenuContext'
+import { useState } from 'react'
+import { DropdownWithAdd } from '../shared/components/organisms/DropdownAddForm'
+import { FieldConfig } from '../shared/components/molecules/FormBasic'
+import { DropdownOption } from '../shared/components/atoms/Dropdown'
 
 const HomePage: React.FC = () => {
-  // const { menuState, setMenuState } = useMenu()
+  const [selectedValue, setSelectedValue] = useState<string>('')
+  const [options, setOptions] = useState<DropdownOption[]>([
+    { value: 'op1', label: 'Opción 1' },
+    { value: 'op2', label: 'Opción 2' }
+  ])
 
-  // // Función genérica para alternar el menú hacia un estado dado o volver a 'inicio'
-  // const toggleMenuState = (targetState: MenuState): void => {
-  //   setMenuState(menuState !== targetState ? targetState : 'inicio')
-  // }
-  const elementosDisponibles = [
-    { descripcion: 'Elemento 1' },
-    { descripcion: 'Elemento 2' },
-    { descripcion: 'Elemento 3' },
-    { descripcion: 'Elemento 4' }
+  const handleDropdownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedValue(e.target.value)
+  }
+
+  const handleAddOption = (newOption: DropdownOption) => {
+    setOptions(prevOptions => [...prevOptions, newOption])
+  }
+
+  const formFields: FieldConfig[] = [
+    {
+      name: 'value',
+      label: 'Valor',
+      type: 'text',
+      placeholder: 'Ingresa el valor'
+    },
+    {
+      name: 'label',
+      label: 'Etiqueta',
+      type: 'text',
+      placeholder: 'Ingresa la etiqueta'
+    }
   ]
 
-  const handleSortableListChange = (items: { posicion: number; valor: string }[]) => {
-    console.warn('Items actualizados:', items)
+  const formDefaultValues = {
+    value: '',
+    label: ''
   }
 
   return (
@@ -30,11 +46,19 @@ const HomePage: React.FC = () => {
         Este es el sistema de gestión de información de laboratorio. Aquí podrás gestionar muestras,
         consultar resultados y más.
       </p>
-      <p className="mb-6 text-gray-700">
-        <div className="max-w-lg mx-auto p-4">
-          <SortableList list_in={elementosDisponibles} onChange={handleSortableListChange} />
-        </div>
-      </p>
+      <div className="max-w-lg mx-auto p-4">
+        <h1>Ejemplo de uso de DropdownWithAdd</h1>
+        <DropdownWithAdd
+          id="example-dropdown"
+          label="Selecciona una opción"
+          options={options}
+          value={selectedValue}
+          onChange={handleDropdownChange}
+          onAdd={handleAddOption}
+          formFields={formFields}
+          formDefaultValues={formDefaultValues}
+        />
+      </div>
     </div>
   )
 }
