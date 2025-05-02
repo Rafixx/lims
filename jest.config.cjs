@@ -1,14 +1,15 @@
 // jest.config.cjs
 /* global module */
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'jest-fixed-jsdom',
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  // Mueve la configuración de ts-jest al campo transform
+  testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.json' }]
+    '^.+\\.(ts|tsx)$': 'ts-jest'
   },
   moduleNameMapper: {
-    '\\.(css|less)$': 'identity-obj-proxy'
-  }
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy'
+  },
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  testMatch: ['**/src/**/*.test.ts?(x)'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/']
 }

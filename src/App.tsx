@@ -1,9 +1,3 @@
-// src/App.tsx
-import React from 'react'
-import MyRoutes from './shared/routes/routes'
-
-const App: React.FC = () => {
-  return <MyRoutes />
+export const App = () => {
+  return <div className="text-center text-2xl text-gray-700">Bienvenido a LIMS</div>
 }
-
-export default App

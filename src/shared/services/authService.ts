@@ -1,26 +1,21 @@
-// src/services/authService.ts
-export interface LoginResponse {
-  token: string
-  user: {
-    id: string
-    nombre: string
-    email: string
-    rol: string
-    fechaCreacion: string
-  }
+import { apiClient } from './apiClient'
+import { TOKEN_KEY } from '../constants'
+
+export interface LoginPayload {
+  username: string
+  password: string
 }
 
-export const loginService = async (email: string, password: string): Promise<LoginResponse> => {
-  const env_BaseURL = import.meta.env.VITE_BASE_URL
-  const response = await fetch(`${env_BaseURL}/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ email, password })
-  })
-  if (!response.ok) {
-    throw new Error('Credenciales inválidas')
-  }
-  return response.json()
+export interface LoginResponse {
+  token: string
+}
+
+export const login = async (data: LoginPayload): Promise<LoginResponse> => {
+  console.warn('Data:', data)
+  const response = await apiClient.post<LoginResponse>('/login', data)
+  return response.data
+}
+export const logout = async (): Promise<void> => {
+  await apiClient.post('/logout')
+  localStorage.removeItem(TOKEN_KEY)
 }

@@ -1,8 +1,18 @@
-// src/shared/services/apiClient.ts
 import axios from 'axios'
-export const env_BaseURL = import.meta.env.VITE_BASE_URL
-//export const env_BaseURL = 'http://localhost:3000'
+import { BASE_URL } from '../constants'
+import { TOKEN_KEY } from '../constants'
 
 export const apiClient = axios.create({
-  baseURL: env_BaseURL
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+apiClient.interceptors.request.use(config => {
+  const token = localStorage.getItem(TOKEN_KEY)
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
 })

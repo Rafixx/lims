@@ -1,57 +1,56 @@
-// src/contexts/UserContext.tsx
-import { createContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { jwtDecode } from 'jwt-decode'
+import { TOKEN_KEY } from '../constants'
 
-export interface User {
-  id: string
-  nombre: string
-  email: string
-  rol: string
-  fechaCreacion: string
+interface DecodedToken {
+  username: string
+  email?: string
+  id_rol?: number
+  exp?: number
 }
 
 interface UserContextType {
-  token: string | null
-  user: User | null
-  login: (token: string, user: User) => void
+  user: DecodedToken | null
+  login: (token: string) => void
   logout: () => void
 }
 
-export const UserContext = createContext<UserContextType>({
-  token: null,
-  user: null,
-  login: () => {},
-  logout: () => {}
-})
+const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setToken] = useState<string | null>(null)
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<DecodedToken | null>(null)
 
-  // Al iniciar, cargar el token del sessionStorage (o localStorage)
-  useEffect(() => {
-    const storedToken = sessionStorage.getItem('token')
-    const storedUser = sessionStorage.getItem('user')
-    if (storedToken && storedUser) {
-      setToken(storedToken)
-      setUser(JSON.parse(storedUser))
+  const login = (token: string) => {
+    localStorage.setItem(TOKEN_KEY, token)
+    try {
+      const decoded: DecodedToken = jwtDecode(token)
+      if (!decoded.exp || decoded.exp * 1000 > Date.now()) {
+        setUser(decoded)
+      }
+    } catch {
+      setUser(null)
     }
-  }, [])
-
-  const login = (token: string, user: User) => {
-    setToken(token)
-    setUser(user)
-    sessionStorage.setItem('token', token)
-    sessionStorage.setItem('user', JSON.stringify(user))
   }
 
   const logout = () => {
-    setToken(null)
+    localStorage.removeItem(TOKEN_KEY)
     setUser(null)
-    sessionStorage.removeItem('token')
-    sessionStorage.removeItem('user')
   }
 
-  return (
-    <UserContext.Provider value={{ token, user, login, logout }}>{children}</UserContext.Provider>
-  )
+  useEffect(() => {
+    const token = localStorage.getItem(TOKEN_KEY)
+    if (token) {
+      login(token)
+    }
+  }, [])
+
+  return <UserContext.Provider value={{ user, login, logout }}>{children}</UserContext.Provider>
+}
+
+export const useUser = () => {
+  const context = useContext(UserContext)
+  if (!context) {
+    throw new Error('useUser debe usarse dentro de UserProvider')
+  }
+  return context
 }

@@ -1,13 +1,15 @@
-// src/setupTests.ts
-
 import '@testing-library/jest-dom'
-// import { server } from './mocks/server'
-// Configura el servidor MSW con los manejadores de petición.
-import { server } from './mocks/server'
+import { TextEncoder, TextDecoder } from 'util'
 
-// Inicia MSW antes de correr cualquier test.
-beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }))
-// Reinicia los handlers después de cada test para que no haya efectos secundarios.
-afterEach(() => server.resetHandlers())
-// Cierra el servidor MSW al terminar los tests.
-afterAll(() => server.close())
+// Sin usar `namespace` ni `any`, y sin redefinir interfaces
+Object.defineProperty(globalThis, 'TextEncoder', {
+  value: TextEncoder,
+  configurable: true,
+  writable: true
+})
+
+Object.defineProperty(globalThis, 'TextDecoder', {
+  value: TextDecoder,
+  configurable: true,
+  writable: true
+})

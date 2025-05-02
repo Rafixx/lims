@@ -59,7 +59,7 @@ export default [
       semi: ['error', 'never'],
       'react/react-in-jsx-scope': 'off',
       '@typescript-eslint/no-unused-vars': ['warn'],
-      'no-console': ['warn', { allow: ['warn', 'error'] }]
+      'no-console': ['error', { allow: ['warn', 'error', 'log'] }]
     }
   },
 

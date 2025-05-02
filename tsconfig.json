@@ -1,33 +1,27 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ],
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "outDir": "dist",
-    "strict": true,
+    "target": "ES2020",
+    "useDefineForClassFields": true,
     "lib": [
       "DOM",
-      "ESNext"
+      "DOM.Iterable",
+      "ES2020"
     ],
-    "jsx": "react-jsx",
-    "types": [
-      "vite/client",
-      "react",
-      "react-dom"
-    ],
-    "skipLibCheck": true
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
   },
   "include": [
-    "src"
+    "src",
+    "_old"
   ]
 }

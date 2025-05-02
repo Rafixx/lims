@@ -1,38 +1,20 @@
-//src/routes/routes.tsx
-import { Routes, Route } from 'react-router-dom'
-import NotFoundPage from '../../pages/NotFoundPage'
-// import HomePage from '../../pages/HomePage'
-import Login from '../../pages/Login'
-// import UserPage from '../../pages/UserPage'
-import { ListadoSolicitudesPage } from '../../features/listadoSolicitudes/pages/ListadoSolicitudes.page'
-import { AparatoList } from '../../features/catalogo/aparato/components/AparatoList'
-import { UsuarioList } from '../../features/usuario/components/UsuarioList'
-import { TiposResultadoTable } from '../../features/catalogo/tipoResultado/components/TipoResultadosTable'
-import { ProcesoTable } from '../../features/catalogo/proceso/components/ProcesoTable'
-import { EstudioTable } from '../../features/catalogo/estudio/components/EstudioTable'
-import HomePage from '../../pages/HomePage'
-import { ListasTrabajoPage } from '../../features/listasTrabajo/pages/ListasTrabajo.page'
-import { ReactivoList } from '../../features/catalogo/reactivo/components/ReactivoList'
-import { PipetaList } from '../../features/catalogo/pipeta/components/PipetaList'
+import { createBrowserRouter } from 'react-router-dom'
+import { LoginPage } from '../../pages/LoginPage'
+import { DashboardLayout } from '../../layouts/DashboardLayout'
+import { PrivateRoute } from './PrivateRoute'
+import { HomePage } from '../../features/dashboard/pages/HomePage'
+import { RegisterPage } from '../../pages/RegisterPage'
 
-const MyRoutes: React.FC = () => {
-  return (
-    <Routes>
-      <Route path="*" element={<NotFoundPage />} /> {/* Ruta catch-all para 404 */}
-      <Route index element={<HomePage />} />
-      <Route path="/home" element={<HomePage />} />
-      <Route path="login" element={<Login />} />
-      <Route path="solicitudes/muestras" element={<ListadoSolicitudesPage />} />
-      <Route path="catalogo/aparatos" element={<AparatoList />} />
-      <Route path="catalogo/reactivos" element={<ReactivoList />} />
-      <Route path="catalogo/pipetas" element={<PipetaList />} />
-      <Route path="catalogo/usuarios" element={<UsuarioList />} />
-      <Route path="catalogo/tiposResultado" element={<TiposResultadoTable />} />
-      <Route path="catalogo/procesos" element={<ProcesoTable />} />
-      <Route path="catalogo/estudios" element={<EstudioTable />} />
-      <Route path="listasTrabajo" element={<ListasTrabajoPage />} />
-    </Routes>
-  )
-}
-
-export default MyRoutes
+export const router = createBrowserRouter([
+  { path: '/login', element: <LoginPage /> },
+  { path: '/register', element: <RegisterPage /> },
+  {
+    path: '/',
+    element: (
+      <PrivateRoute>
+        <DashboardLayout />
+      </PrivateRoute>
+    ),
+    children: [{ path: 'dashboard', element: <HomePage /> }]
+  }
+])
