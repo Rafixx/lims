@@ -1,9 +1,10 @@
 import { createBrowserRouter } from 'react-router-dom'
-import { LoginPage } from '../../pages/LoginPage'
-import { DashboardLayout } from '../../layouts/DashboardLayout'
+import { LoginPage } from '@/features/auth/pages/LoginPage'
+import { RegisterPage } from '@/features/auth/pages/RegisterPage'
+import { DashboardLayout } from '@/layouts/DashboardLayout'
 import { PrivateRoute } from './PrivateRoute'
-import { HomePage } from '../../features/dashboard/pages/HomePage'
-import { RegisterPage } from '../../pages/RegisterPage'
+import { HomePage } from '@/features/dashboard/pages/HomePage'
+import { SolicitudesPage } from '@/features/solicitudes/pages/SolicitudesPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -15,6 +16,9 @@ export const router = createBrowserRouter([
         <DashboardLayout />
       </PrivateRoute>
     ),
-    children: [{ path: 'dashboard', element: <HomePage /> }]
+    children: [
+      { path: 'dashboard', element: <HomePage /> },
+      { path: 'solicitudes', element: <SolicitudesPage /> }
+    ]
   }
 ])

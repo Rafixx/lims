@@ -1,4 +1,4 @@
-import { DashboardCard } from '../../../components/molecules/DashboardCard'
+import { DashboardCard } from '@/shared/components/molecules/DashboardCard'
 
 export const HomePage = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom'
-import { Sidebar } from '../components/organisms/Sidebar'
+import { Sidebar } from '../shared/components/organisms/Sidebar'
 import { useUser } from '../shared/contexts/UserContext'
 import { useNavigate } from 'react-router-dom'
 
