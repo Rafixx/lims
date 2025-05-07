@@ -1,12 +1,25 @@
 import { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
-import { TOKEN_KEY } from '../constants'
+import { useUser } from '@/shared/contexts/UserContext'
 
 interface Props {
   children: ReactNode
 }
 
 export const PrivateRoute = ({ children }: Props) => {
-  const token = localStorage.getItem(TOKEN_KEY)
-  return token ? children : <Navigate to="/login" />
+  const { user, loading } = useUser()
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen text-gray-500">
+        Cargando sesión...
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <Navigate to="/login" />
+  }
+
+  return children
 }

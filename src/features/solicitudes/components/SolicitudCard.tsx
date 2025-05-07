@@ -1,64 +1,74 @@
-import { format, isValid, parseISO } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { useState } from 'react'
 import { Solicitud } from '@/features/solicitudes/interfaces/solicitud.interface'
+import { MuestraItem } from './MuestraItem'
+import { ChevronDown, Edit, Trash2 } from 'lucide-react'
+import { IconButton } from '@/shared/components/molecules/IconButton'
+import { Card } from '@/shared/components/molecules/Card'
 
 interface Props {
   solicitud: Solicitud
-  onEdit: (solicitud: Solicitud) => void
-  onDelete: (solicitud: Solicitud) => void
+  onEdit?: (s: Solicitud) => void
+  onDelete?: (s: Solicitud) => void
 }
 
 export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
-  const parsedDate = solicitud.f_creacion ? parseISO(solicitud.f_creacion) : null
-  const formattedDate =
-    parsedDate && isValid(parsedDate)
-      ? format(parsedDate, 'PP', { locale: es })
-      : 'Fecha no disponible'
+  const [expanded, setExpanded] = useState(false)
+
+  const toggleExpand = () => setExpanded(prev => !prev)
 
   return (
-    <div className="bg-white shadow rounded p-4 border hover:ring-2 hover:ring-blue-200 transition">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="text-lg font-semibold text-gray-800">
-          Solicitud #{solicitud.num_solicitud}
-        </h3>
-        <span className="text-sm text-gray-500">{formattedDate}</span>
+    <Card>
+      <div onClick={toggleExpand} className="flex justify-between items-start cursor-pointer">
+        <div>
+          <h3 className="text-lg font-semibold text-primary">
+            Solicitud #{solicitud.num_solicitud}
+          </h3>
+          <p className="text-sm text-gray-600">Cliente: {solicitud.cliente?.nombre}</p>
+          <p className="text-sm text-gray-600">Prueba: {solicitud.prueba?.prueba}</p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          {solicitud.muestra && solicitud.muestra.length > 0 && (
+            <ChevronDown
+              className={`w-4 h-4 transform transition-transform duration-200 ${
+                expanded ? 'rotate-180' : ''
+              }`}
+            />
+          )}
+
+          {onEdit && (
+            <IconButton
+              onClick={e => {
+                e.stopPropagation()
+                onEdit(solicitud)
+              }}
+              title="Editar solicitud"
+              icon={<Edit className="w-4 h-4 text-blue-600" />}
+              effect="scale"
+            />
+          )}
+
+          {onDelete && (
+            <IconButton
+              onClick={e => {
+                e.stopPropagation()
+                onDelete(solicitud)
+              }}
+              title="Eliminar solicitud"
+              icon={<Trash2 className="w-4 h-4 text-red-600" />}
+              effect="scale"
+            />
+          )}
+        </div>
       </div>
 
-      <p className="text-sm text-gray-600 mb-1">
-        Estado: <span className="font-medium">{solicitud.estado_solicitud}</span>
-      </p>
-
-      <p className="text-sm text-gray-600 mb-1">
-        Cliente: <span className="font-medium">{solicitud.cliente?.nombre ?? 'No disponible'}</span>
-      </p>
-
-      <p className="text-sm text-gray-600 mb-1">
-        Prueba: <span className="font-medium">{solicitud.prueba?.prueba ?? 'No disponible'}</span>
-      </p>
-      <p className="text-sm text-gray-600 mb-1">
-        Fecha de entrada:{' '}
-        <span className="font-medium">
-          {solicitud.f_entrada
-            ? isValid(parseISO(solicitud.f_entrada))
-              ? format(parseISO(solicitud.f_entrada), 'PP', { locale: es })
-              : 'Fecha no válida'
-            : 'No disponible'}
-        </span>
-      </p>
-      <div className="flex justify-end gap-3 mt-4">
-        <button
-          onClick={() => onEdit(solicitud)}
-          className="text-sm px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-        >
-          Editar
-        </button>
-        <button
-          onClick={() => onDelete(solicitud)}
-          className="text-sm px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Eliminar
-        </button>
-      </div>
-    </div>
+      {expanded && solicitud.muestra && solicitud.muestra?.length > 0 && (
+        <div className="mt-4 space-y-2 ml-4 border-l-2 pl-4 border-muted">
+          {solicitud.muestra.map(m => (
+            <MuestraItem key={m.id_muestra} muestra={m} />
+          ))}
+        </div>
+      )}
+    </Card>
   )
 }

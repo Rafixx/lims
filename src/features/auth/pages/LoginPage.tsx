@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { login as loginApi } from '@/shared/services/authService'
 import { useUser } from '@/shared/contexts/UserContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { Button } from '@/shared/components/molecules/Button'
 
 // Esquema de validación
 const loginSchema = z.object({
@@ -75,13 +76,9 @@ export const LoginPage = () => {
         {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
       </div>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-      >
+      <Button type="submit" disabled={isSubmitting} className="w-full">
         {isSubmitting ? 'Entrando...' : 'Entrar'}
-      </button>
+      </Button>
       {/* {loginError && <p className="text-red-600 text-sm mt-2">{loginError}</p>} */}
     </form>
   )

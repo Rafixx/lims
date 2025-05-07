@@ -6,6 +6,7 @@ interface NuevaSolicitudDTO {
   id_cliente: number
   id_prueba: number
   f_creacion: string
+  created_by: number
 }
 
 export const useCreateSolicitud = () => {

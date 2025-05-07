@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { createUser } from '@/shared/services/userService'
+import { Button } from '@/shared/components/molecules/Button'
 
 // Validación de campos según backend
 const schema = z.object({
@@ -89,13 +90,9 @@ export const RegisterPage = () => {
         {errors.id_rol && <p className="text-red-500 text-sm">{errors.id_rol.message}</p>}
       </div>
 
-      <button
-        type="submit"
-        className="bg-green-600 text-white py-2 w-full rounded hover:bg-green-700 disabled:opacity-50"
-        disabled={isSubmitting}
-      >
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? 'Registrando...' : 'Registrar'}
-      </button>
+      </Button>
     </form>
   )
 }

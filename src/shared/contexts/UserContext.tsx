@@ -3,9 +3,9 @@ import { jwtDecode } from 'jwt-decode'
 import { TOKEN_KEY } from '../constants'
 
 interface DecodedToken {
+  id: number
   username: string
-  email?: string
-  id_rol?: number
+  rol_name: string
   exp?: number
 }
 
@@ -13,12 +13,14 @@ interface UserContextType {
   user: DecodedToken | null
   login: (token: string) => void
   logout: () => void
+  loading: boolean
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<DecodedToken | null>(null)
+  const [loading, setLoading] = useState(true)
 
   const login = (token: string) => {
     localStorage.setItem(TOKEN_KEY, token)
@@ -42,9 +44,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     if (token) {
       login(token)
     }
+    setLoading(false)
   }, [])
 
-  return <UserContext.Provider value={{ user, login, logout }}>{children}</UserContext.Provider>
+  return (
+    <UserContext.Provider value={{ user, login, logout, loading }}>{children}</UserContext.Provider>
+  )
 }
 
 export const useUser = () => {
