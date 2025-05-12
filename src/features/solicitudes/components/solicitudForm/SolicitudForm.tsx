@@ -59,17 +59,6 @@ export const SolicitudForm = ({ solicitud, onClose }: SolicitudFormProps) => {
       setIdPruebaSeleccionada(solicitud.id_prueba)
       setIdClienteSeleccionado(solicitud.id_cliente)
       setIdPacienteSeleccionado(solicitud.id_paciente)
-      const tecnicasProc =
-        solicitud.muestra
-          ?.flatMap(muestra =>
-            muestra.tecnicas?.map(tc => ({
-              id: tc.id_tecnica,
-              tecnica_proc: tc.tecnica_proc.tecnica_proc
-            }))
-          )
-          .filter(Boolean) ?? []
-
-      queryClient.setQueryData(['tecnicasPorPrueba', solicitud.id_prueba], tecnicasProc)
     }
   }, [solicitud, reset])
 
@@ -144,6 +133,7 @@ export const SolicitudForm = ({ solicitud, onClose }: SolicitudFormProps) => {
             id_cliente={idClienteSeleccionado}
             id_prueba={idPruebaSeleccionada}
             id_paciente={idPacienteSeleccionado}
+            id_solicitud={solicitud?.id_solicitud}
           />
         </aside>
       )}

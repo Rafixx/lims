@@ -2,20 +2,36 @@
 import { useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/shared/services/apiClient'
 
-interface Tecnica {
+interface Tecnicas {
   id: number
   tecnica_proc: string
 }
 
-export const useTecnicasPorPrueba = (isEditing: boolean = false, pruebaId?: number) => {
-  return useQuery<Tecnica[], Error>({
+export const useTecnicas = (pruebaId?: number, solicitudId?: number) => {
+  return solicitudId ? useTecnicaPorSolicitud(solicitudId) : useTecnicasPorPrueba(pruebaId)
+}
+
+export const useTecnicasPorPrueba = (pruebaId?: number) => {
+  return useQuery<Tecnicas[], Error>({
     queryKey: ['tecnicasPorPrueba', pruebaId],
     queryFn: async () => {
       if (!pruebaId) return []
-      if (isEditing) return []
       const response = await apiClient.get(`/pruebas/${pruebaId}/tecnicas`)
       return response.data
     },
     enabled: !!pruebaId
+  })
+}
+
+export const useTecnicaPorSolicitud = (solicitudId?: number) => {
+  return useQuery<Tecnicas[], Error>({
+    queryKey: ['tecnicasPorSolicitud', solicitudId],
+    queryFn: async () => {
+      if (!solicitudId) return []
+      const response = await apiClient.get(`/tecnicas/solicitud/${solicitudId}`)
+      console.log('tecnicas por solicitud', response.data)
+      return response.data
+    },
+    enabled: !!solicitudId
   })
 }

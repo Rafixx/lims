@@ -1,28 +1,34 @@
 // src/features/solicitudes/components/solicitudForm/SolicitudAsidePreview.tsx
 import { useState } from 'react'
 import { useCliente } from '../../hooks/useCliente'
-import { useTecnicasPorPrueba } from '../../hooks/useTecnicasPorPrueba'
+import {
+  useTecnicaPorSolicitud,
+  useTecnicas,
+  useTecnicasPorPrueba
+} from '../../hooks/useTecnicasPorPrueba'
 import { usePaciente } from '../../hooks/usePaciente'
 import { Card } from '@/shared/components/molecules/Card'
 import { IconButton } from '@/shared/components/molecules/IconButton'
 import { List } from 'lucide-react'
 import { Modal } from '@/shared/components/molecules/Modal'
 import { SolicitudForm_TecnicaList } from './SolicitudForm_TecnicaList'
+import { Tecnica_proc } from '../../interfaces/solicitud.interface'
 
 interface Props {
   id_cliente?: number
   id_prueba?: number
   id_paciente?: number
+  id_solicitud?: number
 }
 
-export const SolicitudAsidePreview = ({ id_cliente, id_prueba, id_paciente }: Props) => {
+export const SolicitudAsidePreview = ({
+  id_cliente,
+  id_prueba,
+  id_paciente,
+  id_solicitud
+}: Props) => {
   const [modalOpen, setModalOpen] = useState(false)
-  const isEditing = !!id_prueba
-  console.log('esta editando? :', isEditing)
-  const { data: tecnicas = [], isLoading: loadingTecnicas } = useTecnicasPorPrueba(
-    isEditing,
-    id_prueba
-  )
+  const { data: tecnicas = [], isLoading: loadingTecnicas } = useTecnicas(id_prueba, id_solicitud)
   const { data: clienteData } = useCliente(id_cliente)
   const { data: pacienteData } = usePaciente(id_paciente)
 
