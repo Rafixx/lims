@@ -43,7 +43,7 @@ export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
                 onEdit(solicitud)
               }}
               title="Editar solicitud"
-              icon={<Edit className="w-4 h-4 text-blue-600" />}
+              icon={<Edit className="w-4 h-4 text-actions" />}
               effect="scale"
             />
           )}
@@ -55,7 +55,7 @@ export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
                 onDelete(solicitud)
               }}
               title="Eliminar solicitud"
-              icon={<Trash2 className="w-4 h-4 text-red-600" />}
+              icon={<Trash2 className="w-4 h-4 text-danger" />}
               effect="scale"
             />
           )}

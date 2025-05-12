@@ -1,3 +1,4 @@
+// src/shared/components/molecules/Modal.tsx
 import { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Button } from '@/shared/components/molecules/Button'
@@ -7,14 +8,25 @@ interface ModalProps {
   title: string
   onClose: () => void
   children: ReactNode
+  widthClass?: string // Ej: 'w-[600px]' o 'w-full max-w-lg'
+  heightClass?: string // Ej: 'h-auto', 'h-[400px]', 'max-h-[90vh]'...
 }
 
-export const Modal = ({ isOpen, title, onClose, children }: ModalProps) => {
+export const Modal = ({
+  isOpen,
+  title,
+  onClose,
+  children,
+  widthClass = 'w-full max-w-lg',
+  heightClass = 'max-h-[90vh]'
+}: ModalProps) => {
   if (!isOpen) return null
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded shadow-lg w-full max-w-4xl relative my-20">
+      <div
+        className={`bg-white p-6 rounded shadow-lg relative overflow-y-auto ${widthClass} ${heightClass}`}
+      >
         <Button
           onClick={onClose}
           variant="dark_ghost"

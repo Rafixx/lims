@@ -17,11 +17,11 @@ export const MuestraItem = ({ muestra }: Props) => {
             <span className="font-semibold">Código externo:</span> {muestra.codigo_externo}
           </p>
           <p>
-            <span className="font-semibold">Tipo de muestra:</span>{' '}
+            <span className="font-semibold">Tipo de muestra:</span>
             {muestra.tipo_muestra?.tipo_muestra}
           </p>
           <p>
-            <span className="font-semibold">Técnico responsable:</span>{' '}
+            <span className="font-semibold">Técnico responsable:</span>
             {muestra.tecnico_resp?.nombre ?? 'Sin asignar'}
           </p>
         </div>

@@ -13,7 +13,8 @@ export default {
         base: '#F9FCFB',
         danger: '#CC533D',
         warning: '#F2AD4A',
-        pink: '#FFCFD2'
+        pink: '#FFCFD2',
+        actions: '#2563EB'
       }
     }
   },

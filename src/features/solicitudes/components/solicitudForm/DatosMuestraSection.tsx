@@ -1,25 +1,18 @@
 // src/features/solicitudes/components/solicitudForm/DatosMuestraSection.tsx
 import { UseFormRegister } from 'react-hook-form'
-import { CreateSolicitudDTO } from '@/features/solicitudes/interfaces/solicitud.interface'
+import {
+  CreateSolicitudDTO,
+  CreateSolicitudFormValues
+} from '@/features/solicitudes/interfaces/solicitud.interface'
 import { FormField } from '@/shared/components/molecules/FormField'
 
 interface Props {
-  register: UseFormRegister<CreateSolicitudDTO>
+  register: UseFormRegister<CreateSolicitudFormValues>
 }
 
 export const DatosMuestraSection = ({ register }: Props) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <FormField
-        id="id_centro_externo"
-        label="Centro externo (ID)"
-        inputProps={{ ...register('id_centro_externo'), type: 'number', min: 0 }}
-      />
-      <FormField
-        id="id_criterio_val"
-        label="Criterio validación (ID)"
-        inputProps={{ ...register('id_criterio_val'), type: 'number', min: 0 }}
-      />
       <FormField
         id="f_entrada"
         label="Fecha de entrada"

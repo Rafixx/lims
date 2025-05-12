@@ -11,6 +11,7 @@ export interface Tecnico {
 }
 
 export interface Tecnica_proc {
+  id: number
   tecnica_proc: string
 }
 
@@ -39,9 +40,24 @@ export interface Muestra {
 export interface Solicitud {
   id_solicitud: number
   num_solicitud: string
-  f_creacion: string
-  estado_solicitud: string
+  id_paciente: number
+  id_cliente: number
+  id_prueba: number
+  tecnicas?: Tecnica[]
+  id_tipo_muestra: number
+  condiciones_envio?: string
+  tiempo_hielo?: string
+  id_ubicacion?: number
+  id_centro_externo?: number
+  id_criterio_val?: number
   f_entrada: string
+  f_compromiso?: string
+  f_entrega?: string
+  f_resultado?: string
+  f_toma?: string
+  f_recepcion?: string
+  f_destruccion?: string
+  f_devolucion?: string
   cliente?: {
     id: number
     nombre: string
@@ -51,6 +67,8 @@ export interface Solicitud {
     prueba: string
   }
   muestra?: Muestra[]
+  estado_solicitud?: string
+  created_by?: number
   updated_by: number
 }
 
@@ -59,20 +77,21 @@ export interface CreateSolicitudDTO {
   id_paciente: number
   id_cliente: number
   id_prueba: number
+  tecnicas?: Tecnica[]
   id_tipo_muestra: number
+  condiciones_envio?: string
+  tiempo_hielo?: string
+  id_ubicacion?: number
+  id_centro_externo?: number
+  id_criterio_val?: number
   f_entrada: string
-  created_by: number
   f_compromiso?: string
   f_entrega?: string
   f_resultado?: string
-  condiciones_envio?: string
-  tiempo_hielo?: string
-  estado_solicitud?: string
-  id_centro_externo?: number
-  id_criterio_val?: number
-  id_ubicacion?: number
   f_toma?: string
   f_recepcion?: string
   f_destruccion?: string
   f_devolucion?: string
+  created_by?: number
+  estado_solicitud?: string
 }

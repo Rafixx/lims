@@ -99,6 +99,17 @@ export const DatosGeneralesSection = ({
         getValue={ub => ub.id}
         getLabel={ub => ub.ubicacion}
       />
+      <FormField
+        id="id_centro_externo"
+        label="Centro externo (ID)"
+        inputProps={{ ...register('id_centro_externo'), type: 'number', min: 0 }}
+      />
+      <FormField
+        id="id_criterio_val"
+        label="Criterio validación (ID)"
+        inputProps={{ ...register('id_criterio_val'), type: 'number', min: 0 }}
+      />
+
       {/* <FormField
         id="id_ubicacion"
         label="Ubicación (ID)"

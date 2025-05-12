@@ -7,11 +7,12 @@ interface Tecnica {
   tecnica_proc: string
 }
 
-export const useTecnicasPorPrueba = (pruebaId?: number) => {
+export const useTecnicasPorPrueba = (isEditing: boolean = false, pruebaId?: number) => {
   return useQuery<Tecnica[], Error>({
     queryKey: ['tecnicasPorPrueba', pruebaId],
     queryFn: async () => {
       if (!pruebaId) return []
+      if (isEditing) return []
       const response = await apiClient.get(`/pruebas/${pruebaId}/tecnicas`)
       return response.data
     },
