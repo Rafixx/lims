@@ -20,7 +20,7 @@ import { SolicitudForm_TecnicaItem } from './SolicitudForm_TecnicaItem'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
 
 interface Tecnica {
-  id: string
+  id: number
   tecnica_proc: string
 }
 
@@ -32,6 +32,7 @@ interface Props {
 export const SolicitudForm_TecnicaList = ({ tecnicas: initialTecnicas, pruebaId }: Props) => {
   const queryClient = useQueryClient()
   const [tecnicas, setTecnicas] = useState(initialTecnicas)
+  const [tecnicasDeleted, setTecnicasDeleted] = useState<Tecnica[]>([])
   const [parentRef] = useAutoAnimate()
 
   const sensors = useSensors(
@@ -56,8 +57,20 @@ export const SolicitudForm_TecnicaList = ({ tecnicas: initialTecnicas, pruebaId 
     }
   }
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     const updated = tecnicas.filter(t => t.id !== id)
+    setTecnicasDeleted([...tecnicasDeleted, tecnicas.find(t => t.id === id)!])
+    updateCache(updated)
+  }
+  // Mueve la técnica de vuelta a la lista principal
+  const handleReinsert = (id: number) => {
+    const toReinsert = tecnicasDeleted.find(t => t.id === id)
+    if (!toReinsert) return
+    const updatedDeleted = tecnicasDeleted.filter(t => t.id !== id)
+    setTecnicasDeleted(updatedDeleted)
+
+    // la añadimos al final (o donde quieras)
+    const updated = [...tecnicas, toReinsert]
     updateCache(updated)
   }
 
@@ -69,10 +82,19 @@ export const SolicitudForm_TecnicaList = ({ tecnicas: initialTecnicas, pruebaId 
             <SolicitudForm_TecnicaItem
               key={t.id}
               id={t.id}
-              onDelete={() => handleDelete(t.id)}
               label={t.tecnica_proc}
+              onDelete={() => handleDelete(t.id)}
             />
           ))}
+          {tecnicasDeleted.map(t => (
+            <SolicitudForm_TecnicaItem
+              key={t.id}
+              id={t.id}
+              label={t.tecnica_proc}
+              variant="deleted"
+              onDelete={() => handleReinsert(t.id)}
+            />
+          ))}{' '}
         </ul>
       </SortableContext>
     </DndContext>
