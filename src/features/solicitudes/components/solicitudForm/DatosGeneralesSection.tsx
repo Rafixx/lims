@@ -11,6 +11,7 @@ import { EntitySelect } from '@/shared/components/molecules/EntitySelect'
 import { useTiposMuestra } from '../../hooks/useTiposMuestra'
 import { usePacientes } from '../../hooks/usePacientes'
 import { useUbicaciones } from '../../hooks/useUbicaciones'
+import { List } from 'lucide-react'
 
 interface Props {
   register: UseFormRegister<CreateSolicitudDTO>
@@ -70,6 +71,8 @@ export const DatosGeneralesSection = ({
         getValue={pr => pr.id}
         getLabel={pr => pr.prueba}
         onChangeCapture={e => onPruebaChange?.(Number(e.target.value))}
+        // icon={<List size={16} />}
+        // onIconClick={() => console.log('Icon clicked!')}
       />
       <EntitySelect
         name="id_tipo_muestra"

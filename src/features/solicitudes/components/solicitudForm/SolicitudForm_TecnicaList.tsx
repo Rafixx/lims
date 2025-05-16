@@ -94,7 +94,7 @@ export const SolicitudForm_TecnicaList = ({ tecnicas: initialTecnicas, pruebaId 
               variant="deleted"
               onDelete={() => handleReinsert(t.id)}
             />
-          ))}{' '}
+          ))}
         </ul>
       </SortableContext>
     </DndContext>

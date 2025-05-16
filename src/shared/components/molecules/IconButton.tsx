@@ -1,8 +1,8 @@
-import { ReactNode } from 'react'
+import { ButtonHTMLAttributes, ReactNode } from 'react'
 
 type IconEffect = 'scale' | 'rotate' | 'bounce' | 'none'
 
-interface IconButtonProps {
+interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void
   icon: ReactNode
   title: string
@@ -19,6 +19,7 @@ const effectClasses: Record<IconEffect, string> = {
 
 export const IconButton = ({
   onClick,
+  type = 'button',
   icon,
   title,
   className = '',

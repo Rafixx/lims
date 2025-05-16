@@ -13,6 +13,7 @@ import { List } from 'lucide-react'
 import { Modal } from '@/shared/components/molecules/Modal'
 import { SolicitudForm_TecnicaList } from './SolicitudForm_TecnicaList'
 import { Tecnica_proc } from '../../interfaces/solicitud.interface'
+import { number } from 'zod'
 
 interface Props {
   id_cliente?: number
@@ -114,7 +115,7 @@ export const SolicitudAsidePreview = ({
         ) : (
           <SolicitudForm_TecnicaList
             pruebaId={id_prueba}
-            tecnicas={tecnicas.map(t => ({ ...t, id: String(t.id) }))}
+            tecnicas={tecnicas.map(t => ({ ...t, id: Number(t.id) }))}
           />
         )}
       </Modal>
