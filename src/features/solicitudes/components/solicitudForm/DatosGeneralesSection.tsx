@@ -1,9 +1,6 @@
 // src/features/solicitudes/components/solicitudForm/DatosGeneralesSection.tsx
 import { Control, UseFormRegister } from 'react-hook-form'
-import {
-  CreateSolicitudDTO
-  // TipoMuestra
-} from '@/features/solicitudes/interfaces/solicitud.interface'
+import { CreateSolicitudDTO } from '@/features/solicitudes/interfaces/solicitud.interface'
 import { usePruebas } from '../../hooks/usePruebas'
 import { useClientes } from '../../hooks/useClientes'
 import { FormField } from '@/shared/components/molecules/FormField'
@@ -70,8 +67,6 @@ export const DatosGeneralesSection = ({
         getValue={pr => pr.id}
         getLabel={pr => pr.prueba}
         onChangeCapture={e => onPruebaChange?.(Number(e.target.value))}
-        // icon={<List size={16} />}
-        // onIconClick={() => console.log('Icon clicked!')}
       />
       <EntitySelect
         name="id_tipo_muestra"

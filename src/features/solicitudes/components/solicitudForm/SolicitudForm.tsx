@@ -32,6 +32,9 @@ export const SolicitudForm = ({ solicitud, onClose }: SolicitudFormProps) => {
   const [idPruebaSeleccionada, setIdPruebaSeleccionada] = useState<number | undefined>()
   const [idClienteSeleccionado, setIdClienteSeleccionado] = useState<number | undefined>()
   const [idPacienteSeleccionado, setIdPacienteSeleccionado] = useState<number | undefined>()
+  const [idSolicitudFiltrarTecnicas, setIdSolicitudFiltrarTecnicas] = useState<number | undefined>(
+    solicitud?.id_solicitud
+  )
   const { notify } = useNotification()
 
   useEffect(() => {
@@ -59,8 +62,14 @@ export const SolicitudForm = ({ solicitud, onClose }: SolicitudFormProps) => {
       setIdPruebaSeleccionada(solicitud.id_prueba)
       setIdClienteSeleccionado(solicitud.id_cliente)
       setIdPacienteSeleccionado(solicitud.id_paciente)
+      setIdSolicitudFiltrarTecnicas(solicitud.id_solicitud)
     }
   }, [solicitud, reset])
+
+  const handlePruebaChange = (id: number) => {
+    setIdPruebaSeleccionada(id)
+    setIdSolicitudFiltrarTecnicas(undefined)
+  }
 
   const onSubmit = async (data: CreateSolicitudDTO) => {
     const currentTecnicas =
@@ -106,7 +115,7 @@ export const SolicitudForm = ({ solicitud, onClose }: SolicitudFormProps) => {
                     register={register}
                     control={control}
                     onClienteChange={id => setIdClienteSeleccionado(id)}
-                    onPruebaChange={id => setIdPruebaSeleccionada(id)}
+                    onPruebaChange={id => handlePruebaChange(id)}
                     onPacienteChange={id => setIdPacienteSeleccionado(id)}
                   />
                 )
@@ -133,7 +142,7 @@ export const SolicitudForm = ({ solicitud, onClose }: SolicitudFormProps) => {
             id_cliente={idClienteSeleccionado}
             id_prueba={idPruebaSeleccionada}
             id_paciente={idPacienteSeleccionado}
-            id_solicitud={solicitud?.id_solicitud}
+            id_solicitud={idSolicitudFiltrarTecnicas}
           />
         </aside>
       )}
