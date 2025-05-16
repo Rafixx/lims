@@ -1,19 +1,13 @@
 // src/features/solicitudes/components/solicitudForm/SolicitudAsidePreview.tsx
 import { useState } from 'react'
 import { useCliente } from '../../hooks/useCliente'
-import {
-  useTecnicaPorSolicitud,
-  useTecnicas,
-  useTecnicasPorPrueba
-} from '../../hooks/useTecnicasPorPrueba'
+import { useTecnicas } from '../../hooks/useTecnicas'
 import { usePaciente } from '../../hooks/usePaciente'
 import { Card } from '@/shared/components/molecules/Card'
 import { IconButton } from '@/shared/components/molecules/IconButton'
 import { List } from 'lucide-react'
 import { Modal } from '@/shared/components/molecules/Modal'
-import { SolicitudForm_TecnicaList } from './SolicitudForm_TecnicaList'
-import { Tecnica_proc } from '../../interfaces/solicitud.interface'
-import { number } from 'zod'
+import { EditableList } from '@/shared/components/organisms/EditableList'
 
 interface Props {
   id_cliente?: number
@@ -29,7 +23,16 @@ export const SolicitudAsidePreview = ({
   id_solicitud
 }: Props) => {
   const [modalOpen, setModalOpen] = useState(false)
-  const { data: tecnicas = [], isLoading: loadingTecnicas } = useTecnicas(id_prueba, id_solicitud)
+
+  const {
+    tecnicas,
+    tecnicasDeleted,
+    isLoading: loadingTecnicas,
+    setOrder: onOrderChange,
+    deleteOne: onDelete,
+    reinsertOne: onReinsert
+  } = useTecnicas(id_prueba, id_solicitud)
+
   const { data: clienteData } = useCliente(id_cliente)
   const { data: pacienteData } = usePaciente(id_paciente)
 
@@ -113,9 +116,14 @@ export const SolicitudAsidePreview = ({
         {loadingTecnicas ? (
           <p className="text-xs text-gray-400">Cargando técnicas...</p>
         ) : (
-          <SolicitudForm_TecnicaList
-            pruebaId={id_prueba}
-            tecnicas={tecnicas.map(t => ({ ...t, id: Number(t.id) }))}
+          <EditableList
+            items={tecnicas}
+            deletedItems={tecnicasDeleted}
+            getItemId={t => t.id}
+            getItemLabel={t => t.tecnica_proc}
+            onOrderChange={onOrderChange}
+            onDelete={onDelete}
+            onReinsert={onReinsert}
           />
         )}
       </Modal>

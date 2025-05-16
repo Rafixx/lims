@@ -11,7 +11,6 @@ import { EntitySelect } from '@/shared/components/molecules/EntitySelect'
 import { useTiposMuestra } from '../../hooks/useTiposMuestra'
 import { usePacientes } from '../../hooks/usePacientes'
 import { useUbicaciones } from '../../hooks/useUbicaciones'
-import { List } from 'lucide-react'
 
 interface Props {
   register: UseFormRegister<CreateSolicitudDTO>

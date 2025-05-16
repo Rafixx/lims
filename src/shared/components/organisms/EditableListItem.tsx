@@ -5,13 +5,13 @@ import { X, GripVertical, Plus } from 'lucide-react'
 type Variant = 'default' | 'deleted'
 
 interface TecnicaItemProps {
-  id: number
+  id: number // id único de la técnica
   label: string
   onDelete: () => void // para delete o reinsert, según el variant
   variant?: Variant // controla estilo y comportamientos
 }
 
-export const SolicitudForm_TecnicaItem = ({
+export const EditableListItem = ({
   id,
   label,
   onDelete,
