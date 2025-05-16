@@ -1,122 +1,152 @@
 // src/features/solicitudes/components/solicitudForm/DatosGeneralesSection.tsx
-import { Control, UseFormRegister } from 'react-hook-form'
-import { CreateSolicitudDTO } from '@/features/solicitudes/interfaces/solicitud.interface'
-import { usePruebas } from '../../hooks/usePruebas'
-import { useClientes } from '../../hooks/useClientes'
+import { useFormContext } from 'react-hook-form'
+import { FormValues } from './SolicitudForm'
 import { FormField } from '@/shared/components/molecules/FormField'
 import { EntitySelect } from '@/shared/components/molecules/EntitySelect'
-import { useTiposMuestra } from '../../hooks/useTiposMuestra'
+import { useClientes } from '../../hooks/useClientes'
+import { usePruebas } from '../../hooks/usePruebas'
 import { usePacientes } from '../../hooks/usePacientes'
+import { useTiposMuestra } from '../../hooks/useTiposMuestra'
 import { useUbicaciones } from '../../hooks/useUbicaciones'
 
-interface Props {
-  register: UseFormRegister<CreateSolicitudDTO>
-  control: Control<CreateSolicitudDTO>
-  onClienteChange?: (clienteId: number) => void
-  onPruebaChange?: (pruebaId: number) => void
-  onPacienteChange?: (pacienteId: number) => void
-}
+export const DatosGeneralesSection = () => {
+  const {
+    control,
+    register,
+    formState: { errors }
+  } = useFormContext<FormValues>()
 
-export const DatosGeneralesSection = ({
-  register,
-  control,
-  onClienteChange,
-  onPruebaChange,
-  onPacienteChange
-}: Props) => {
-  const { data: pruebas = [] } = usePruebas()
-  const { data: clientes = [] } = useClientes()
-  const { data: tiposMuestra = [] } = useTiposMuestra()
-  const { data: pacientes = [] } = usePacientes()
-  const { data: ubicaciones = [] } = useUbicaciones()
+  // Para filtrar pruebas según el cliente
+  // const clienteSeleccionado = watch('clienteId')
+
+  // Carga de datos
+  const { data: clientes = [], isLoading: loadingClientes } = useClientes()
+  const { data: pruebas = [], isLoading: loadingPruebas } = usePruebas()
+  const { data: pacientes = [], isLoading: loadingPacientes } = usePacientes()
+  const { data: tiposMuestra = [], isLoading: loadingTipos } = useTiposMuestra()
+  const { data: ubicaciones = [], isLoading: loadingUbicaciones } = useUbicaciones()
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Nº Solicitud */}
       <FormField
         id="num_solicitud"
         label="Nº Solicitud"
-        inputProps={register('num_solicitud', { required: true })}
-      />
-      <EntitySelect
-        name="id_paciente"
-        label="Paciente"
-        control={control}
-        required
-        fetchFn={async () => pacientes} // el hook ya hizo el fetch
-        getValue={pa => pa.id}
-        getLabel={pa => pa.nombre}
-        onChangeCapture={e => onPacienteChange?.(Number(e.target.value))}
+        inputProps={{
+          ...register('num_solicitud', {
+            required: 'Obligatorio',
+            maxLength: { value: 20, message: 'Máx 20 caracteres' },
+            minLength: { value: 5, message: 'Mínimo 5 caracteres' }
+          })
+        }}
+        error={errors.num_solicitud?.message}
       />
 
+      {/* Paciente */}
+      <EntitySelect
+        name="id_paciente"
+        control={control}
+        label="Paciente"
+        options={pacientes}
+        isLoading={loadingPacientes}
+        getValue={p => p.id}
+        getLabel={p => p.nombre}
+        required
+      />
+
+      {/* Cliente */}
       <EntitySelect
         name="id_cliente"
-        label="Cliente"
         control={control}
+        label="Cliente"
+        options={clientes}
+        isLoading={loadingClientes}
+        getValue={p => p.id}
+        getLabel={p => p.nombre}
         required
-        fetchFn={async () => clientes} // el hook ya hizo el fetch
-        getValue={cl => cl.id}
-        getLabel={cl => cl.nombre}
-        onChangeCapture={e => onClienteChange?.(Number(e.target.value))}
       />
+
+      {/* Prueba (filtrada por cliente) */}
       <EntitySelect
         name="id_prueba"
-        label="Prueba"
         control={control}
+        label="Prueba"
+        options={pruebas}
+        isLoading={loadingPruebas}
+        getValue={p => p.id}
+        getLabel={p => p.prueba}
         required
-        fetchFn={async () => pruebas} // el hook ya hizo el fetch
-        getValue={pr => pr.id}
-        getLabel={pr => pr.prueba}
-        onChangeCapture={e => onPruebaChange?.(Number(e.target.value))}
       />
+
+      {/* Tipo de muestra */}
       <EntitySelect
         name="id_tipo_muestra"
-        label="Tipo de muestra"
         control={control}
-        required
-        fetchFn={async () => tiposMuestra} // el hook ya hizo el fetch
+        label="Tipo de muestra"
+        options={tiposMuestra}
+        isLoading={loadingTipos}
         getValue={tm => tm.id}
         getLabel={tm => tm.tipo_muestra}
+        required
       />
+
+      {/* Condiciones de envío */}
       <FormField
         id="condiciones_envio"
         label="Condiciones de envío"
-        inputProps={{ ...register('condiciones_envio') }}
+        inputProps={{
+          ...register('condiciones_envio'),
+          type: 'text'
+        }}
+        error={errors.condiciones_envio?.message}
       />
+
+      {/* Tiempo con hielo */}
       <FormField
         id="tiempo_hielo"
         label="Tiempo con hielo"
-        inputProps={{ ...register('tiempo_hielo') }}
+        inputProps={{
+          ...register('tiempo_hielo'),
+          type: 'text'
+        }}
+        error={errors.tiempo_hielo?.message}
       />
+
+      {/* Ubicación */}
       <EntitySelect
         name="id_ubicacion"
-        label="Ubicación"
         control={control}
-        required
-        fetchFn={async () => ubicaciones} // el hook ya hizo el fetch
+        label="Ubicación"
+        options={ubicaciones}
+        isLoading={loadingUbicaciones}
         getValue={ub => ub.id}
         getLabel={ub => ub.ubicacion}
+        required
       />
+
+      {/* Centro externo */}
       <FormField
         id="id_centro_externo"
         label="Centro externo (ID)"
-        inputProps={{ ...register('id_centro_externo'), type: 'number', min: 0 }}
+        inputProps={{
+          ...register('id_centro_externo', { valueAsNumber: true }),
+          type: 'number',
+          min: 0
+        }}
+        error={errors.id_centro_externo?.message}
       />
+
+      {/* Criterio validación */}
       <FormField
         id="id_criterio_val"
         label="Criterio validación (ID)"
-        inputProps={{ ...register('id_criterio_val'), type: 'number', min: 0 }}
+        inputProps={{
+          ...register('id_criterio_val', { valueAsNumber: true }),
+          type: 'number',
+          min: 0
+        }}
+        error={errors.id_criterio_val?.message}
       />
-
-      {/* <FormField
-        id="id_ubicacion"
-        label="Ubicación (ID)"
-        inputProps={{ ...register('id_ubicacion'), type: 'number', min: 0 }}
-      />
-      <FormField
-        id="estado_solicitud"
-        label="Estado de la solicitud"
-        inputProps={{ ...register('estado_solicitud') }}
-      /> */}
     </div>
   )
 }

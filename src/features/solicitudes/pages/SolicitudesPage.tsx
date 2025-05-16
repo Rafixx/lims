@@ -9,6 +9,8 @@ import { Plus } from 'lucide-react'
 // import { IconButton } from '@/shared/components/molecules/IconButton'
 import { Button } from '@/shared/components/molecules/Button'
 
+import { EMPTY_FORM_VALUES } from '../constants'
+
 export const SolicitudesPage = () => {
   const { data: solicitudes, isLoading, isError } = useSolicitudes()
   const deleteSolicitud = useDeleteSolicitud()
@@ -16,6 +18,10 @@ export const SolicitudesPage = () => {
 
   const [showModal, setShowModal] = useState(false)
   const [solicitudSeleccionada, setSolicitudSeleccionada] = useState<Solicitud | null>(null)
+
+  const initialFormValues = solicitudSeleccionada
+    ? { ...EMPTY_FORM_VALUES, ...solicitudSeleccionada }
+    : undefined
 
   const handleNuevaSolicitud = () => {
     setSolicitudSeleccionada(null)
@@ -72,7 +78,7 @@ export const SolicitudesPage = () => {
         heightClass="h-[650px]"
       >
         {/* <SolicitudForm /> */}
-        <SolicitudForm solicitud={solicitudSeleccionada} onClose={() => setShowModal(false)} />
+        <SolicitudForm initialValues={initialFormValues} onClose={() => setShowModal(false)} />
       </Modal>
     </div>
   )

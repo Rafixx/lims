@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react'
+// src/shared/components/molecules/EntitySelect.tsx
 import { Controller, Control, FieldValues, Path } from 'react-hook-form'
 import { IconButton } from './IconButton'
 
 interface EntitySelectProps<T, F extends FieldValues> {
   name: Path<F>
   label: string
-  fetchFn: () => Promise<T[]>
+  options: T[]
+  isLoading?: boolean
   getValue: (item: T) => string | number
   getLabel: (item: T) => string
   control: Control<F>
@@ -18,7 +19,8 @@ interface EntitySelectProps<T, F extends FieldValues> {
 export const EntitySelect = <T, F extends FieldValues>({
   name,
   label,
-  fetchFn,
+  options,
+  isLoading = false,
   getValue,
   getLabel,
   control,
@@ -27,19 +29,11 @@ export const EntitySelect = <T, F extends FieldValues>({
   onIconClick,
   onChangeCapture
 }: EntitySelectProps<T, F>) => {
-  const [options, setOptions] = useState<T[]>([])
-
-  useEffect(() => {
-    fetchFn().then(setOptions).catch(console.error)
-  }, [fetchFn])
-
   return (
     <div>
       <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
         {label}
       </label>
-
-      {/* Wrapper relativo para position:absolute */}
       <div className={icon && onIconClick ? 'flex items-center' : ''}>
         <Controller
           name={name}
@@ -49,20 +43,17 @@ export const EntitySelect = <T, F extends FieldValues>({
             <select
               {...field}
               id={name}
+              disabled={isLoading}
               className={`
                 border p-2 rounded focus:outline-none focus:ring
-                ${
-                  icon && onIconClick
-                    ? 'flex-1' // ocupa el espacio restante
-                    : 'w-full pr-10' // caso sin botón, deja espacio para absolute
-                }
+                ${icon && onIconClick ? 'flex-1' : 'w-full'}
               `}
               onChange={e => {
                 field.onChange(e)
                 onChangeCapture?.(e)
               }}
             >
-              <option value="">Selecciona una opción</option>
+              <option value="">{isLoading ? 'Cargando...' : 'Selecciona una opción'}</option>
               {options.map(item => (
                 <option key={getValue(item)} value={getValue(item)}>
                   {getLabel(item)}
@@ -71,13 +62,11 @@ export const EntitySelect = <T, F extends FieldValues>({
             </select>
           )}
         />
-
-        {/* Botón con icono posicionado a la derecha */}
         {icon && onIconClick && (
           <IconButton
             title={label}
+            type="button"
             onClick={e => {
-              // evitar que el foco/selección cambie en el select
               e.preventDefault()
               e.stopPropagation()
               onIconClick()

@@ -1,16 +1,11 @@
 // src/features/solicitudes/components/solicitudForm/DatosMuestraSection.tsx
-import { UseFormRegister } from 'react-hook-form'
-import {
-  CreateSolicitudDTO,
-  CreateSolicitudFormValues
-} from '@/features/solicitudes/interfaces/solicitud.interface'
+import { useFormContext } from 'react-hook-form'
 import { FormField } from '@/shared/components/molecules/FormField'
+import { FormValues } from './SolicitudForm'
 
-interface Props {
-  register: UseFormRegister<CreateSolicitudFormValues>
-}
+export const DatosMuestraSection = () => {
+  const { register } = useFormContext<FormValues>()
 
-export const DatosMuestraSection = ({ register }: Props) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <FormField

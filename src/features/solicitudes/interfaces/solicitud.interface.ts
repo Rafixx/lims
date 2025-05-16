@@ -77,7 +77,7 @@ export interface CreateSolicitudDTO {
   id_paciente: number
   id_cliente: number
   id_prueba: number
-  tecnicas?: Tecnica[]
+  tecnicas?: { id: number }[]
   id_tipo_muestra: number
   condiciones_envio?: string
   tiempo_hielo?: string
