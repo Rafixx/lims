@@ -1,6 +1,5 @@
 // src/features/solicitudes/components/solicitudForm/DatosGeneralesSection.tsx
 import { useFormContext } from 'react-hook-form'
-import { FormValues } from './SolicitudForm'
 import { FormField } from '@/shared/components/molecules/FormField'
 import { EntitySelect } from '@/shared/components/molecules/EntitySelect'
 import { useClientes } from '../../hooks/useClientes'
@@ -9,15 +8,20 @@ import { usePacientes } from '../../hooks/usePacientes'
 import { useTiposMuestra } from '../../hooks/useTiposMuestra'
 import { useUbicaciones } from '../../hooks/useUbicaciones'
 
-export const DatosGeneralesSection = () => {
+import { SolicitudFormValues } from '../../interfaces/form.types'
+
+interface Props {
+  index: number
+}
+
+export const DatosGeneralesSection = ({ index }: Props) => {
   const {
     control,
     register,
     formState: { errors }
-  } = useFormContext<FormValues>()
+  } = useFormContext<SolicitudFormValues>()
 
-  // Para filtrar pruebas según el cliente
-  // const clienteSeleccionado = watch('clienteId')
+  const muestraStyle = 'border border-accent'
 
   // Carga de datos
   const { data: clientes = [], isLoading: loadingClientes } = useClientes()
@@ -44,7 +48,7 @@ export const DatosGeneralesSection = () => {
 
       {/* Paciente */}
       <EntitySelect
-        name="id_paciente"
+        name={`muestra.${index}.id_paciente`}
         control={control}
         label="Paciente"
         options={pacientes}
@@ -52,6 +56,7 @@ export const DatosGeneralesSection = () => {
         getValue={p => p.id}
         getLabel={p => p.nombre}
         required
+        className={muestraStyle}
       />
 
       {/* Cliente */}
@@ -68,6 +73,7 @@ export const DatosGeneralesSection = () => {
 
       {/* Prueba (filtrada por cliente) */}
       <EntitySelect
+        // name={`muestra.${index}.id_prueba`}
         name="id_prueba"
         control={control}
         label="Prueba"
@@ -80,7 +86,7 @@ export const DatosGeneralesSection = () => {
 
       {/* Tipo de muestra */}
       <EntitySelect
-        name="id_tipo_muestra"
+        name={`muestra.${index}.id_tipo_muestra`}
         control={control}
         label="Tipo de muestra"
         options={tiposMuestra}
@@ -88,11 +94,13 @@ export const DatosGeneralesSection = () => {
         getValue={tm => tm.id}
         getLabel={tm => tm.tipo_muestra}
         required
+        className={muestraStyle}
       />
 
       {/* Condiciones de envío */}
       <FormField
-        id="condiciones_envio"
+        id={`muestra.${index}.condiciones_envio`}
+        className={muestraStyle}
         label="Condiciones de envío"
         inputProps={{
           ...register('condiciones_envio'),
@@ -103,7 +111,8 @@ export const DatosGeneralesSection = () => {
 
       {/* Tiempo con hielo */}
       <FormField
-        id="tiempo_hielo"
+        id={`muestra.${index}.tiempo_hielo`}
+        className={muestraStyle}
         label="Tiempo con hielo"
         inputProps={{
           ...register('tiempo_hielo'),
@@ -114,7 +123,7 @@ export const DatosGeneralesSection = () => {
 
       {/* Ubicación */}
       <EntitySelect
-        name="id_ubicacion"
+        name={`muestra.${index}.id_ubicacion`}
         control={control}
         label="Ubicación"
         options={ubicaciones}
@@ -122,11 +131,13 @@ export const DatosGeneralesSection = () => {
         getValue={ub => ub.id}
         getLabel={ub => ub.ubicacion}
         required
+        className={muestraStyle}
       />
 
       {/* Centro externo */}
       <FormField
-        id="id_centro_externo"
+        id={`muestra.${index}.id_centro_externo`}
+        className={muestraStyle}
         label="Centro externo (ID)"
         inputProps={{
           ...register('id_centro_externo', { valueAsNumber: true }),
@@ -138,8 +149,9 @@ export const DatosGeneralesSection = () => {
 
       {/* Criterio validación */}
       <FormField
-        id="id_criterio_val"
+        id={`muestra.${index}.id_criterio_val`}
         label="Criterio validación (ID)"
+        className={muestraStyle}
         inputProps={{
           ...register('id_criterio_val', { valueAsNumber: true }),
           type: 'number',

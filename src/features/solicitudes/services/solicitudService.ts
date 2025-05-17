@@ -1,28 +1,30 @@
 // src/features/solicitudes/services/solicitudService.ts
 
 import { apiClient } from '@/shared/services/apiClient'
-import { Solicitud, CreateSolicitudDTO } from '../interfaces/solicitud.interface'
+import { CreateSolicitudDTO } from '../interfaces/dto.types'
+import { SolicitudAPIResponse } from '../interfaces/api.types'
 
-export const getSolicitudes = async (): Promise<Solicitud[]> => {
-  const response = await apiClient.get<Solicitud[]>('/solicitudes')
+export const getSolicitudes = async (): Promise<SolicitudAPIResponse[]> => {
+  const response = await apiClient.get<SolicitudAPIResponse[]>('/solicitudes')
   return response.data
 }
 
-export const getSolicitud = async (id: number): Promise<Solicitud> => {
-  const response = await apiClient.get<Solicitud>(`/solicitudes/${id}`)
+export const getSolicitud = async (id: number): Promise<SolicitudAPIResponse> => {
+  const response = await apiClient.get<SolicitudAPIResponse>(`/solicitudes/${id}`)
   return response.data
 }
 
-export const createSolicitud = async (data: CreateSolicitudDTO): Promise<Solicitud> => {
-  const response = await apiClient.post<Solicitud>('/solicitudes', data)
+export const createSolicitud = async (data: CreateSolicitudDTO): Promise<SolicitudAPIResponse> => {
+  console.log('data justo antes de createSolicitud em SolicitudesService:', data)
+  const response = await apiClient.post<SolicitudAPIResponse>('/solicitudes', data)
   return response.data
 }
 
 export const updateSolicitud = async (
   id: number,
   data: Partial<CreateSolicitudDTO>
-): Promise<Solicitud> => {
-  const response = await apiClient.put<Solicitud>(`/solicitudes/${id}`, data)
+): Promise<SolicitudAPIResponse> => {
+  const response = await apiClient.put<SolicitudAPIResponse>(`/solicitudes/${id}`, data)
   return response.data
 }
 

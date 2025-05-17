@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useSolicitudes, useDeleteSolicitud } from '@/features/solicitudes/hooks/useSolicitudes'
-import { Solicitud } from '@/features/solicitudes/interfaces/solicitud.interface'
+import { SolicitudAPIResponse } from '../interfaces/api.types'
 import { SolicitudCard } from '@/features/solicitudes/components/SolicitudCard'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { Modal } from '@/shared/components/molecules/Modal'
@@ -9,7 +9,7 @@ import { Plus } from 'lucide-react'
 // import { IconButton } from '@/shared/components/molecules/IconButton'
 import { Button } from '@/shared/components/molecules/Button'
 
-import { EMPTY_FORM_VALUES } from '../constants'
+import { EMPTY_FORM_VALUES } from '../interfaces/form.defaults'
 
 export const SolicitudesPage = () => {
   const { data: solicitudes, isLoading, isError } = useSolicitudes()
@@ -17,7 +17,7 @@ export const SolicitudesPage = () => {
   const { notify } = useNotification()
 
   const [showModal, setShowModal] = useState(false)
-  const [solicitudSeleccionada, setSolicitudSeleccionada] = useState<Solicitud | null>(null)
+  const [solicitudSeleccionada, setSolicitudSeleccionada] = useState<SolicitudAPIResponse | null>()
 
   const initialFormValues = solicitudSeleccionada
     ? { ...EMPTY_FORM_VALUES, ...solicitudSeleccionada }
@@ -28,12 +28,12 @@ export const SolicitudesPage = () => {
     setShowModal(true)
   }
 
-  const handleEditarSolicitud = (solicitud: Solicitud) => {
+  const handleEditarSolicitud = (solicitud: SolicitudAPIResponse) => {
     setSolicitudSeleccionada(solicitud)
     setShowModal(true)
   }
 
-  const handleEliminarSolicitud = (solicitud: Solicitud) => {
+  const handleEliminarSolicitud = (solicitud: SolicitudAPIResponse) => {
     const confirmado = confirm(`¿Eliminar la solicitud #${solicitud.num_solicitud}?`)
     if (confirmado) {
       deleteSolicitud.mutate(solicitud.id_solicitud, {

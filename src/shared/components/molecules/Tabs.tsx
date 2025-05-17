@@ -24,6 +24,7 @@ export const Tabs = ({ tabs, defaultTabId }: Props) => {
         {tabs.map(tab => (
           <Button
             variant="dark_ghost"
+            type="button"
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={clsx(

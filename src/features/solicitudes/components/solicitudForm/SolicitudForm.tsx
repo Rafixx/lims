@@ -1,58 +1,49 @@
-import { useForm, FormProvider } from 'react-hook-form'
-import { useEffect } from 'react'
+import { useForm, FormProvider, SubmitHandler, useFieldArray } from 'react-hook-form'
+import { useEffect, useState } from 'react'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { useUser } from '@/shared/contexts/UserContext'
 import { useCreateSolicitud } from '../../hooks/useSolicitudes'
 import { SolicitudAsidePreview } from './SolicitudAsidePreview'
 import { DatosGeneralesSection } from './DatosGeneralesSection'
-import { CreateSolicitudDTO } from '../../interfaces/solicitud.interface'
 import { Tabs } from '@/shared/components/molecules/Tabs'
 import { DatosMuestraSection } from './DatosMuestraSection'
 import { Button } from '@/shared/components/molecules/Button'
-import { SendIcon } from 'lucide-react'
+import { Plus, SendIcon } from 'lucide-react'
 import { useTecnicas } from '../../hooks/useTecnicas'
-import { EMPTY_FORM_VALUES } from '../../constants'
+
+import { CreateSolicitudDTO } from '../../interfaces/dto.types'
+import { defaultMuestra, EMPTY_FORM_VALUES } from '../../interfaces/form.defaults'
+import { SolicitudFormValues } from '../../interfaces/form.types'
+import { mapFormValuesToDTO } from '../../interfaces/solicitud.mapper'
 
 interface Props {
-  initialValues?: Partial<FormValues>
+  initialValues?: Partial<SolicitudFormValues>
   onClose: () => void
 }
 
-export interface FormValues {
-  num_solicitud: string
-  id_paciente: number
-  id_cliente: number
-  id_prueba: number
-  id_tipo_muestra: number
-  condiciones_envio: string
-  tiempo_hielo: string
-  id_ubicacion: number
-  id_centro_externo: number
-  id_criterio_val: number
-  f_entrada: string
-  f_compromiso: string
-  f_entrega: string
-  f_resultado: string
-  f_toma: string
-  f_recepcion: string
-  f_destruccion: string
-  f_devolucion: string
-}
-
 export const SolicitudForm = ({ initialValues, onClose }: Props) => {
-  const methods = useForm<FormValues>({
+  const methods = useForm<SolicitudFormValues>({
     defaultValues: initialValues || EMPTY_FORM_VALUES
   })
 
-  const { user } = useUser()
-  const createSolicitud = useCreateSolicitud()
+  const { control, watch, handleSubmit } = methods
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'muestra'
+  })
 
+  const { mutateAsync } = useCreateSolicitud()
   const { notify } = useNotification()
+  const { user } = useUser()
 
-  const clienteId = methods.watch('id_cliente')
-  const pruebaId = methods.watch('id_prueba')
-  const pacienteId = methods.watch('id_paciente')
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  const clienteId = watch('id_cliente')
+  const pruebaId = watch('id_prueba')
+  const pacienteId = watch(`muestra.${currentIndex}.id_paciente`)
   const asideVisible = Boolean(clienteId || pruebaId || pacienteId)
+
+  const { tecnicas: currentTecnicas = [] } = useTecnicas(pruebaId)
 
   useEffect(() => {
     if (initialValues) {
@@ -60,26 +51,18 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
     }
   }, [initialValues, methods])
 
-  const { tecnicas: currentTecnicas = [] } = useTecnicas(pruebaId)
-
-  // const handlePruebaChange = (id: number) => {
-  //   setIdPruebaSeleccionada(id)
-  //   setIdSolicitudFiltrarTecnicas(undefined)
-  // }
-
-  const onSubmit = async (data: CreateSolicitudDTO) => {
-    // const currentTecnicas =
-    //   queryClient.getQueryData<Tecnica[]>(['tecnicasPorPrueba', idPruebaSeleccionada]) ?? []
-    const tecnicasIds = currentTecnicas.map(t => ({ id: t.id }))
-
-    const payload: CreateSolicitudDTO = {
-      ...data,
-      tecnicas: tecnicasIds,
-      created_by: user?.id
-    }
-
+  const handleSubmitForm: SubmitHandler<SolicitudFormValues> = async formValues => {
     try {
-      await createSolicitud.mutateAsync(payload)
+      const dtoBase = mapFormValuesToDTO(formValues)
+
+      const payload: CreateSolicitudDTO = {
+        ...dtoBase,
+        tecnicas: currentTecnicas.map(t => ({ id: t.id })),
+        created_by: user?.id ?? 0
+      }
+
+      await mutateAsync(payload)
+
       notify('Solicitud creada con éxito', 'success')
       onClose()
     } catch (error) {
@@ -88,29 +71,69 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
     }
   }
 
+  const handleAddMuestra = () => {
+    append(defaultMuestra)
+    setCurrentIndex(fields.length) // Navega a la nueva muestra
+  }
+
+  const handleRemoveMuestra = (index: number) => {
+    if (fields.length > 1) {
+      remove(index)
+      setCurrentIndex(prev => (prev === index ? 0 : prev > index ? prev - 1 : prev))
+    } else {
+      notify('No se puede eliminar la última muestra', 'error')
+    }
+  }
+
   return (
     <div className="relative flex w-full transition-all duration-300 ease-in-out">
+      <div className="mt-10 gap-4 flex flex-col w-24">
+        {fields.map((_, index) => (
+          <Button
+            type="button"
+            key={index}
+            className={`border-r-2 border-accent w-12 p-3 mr-3 text-xs hover:cursor-pointer ${currentIndex === index ? 'bg-accent text-white font-bold' : 'hover:bg-accent hover:text-white'}`}
+            onClick={() => setCurrentIndex(index)}
+          >
+            M-{index + 1}
+          </Button>
+        ))}
+        {fields.length < 3 && (
+          <Button
+            type="button"
+            className="w-12 p-3 mr-3 text-md hover:bg-primary hover:text-white"
+            onClick={handleAddMuestra}
+          >
+            <Plus className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
+
       <div
         className={`transition-all duration-300 ease-in-out w-full ${asideVisible ? 'md:w-2/3' : ''}`}
       >
         <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4 max-w-4xl">
+          <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-4 max-w-4xl">
             <Tabs
               tabs={[
                 {
                   id: 'general',
                   label: 'Datos generales',
-                  content: <DatosGeneralesSection />
+                  content: (
+                    <DatosGeneralesSection key={`general-${currentIndex}`} index={currentIndex} />
+                  )
                 },
                 {
                   id: 'muestra',
                   label: 'Datos muestra',
-                  content: <DatosMuestraSection />
+                  content: (
+                    <DatosMuestraSection key={`muestra-${currentIndex}`} index={currentIndex} />
+                  )
                 }
               ]}
-            />
+            />{' '}
             <div className="flex justify-between items-center">
-              <Button type="submit">
+              <Button type="submit" variant="primary">
                 <SendIcon />
               </Button>
             </div>
@@ -118,14 +141,12 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
         </FormProvider>
       </div>
 
-      {/* Aside */}
       {asideVisible && (
         <aside className="hidden md:block md:w-1/3 pr-4">
           <SolicitudAsidePreview
             id_cliente={clienteId}
             id_prueba={pruebaId}
             id_paciente={pacienteId}
-            // id_solicitud={idSolicitudFiltrarTecnicas}
           />
         </aside>
       )}

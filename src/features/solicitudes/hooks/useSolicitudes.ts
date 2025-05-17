@@ -7,7 +7,7 @@ import {
   updateSolicitud,
   deleteSolicitud
 } from '../services/solicitudService'
-import { CreateSolicitudDTO } from '../interfaces/solicitud.interface'
+import { CreateSolicitudDTO } from '../interfaces/dto.types'
 
 export const useSolicitudes = () => {
   return useQuery({

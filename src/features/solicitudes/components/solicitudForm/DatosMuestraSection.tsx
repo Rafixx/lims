@@ -1,53 +1,45 @@
-// src/features/solicitudes/components/solicitudForm/DatosMuestraSection.tsx
 import { useFormContext } from 'react-hook-form'
 import { FormField } from '@/shared/components/molecules/FormField'
-import { FormValues } from './SolicitudForm'
+import { SolicitudFormValues } from '../../interfaces/form.types'
 
-export const DatosMuestraSection = () => {
-  const { register } = useFormContext<FormValues>()
+interface Props {
+  index: number
+  // onRemove: () => void
+}
+
+export const DatosMuestraSection = ({ index }: Props) => {
+  // export const DatosMuestraSection = ({ index, onRemove }: Props) => {
+  const { register } = useFormContext<SolicitudFormValues>()
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <FormField
-        id="f_entrada"
-        label="Fecha de entrada"
-        inputProps={{ ...register('f_entrada'), type: 'date' }}
-      />
-      <FormField
-        id="f_compromiso"
-        label="Fecha compromiso"
-        inputProps={{ ...register('f_compromiso'), type: 'date' }}
-      />
-      <FormField
-        id="f_entrega"
-        label="Fecha entrega"
-        inputProps={{ ...register('f_entrega'), type: 'date' }}
-      />
-      <FormField
-        id="f_resultado"
-        label="Fecha resultado"
-        inputProps={{ ...register('f_resultado'), type: 'date' }}
-      />
-      <FormField
-        id="f_toma"
-        label="Fecha de toma"
-        inputProps={{ ...register('f_toma'), type: 'date' }}
-      />
-      <FormField
-        id="f_recepcion"
-        label="Fecha de recepción"
-        inputProps={{ ...register('f_recepcion'), type: 'date' }}
-      />
-      <FormField
-        id="f_destruccion"
-        label="Fecha de destrucción"
-        inputProps={{ ...register('f_destruccion'), type: 'date' }}
-      />
-      <FormField
-        id="f_devolucion"
-        label="Fecha de devolución"
-        inputProps={{ ...register('f_devolucion'), type: 'date' }}
-      />
+    <div className="border rounded-md p-4 space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          id={`muestra.${index}.f_toma`}
+          label="Fecha de toma"
+          inputProps={{ ...register(`muestra.${index}.f_toma`), type: 'date' }}
+        />
+        <FormField
+          id={`muestra.${index}.f_recepcion`}
+          label="Fecha de recepción"
+          inputProps={{ ...register(`muestra.${index}.f_recepcion`), type: 'date' }}
+        />
+        <FormField
+          id={`muestra.${index}.f_destruccion`}
+          label="Fecha de destrucción"
+          inputProps={{ ...register(`muestra.${index}.f_destruccion`), type: 'date' }}
+        />
+        <FormField
+          id={`muestra.${index}.f_devolucion`}
+          label="Fecha de devolución"
+          inputProps={{ ...register(`muestra.${index}.f_devolucion`), type: 'date' }}
+        />
+      </div>
+      {/* <div className="flex justify-end">
+        <button type="button" onClick={onRemove}>
+          Eliminar muestra
+        </button>
+      </div> */}
     </div>
   )
 }

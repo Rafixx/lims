@@ -14,6 +14,7 @@ interface EntitySelectProps<T, F extends FieldValues> {
   icon?: React.ReactNode
   onIconClick?: () => void
   onChangeCapture?: (e: React.ChangeEvent<HTMLSelectElement>) => void
+  className?: string
 }
 
 export const EntitySelect = <T, F extends FieldValues>({
@@ -27,7 +28,8 @@ export const EntitySelect = <T, F extends FieldValues>({
   required = false,
   icon,
   onIconClick,
-  onChangeCapture
+  onChangeCapture,
+  className
 }: EntitySelectProps<T, F>) => {
   return (
     <div>
@@ -47,6 +49,7 @@ export const EntitySelect = <T, F extends FieldValues>({
               className={`
                 border p-2 rounded focus:outline-none focus:ring
                 ${icon && onIconClick ? 'flex-1' : 'w-full'}
+                ${className}
               `}
               onChange={e => {
                 field.onChange(e)
