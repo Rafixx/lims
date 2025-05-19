@@ -49,10 +49,7 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
   const asideVisible = Boolean(clienteId || pruebaId || pacienteId)
   const muestra = watch(`muestra.${currentIndex}`)
 
-  const { tecnicas: currentTecnicas = [] } = useTecnicas(pruebaId)
-  console.log('currentTecnicas: ', currentTecnicas)
-  const { tecnicas: muestraTecnicas = [] } = useTecnicas(watch(`muestra.${currentIndex}.id_prueba`))
-  console.log('muestraTecnicas: ', muestraTecnicas)
+  // const { tecnicas: currentTecnicas = [] } = useTecnicas(pruebaId)
 
   useEffect(() => {
     if (initialValues) {
