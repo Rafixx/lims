@@ -1,5 +1,5 @@
 // src/features/solicitudes/components/solicitudForm/SolicitudAsidePreview.tsx
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useCliente } from '../../hooks/useCliente'
 import { useTecnicas } from '../../hooks/useTecnicas'
 import { usePaciente } from '../../hooks/usePaciente'
@@ -14,13 +14,15 @@ interface Props {
   id_prueba?: number
   id_paciente?: number
   id_muestra?: number
+  onTecnicasChange?: (tecnicas: { id_tecnica_proc: number }[]) => void
 }
 
 export const SolicitudAsidePreview = ({
   id_cliente,
   id_prueba,
   id_paciente,
-  id_muestra
+  id_muestra,
+  onTecnicasChange
 }: Props) => {
   const [modalOpen, setModalOpen] = useState(false)
 
@@ -39,6 +41,12 @@ export const SolicitudAsidePreview = ({
   const showTecnicas = tecnicas.length > 0 || loadingTecnicas
   const showCliente = !!clienteData
   const showPaciente = !!pacienteData
+
+  useEffect(() => {
+    if (!onTecnicasChange) return
+    const payload = tecnicas.map(t => ({ id_tecnica_proc: t.id }))
+    onTecnicasChange(payload)
+  }, [tecnicas, onTecnicasChange])
 
   if (!showTecnicas && !showCliente && !showPaciente) return null
 

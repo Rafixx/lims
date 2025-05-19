@@ -24,6 +24,6 @@ export interface CreateSolicitudDTO {
     f_recepcion?: string
     f_destruccion?: string
     f_devolucion?: string
-    tecnicas?: { id: number }[]
+    tecnicas?: { id_tecnica_proc: number }[]
   }[]
 }

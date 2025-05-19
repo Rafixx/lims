@@ -31,7 +31,7 @@ export const mapFormValuesToDTO = (
       f_recepcion: m.f_recepcion,
       f_destruccion: m.f_destruccion,
       f_devolucion: m.f_devolucion,
-      tecnicas: m.tecnicas.map(t => ({ id: t.id_tecnica_proc }))
+      tecnicas: m.tecnicas.map(t => ({ id_tecnica_proc: t.id_tecnica_proc }))
     }))
   }
 }

@@ -1,5 +1,5 @@
 import { useForm, FormProvider, SubmitHandler, useFieldArray } from 'react-hook-form'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { useUser } from '@/shared/contexts/UserContext'
 import { useCreateSolicitud, useUpdateSolicitud } from '../../hooks/useSolicitudes'
@@ -30,7 +30,7 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
     defaultValues: initialValues || EMPTY_FORM_VALUES
   })
 
-  const { control, watch, handleSubmit } = methods
+  const { control, watch, handleSubmit, setValue } = methods
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'muestra'
@@ -49,6 +49,15 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
   const asideVisible = Boolean(clienteId || pruebaId || pacienteId)
   const muestra = watch(`muestra.${currentIndex}`)
 
+  const handleTecnicasChange = useCallback(
+    (tecnicas: { id_tecnica_proc: number }[]) => {
+      setValue(`muestra.${currentIndex}.tecnicas`, tecnicas, {
+        shouldValidate: false,
+        shouldDirty: true
+      })
+    },
+    [currentIndex, setValue]
+  )
   // const { tecnicas: currentTecnicas = [] } = useTecnicas(pruebaId)
 
   useEffect(() => {
@@ -68,6 +77,7 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
 
   const handleSubmitForm: SubmitHandler<SolicitudFormValues> = async formValues => {
     try {
+      console.log('formValues en el handleSubmit:', formValues)
       const isEditing = !!formValues.id_solicitud
 
       const dtoBase = mapFormValuesToDTO(formValues, {
@@ -177,6 +187,7 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
             id_prueba={pruebaId}
             id_paciente={pacienteId}
             id_muestra={muestra?.id_muestra}
+            onTecnicasChange={handleTecnicasChange}
           />
         </aside>
       )}

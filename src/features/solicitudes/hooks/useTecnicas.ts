@@ -1,5 +1,5 @@
 // src/features/solicitudes/hooks/useTecnicas.ts
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/services/apiClient'
 
@@ -54,9 +54,13 @@ export const useTecnicas = (pruebaId?: number, muestraId?: number) => {
   // 2️⃣ Estado local de técnicas “eliminadas”
   const [tecnicasDeleted, setTecnicasDeleted] = useState<Tecnica[]>([])
 
+  useEffect(() => {
+    setTecnicasDeleted([])
+  }, [pruebaId, muestraId])
+
   // 3️⃣ Cambiar orden: actualiza la cache de la query apropiada
   const setOrder = (newList: Tecnica[]) => {
-    const key = muestraId ? ['tecnicasPorSolicitud', muestraId] : ['tecnicasPorPrueba', pruebaId]
+    const key = muestraId ? ['tecnicasPorMuestra', muestraId] : ['tecnicasPorPrueba', pruebaId]
     queryClient.setQueryData(key, newList)
   }
 
