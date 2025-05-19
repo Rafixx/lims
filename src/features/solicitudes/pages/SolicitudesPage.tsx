@@ -74,8 +74,8 @@ export const SolicitudesPage = () => {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         title={solicitudSeleccionada ? 'Editar Solicitud' : 'Nueva Solicitud'}
-        widthClass="w-full max-w-4xl"
-        heightClass="h-[650px]"
+        widthClass="w-full max-w-6xl"
+        heightClass="h-[750px]"
       >
         {/* <SolicitudForm /> */}
         <SolicitudForm initialValues={initialFormValues} onClose={() => setShowModal(false)} />

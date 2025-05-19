@@ -76,7 +76,7 @@ export const LoginPage = () => {
         {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
       </div>
 
-      <Button type="submit" disabled={isSubmitting} className="w-full">
+      <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full">
         {isSubmitting ? 'Entrando...' : 'Entrar'}
       </Button>
       {/* {loginError && <p className="text-red-600 text-sm mt-2">{loginError}</p>} */}

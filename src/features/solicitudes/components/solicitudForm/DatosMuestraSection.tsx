@@ -1,6 +1,7 @@
 import { useFormContext } from 'react-hook-form'
 import { FormField } from '@/shared/components/molecules/FormField'
 import { SolicitudFormValues } from '../../interfaces/form.types'
+import { muestraStyle } from './SolicitudForm'
 
 interface Props {
   index: number
@@ -12,34 +13,51 @@ export const DatosMuestraSection = ({ index }: Props) => {
   const { register } = useFormContext<SolicitudFormValues>()
 
   return (
-    <div className="border rounded-md p-4 space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField
-          id={`muestra.${index}.f_toma`}
-          label="Fecha de toma"
-          inputProps={{ ...register(`muestra.${index}.f_toma`), type: 'date' }}
-        />
-        <FormField
-          id={`muestra.${index}.f_recepcion`}
-          label="Fecha de recepción"
-          inputProps={{ ...register(`muestra.${index}.f_recepcion`), type: 'date' }}
-        />
-        <FormField
-          id={`muestra.${index}.f_destruccion`}
-          label="Fecha de destrucción"
-          inputProps={{ ...register(`muestra.${index}.f_destruccion`), type: 'date' }}
-        />
-        <FormField
-          id={`muestra.${index}.f_devolucion`}
-          label="Fecha de devolución"
-          inputProps={{ ...register(`muestra.${index}.f_devolucion`), type: 'date' }}
-        />
-      </div>
-      {/* <div className="flex justify-end">
-        <button type="button" onClick={onRemove}>
-          Eliminar muestra
-        </button>
-      </div> */}
+    <div className="grid grid-cols-1 md:grid-cols-2 px-2">
+      <FormField
+        id="f_entrada"
+        label="Entrada"
+        inputProps={{ ...register('f_entrada'), type: 'date' }}
+      />
+      <FormField
+        id={'f_compromiso'}
+        label="Compromiso"
+        inputProps={{ ...register('f_compromiso'), type: 'date' }}
+      />
+      <FormField
+        id={'f_entrega'}
+        label="Entrega"
+        inputProps={{ ...register('f_entrega'), type: 'date' }}
+      />
+      <FormField
+        id={'f_resultado'}
+        label="Resultado"
+        inputProps={{ ...register('f_resultado'), type: 'date' }}
+      />
+      <FormField
+        id={`muestra.${index}.f_toma`}
+        label="Toma"
+        inputProps={{ ...register(`muestra.${index}.f_toma`), type: 'date' }}
+        className={muestraStyle}
+      />
+      <FormField
+        id={`muestra.${index}.f_recepcion`}
+        label="Recepción"
+        inputProps={{ ...register(`muestra.${index}.f_recepcion`), type: 'date' }}
+        className={muestraStyle}
+      />
+      <FormField
+        id={`muestra.${index}.f_destruccion`}
+        label="Destrucción"
+        inputProps={{ ...register(`muestra.${index}.f_destruccion`), type: 'date' }}
+        className={muestraStyle}
+      />
+      <FormField
+        id={`muestra.${index}.f_devolucion`}
+        label="Devolución"
+        inputProps={{ ...register(`muestra.${index}.f_devolucion`), type: 'date' }}
+        className={muestraStyle}
+      />
     </div>
   )
 }

@@ -13,14 +13,14 @@ interface Props {
   id_cliente?: number
   id_prueba?: number
   id_paciente?: number
-  id_solicitud?: number
+  id_muestra?: number
 }
 
 export const SolicitudAsidePreview = ({
   id_cliente,
   id_prueba,
   id_paciente,
-  id_solicitud
+  id_muestra
 }: Props) => {
   const [modalOpen, setModalOpen] = useState(false)
 
@@ -31,7 +31,7 @@ export const SolicitudAsidePreview = ({
     setOrder: onOrderChange,
     deleteOne: onDelete,
     reinsertOne: onReinsert
-  } = useTecnicas(id_prueba, id_solicitud)
+  } = useTecnicas(id_prueba, id_muestra)
 
   const { data: clienteData } = useCliente(id_cliente)
   const { data: pacienteData } = usePaciente(id_paciente)

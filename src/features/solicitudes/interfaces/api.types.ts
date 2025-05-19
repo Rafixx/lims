@@ -30,6 +30,7 @@ export interface Tecnica {
 
 export interface Muestra {
   id_muestra: number
+  id_prueba: number
   id_paciente: number
   id_solicitud: number
   id_tecnico_resp: number
@@ -67,7 +68,6 @@ export interface SolicitudAPIResponse {
   id_solicitud: number
   num_solicitud: string
   id_cliente: number
-  id_prueba: number
   f_creacion: string
   f_entrada: string
   f_compromiso: string

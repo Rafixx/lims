@@ -19,35 +19,44 @@ export const useTecnicasPorPrueba = (pruebaId?: number) =>
     enabled: !!pruebaId
   })
 
-export const useTecnicaPorSolicitud = (solicitudId?: number) =>
+// export const useTecnicaPorSolicitud = (solicitudId?: number) =>
+//   useQuery<Tecnica[], Error>({
+//     queryKey: ['tecnicasPorSolicitud', solicitudId],
+//     queryFn: async () => {
+//       if (!solicitudId) return []
+//       const { data } = await apiClient.get<Tecnica[]>(`/tecnicas/solicitud/${solicitudId}`)
+//       return data
+//     },
+//     enabled: !!solicitudId
+//   })
+
+export const useTecnicasPorMuestra = (muestraId?: number) =>
   useQuery<Tecnica[], Error>({
-    queryKey: ['tecnicasPorSolicitud', solicitudId],
+    queryKey: ['tecnicasPorMuestra', muestraId],
     queryFn: async () => {
-      if (!solicitudId) return []
-      const { data } = await apiClient.get<Tecnica[]>(`/tecnicas/solicitud/${solicitudId}`)
+      if (!muestraId) return []
+      const { data } = await apiClient.get<Tecnica[]>(`/tecnicas/muestra/${muestraId}`)
       return data
     },
-    enabled: !!solicitudId
+    enabled: !!muestraId
   })
 
 /**
  * Hook unificado: escoge la query adecuada, y añade
  * el estado de eliminadas + los handlers de reorden/borre/reinserción.
  */
-export const useTecnicas = (pruebaId?: number, solicitudId?: number) => {
+export const useTecnicas = (pruebaId?: number, muestraId?: number) => {
   const queryClient = useQueryClient()
 
   // 1️⃣ Elige la fuente de datos según los parámetros
-  const query = solicitudId ? useTecnicaPorSolicitud(solicitudId) : useTecnicasPorPrueba(pruebaId)
+  const query = muestraId ? useTecnicasPorMuestra(muestraId) : useTecnicasPorPrueba(pruebaId)
 
   // 2️⃣ Estado local de técnicas “eliminadas”
   const [tecnicasDeleted, setTecnicasDeleted] = useState<Tecnica[]>([])
 
   // 3️⃣ Cambiar orden: actualiza la cache de la query apropiada
   const setOrder = (newList: Tecnica[]) => {
-    const key = solicitudId
-      ? ['tecnicasPorSolicitud', solicitudId]
-      : ['tecnicasPorPrueba', pruebaId]
+    const key = muestraId ? ['tecnicasPorSolicitud', muestraId] : ['tecnicasPorPrueba', pruebaId]
     queryClient.setQueryData(key, newList)
   }
 

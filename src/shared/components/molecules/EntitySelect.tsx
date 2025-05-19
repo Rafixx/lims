@@ -32,7 +32,7 @@ export const EntitySelect = <T, F extends FieldValues>({
   className
 }: EntitySelectProps<T, F>) => {
   return (
-    <div>
+    <div className="mb-4 px-2">
       <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
         {label}
       </label>

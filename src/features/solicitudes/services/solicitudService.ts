@@ -15,7 +15,6 @@ export const getSolicitud = async (id: number): Promise<SolicitudAPIResponse> =>
 }
 
 export const createSolicitud = async (data: CreateSolicitudDTO): Promise<SolicitudAPIResponse> => {
-  console.log('data justo antes de createSolicitud em SolicitudesService:', data)
   const response = await apiClient.post<SolicitudAPIResponse>('/solicitudes', data)
   return response.data
 }

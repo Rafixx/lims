@@ -9,6 +9,7 @@ import { useTiposMuestra } from '../../hooks/useTiposMuestra'
 import { useUbicaciones } from '../../hooks/useUbicaciones'
 
 import { SolicitudFormValues } from '../../interfaces/form.types'
+import { muestraStyle } from './SolicitudForm'
 
 interface Props {
   index: number
@@ -21,8 +22,6 @@ export const DatosGeneralesSection = ({ index }: Props) => {
     formState: { errors }
   } = useFormContext<SolicitudFormValues>()
 
-  const muestraStyle = 'border border-accent'
-
   // Carga de datos
   const { data: clientes = [], isLoading: loadingClientes } = useClientes()
   const { data: pruebas = [], isLoading: loadingPruebas } = usePruebas()
@@ -31,8 +30,7 @@ export const DatosGeneralesSection = ({ index }: Props) => {
   const { data: ubicaciones = [], isLoading: loadingUbicaciones } = useUbicaciones()
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {/* Nº Solicitud */}
+    <div className="grid grid-cols-1 md:grid-cols-2 px-2">
       <FormField
         id="num_solicitud"
         label="Nº Solicitud"
@@ -45,8 +43,24 @@ export const DatosGeneralesSection = ({ index }: Props) => {
         }}
         error={errors.num_solicitud?.message}
       />
-
-      {/* Paciente */}
+      <FormField
+        id={`muestra.${index}.codigo_epi`}
+        label="Código EPI"
+        inputProps={{
+          ...register(`muestra.${index}.codigo_epi`, {})
+        }}
+        error={errors.muestra?.[index]?.codigo_epi?.message}
+        className={muestraStyle}
+      />
+      <FormField
+        id={`muestra.${index}.codigo_externo`}
+        label="Código externo"
+        inputProps={{
+          ...register(`muestra.${index}.codigo_externo`, {})
+        }}
+        error={errors.muestra?.[index]?.codigo_externo?.message}
+        className={muestraStyle}
+      />
       <EntitySelect
         name={`muestra.${index}.id_paciente`}
         control={control}
@@ -58,8 +72,6 @@ export const DatosGeneralesSection = ({ index }: Props) => {
         required
         className={muestraStyle}
       />
-
-      {/* Cliente */}
       <EntitySelect
         name="id_cliente"
         control={control}
@@ -70,11 +82,8 @@ export const DatosGeneralesSection = ({ index }: Props) => {
         getLabel={p => p.nombre}
         required
       />
-
-      {/* Prueba (filtrada por cliente) */}
       <EntitySelect
-        // name={`muestra.${index}.id_prueba`}
-        name="id_prueba"
+        name={`muestra.${index}.id_prueba`}
         control={control}
         label="Prueba"
         options={pruebas}
@@ -83,8 +92,6 @@ export const DatosGeneralesSection = ({ index }: Props) => {
         getLabel={p => p.prueba}
         required
       />
-
-      {/* Tipo de muestra */}
       <EntitySelect
         name={`muestra.${index}.id_tipo_muestra`}
         control={control}
@@ -96,11 +103,8 @@ export const DatosGeneralesSection = ({ index }: Props) => {
         required
         className={muestraStyle}
       />
-
-      {/* Condiciones de envío */}
       <FormField
-        id={`muestra.${index}.condiciones_envio`}
-        className={muestraStyle}
+        id={'condiciones_envio'}
         label="Condiciones de envío"
         inputProps={{
           ...register('condiciones_envio'),
@@ -108,11 +112,8 @@ export const DatosGeneralesSection = ({ index }: Props) => {
         }}
         error={errors.condiciones_envio?.message}
       />
-
-      {/* Tiempo con hielo */}
       <FormField
-        id={`muestra.${index}.tiempo_hielo`}
-        className={muestraStyle}
+        id={'tiempo_hielo'}
         label="Tiempo con hielo"
         inputProps={{
           ...register('tiempo_hielo'),
@@ -120,8 +121,6 @@ export const DatosGeneralesSection = ({ index }: Props) => {
         }}
         error={errors.tiempo_hielo?.message}
       />
-
-      {/* Ubicación */}
       <EntitySelect
         name={`muestra.${index}.id_ubicacion`}
         control={control}
@@ -133,31 +132,38 @@ export const DatosGeneralesSection = ({ index }: Props) => {
         required
         className={muestraStyle}
       />
-
-      {/* Centro externo */}
       <FormField
         id={`muestra.${index}.id_centro_externo`}
         className={muestraStyle}
         label="Centro externo (ID)"
         inputProps={{
-          ...register('id_centro_externo', { valueAsNumber: true }),
+          ...register(`muestra.${index}.id_centro_externo`, { valueAsNumber: true }),
           type: 'number',
           min: 0
         }}
-        error={errors.id_centro_externo?.message}
+        error={errors.muestra?.[index]?.id_centro_externo?.message}
       />
-
-      {/* Criterio validación */}
+      <FormField
+        id={`muestra.${index}.id_tecnico_resp`}
+        className={muestraStyle}
+        label="Técnico responsable (ID)"
+        inputProps={{
+          ...register(`muestra.${index}.id_tecnico_resp`, { valueAsNumber: true }),
+          type: 'number',
+          min: 0
+        }}
+        error={errors.muestra?.[index]?.id_tecnico_resp?.message}
+      />
       <FormField
         id={`muestra.${index}.id_criterio_val`}
         label="Criterio validación (ID)"
-        className={muestraStyle}
         inputProps={{
-          ...register('id_criterio_val', { valueAsNumber: true }),
+          ...register(`muestra.${index}.id_criterio_val`, { valueAsNumber: true }),
           type: 'number',
           min: 0
         }}
-        error={errors.id_criterio_val?.message}
+        className={muestraStyle}
+        error={errors.muestra?.[index]?.id_criterio_val?.message}
       />
     </div>
   )
