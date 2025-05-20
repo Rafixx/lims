@@ -9,7 +9,6 @@ import { Tabs } from '@/shared/components/molecules/Tabs'
 import { DatosMuestraSection } from './DatosMuestraSection'
 import { Button } from '@/shared/components/molecules/Button'
 import { Plus, SendIcon } from 'lucide-react'
-import { useTecnicas } from '../../hooks/useTecnicas'
 
 // import { CreateSolicitudDTO } from '../../interfaces/dto.types'
 import { defaultMuestra, EMPTY_FORM_VALUES } from '../../interfaces/form.defaults'
@@ -31,7 +30,7 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
   })
 
   const { control, watch, handleSubmit, setValue } = methods
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append } = useFieldArray({
     control,
     name: 'muestra'
   })
@@ -49,6 +48,8 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
   const asideVisible = Boolean(clienteId || pruebaId || pacienteId)
   const muestra = watch(`muestra.${currentIndex}`)
 
+  //TODO: revisar implementación al editar muestra y cambiar técnicas. No recarga la lista de técnicas
+  // const { tecnicas: currentTecnicas = [] } = useTecnicas(pruebaId)
   const handleTecnicasChange = useCallback(
     (tecnicas: { id_tecnica_proc: number }[]) => {
       setValue(`muestra.${currentIndex}.tecnicas`, tecnicas, {
@@ -58,7 +59,6 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
     },
     [currentIndex, setValue]
   )
-  // const { tecnicas: currentTecnicas = [] } = useTecnicas(pruebaId)
 
   useEffect(() => {
     if (initialValues) {
@@ -77,7 +77,6 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
 
   const handleSubmitForm: SubmitHandler<SolicitudFormValues> = async formValues => {
     try {
-      console.log('formValues en el handleSubmit:', formValues)
       const isEditing = !!formValues.id_solicitud
 
       const dtoBase = mapFormValuesToDTO(formValues, {
@@ -110,14 +109,14 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
     setCurrentIndex(fields.length) // Navega a la nueva muestra
   }
   //TODO: implementar la eliminación de muestras
-  const handleRemoveMuestra = (index: number) => {
-    if (fields.length > 1) {
-      remove(index)
-      setCurrentIndex(prev => (prev === index ? 0 : prev > index ? prev - 1 : prev))
-    } else {
-      notify('No se puede eliminar la última muestra', 'error')
-    }
-  }
+  // const handleRemoveMuestra = (index: number) => {
+  //   if (fields.length > 1) {
+  //     remove(index)
+  //     setCurrentIndex(prev => (prev === index ? 0 : prev > index ? prev - 1 : prev))
+  //   } else {
+  //     notify('No se puede eliminar la última muestra', 'error')
+  //   }
+  // }
 
   return (
     <div className="relative flex w-full transition-all duration-300 ease-in-out">
