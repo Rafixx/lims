@@ -1,9 +1,10 @@
 import { DashboardCard } from '@/shared/components/molecules/DashboardCard'
-import { FileText, BarChart2 } from 'lucide-react'
+import { homePageMenuCards } from '@/shared/config/menuConfig'
 
 export const HomePage = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <DashboardCard title="Solicitudes" icon={<FileText className="w-8 h-8" />} to="/solicitudes" />
-    <DashboardCard title="Resultados" icon={<BarChart2 className="w-8 h-8" />} to="/resultados" />
+    {homePageMenuCards.map(({ path, label, icon: Icon }) => (
+      <DashboardCard key={path} title={label} icon={<Icon className="w-5 h-5" />} to={path} />
+    ))}
   </div>
 )

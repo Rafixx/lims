@@ -79,6 +79,11 @@ export const LoginPage = () => {
       <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full">
         {isSubmitting ? 'Entrando...' : 'Entrar'}
       </Button>
+      <div className="text-center mt-4">
+        <a href="/register" className="text-xs text-gray-400 hover:text-gray-600 underline">
+          ¿No tienes cuenta? Regístrate
+        </a>
+      </div>
       {/* {loginError && <p className="text-red-600 text-sm mt-2">{loginError}</p>} */}
     </form>
   )

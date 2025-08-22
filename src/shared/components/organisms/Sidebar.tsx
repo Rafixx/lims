@@ -1,20 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, FileText, FlaskConical, BarChart2, UserCircle } from 'lucide-react'
-
-const menu = [
-  { path: '/dashboard', label: 'Inicio', icon: LayoutDashboard },
-  { path: '/solicitudes', label: 'Solicitudes', icon: FileText }
-  // { path: '/muestras', label: 'Muestras', icon: FlaskConical },
-  // { path: '/resultados', label: 'Resultados', icon: BarChart2 },
-  // { path: '/usuarios', label: 'Usuarios', icon: UserCircle }
-]
+import { sideBarMenuItems } from '@/shared/config/menuConfig'
 
 export const Sidebar = () => {
   return (
     <aside className="w-64 bg-white shadow h-full flex flex-col p-4 border-r">
       {/* <h2 className="text-lg font-bold text-blue-700 mb-6">LIMS Panel</h2> */}
       <nav className="flex flex-col gap-2">
-        {menu.map(({ path, label, icon: Icon }) => (
+        {sideBarMenuItems.map(({ path, label, icon: Icon }) => (
           <NavLink
             key={path}
             to={path}
