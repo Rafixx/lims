@@ -30,7 +30,7 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
   })
 
   const { control, watch, handleSubmit, setValue } = methods
-  const { fields, append } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name: 'muestra'
   })

@@ -1,4 +1,4 @@
-import { Muestra } from '@/features/solicitudes/interfaces/solicitud.interface'
+import { Muestra } from '../interfaces/api.types'
 import { TecnicaItem } from './TecnicaItem'
 
 interface Props {

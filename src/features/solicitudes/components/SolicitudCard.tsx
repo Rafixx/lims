@@ -1,14 +1,14 @@
 import { useState } from 'react'
-import { Solicitud } from '@/features/solicitudes/interfaces/solicitud.interface'
+import { SolicitudAPIResponse } from '../interfaces/api.types'
 import { MuestraItem } from './MuestraItem'
 import { ChevronDown, Edit, Trash2 } from 'lucide-react'
 import { IconButton } from '@/shared/components/molecules/IconButton'
 import { Card } from '@/shared/components/molecules/Card'
 
 interface Props {
-  solicitud: Solicitud
-  onEdit?: (s: Solicitud) => void
-  onDelete?: (s: Solicitud) => void
+  solicitud: SolicitudAPIResponse
+  onEdit?: (s: SolicitudAPIResponse) => void
+  onDelete?: (s: SolicitudAPIResponse) => void
 }
 
 export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {

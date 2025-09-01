@@ -5,6 +5,7 @@ import { DashboardLayout } from '@/layouts/DashboardLayout'
 import { PrivateRoute } from './PrivateRoute'
 import { HomePage } from '@/features/dashboard/pages/HomePage'
 import { SolicitudesPage } from '@/features/solicitudes/pages/SolicitudesPage'
+import { WorkListPage } from '@/features/workList/pages/WorkListPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -18,7 +19,8 @@ export const router = createBrowserRouter([
     ),
     children: [
       { path: 'dashboard', element: <HomePage /> },
-      { path: 'solicitudes', element: <SolicitudesPage /> }
+      { path: 'solicitudes', element: <SolicitudesPage /> },
+      { path: 'workList', element: <WorkListPage /> }
     ]
   }
 ])

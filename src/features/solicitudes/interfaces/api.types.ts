@@ -28,6 +28,16 @@ export interface Tecnica {
   tecnica_proc: TecnicaProc
 }
 
+export interface TipoMuestra {
+  id: number
+  tipo_muestra: string
+}
+
+export interface TecnicoLab {
+  id_usuario: number
+  nombre: string
+}
+
 export interface Muestra {
   id_muestra: number
   id_prueba: number
@@ -52,6 +62,8 @@ export interface Muestra {
   created_by: number
   updated_by: number
   tecnicas: Tecnica[]
+  tecnico_resp?: TecnicoLab
+  tipo_muestra?: TipoMuestra
 }
 
 export interface Cliente {
