@@ -64,6 +64,7 @@ export interface Muestra {
   tecnicas: Tecnica[]
   tecnico_resp?: TecnicoLab
   tipo_muestra?: TipoMuestra
+  prueba: Prueba
 }
 
 export interface Cliente {
@@ -82,17 +83,17 @@ export interface SolicitudAPIResponse {
   id_cliente: number
   f_creacion: string
   f_entrada: string
-  f_compromiso: string
-  f_entrega: string
-  f_resultado: string
-  condiciones_envio: string
-  tiempo_hielo: string
+  f_compromiso?: string | null
+  f_entrega?: string | null
+  f_resultado?: string | null
+  condiciones_envio?: string | null
+  tiempo_hielo?: string | null
   estado_solicitud: string
-  delete_dt: string
+  delete_dt?: string | null
   update_dt: string
   created_by: number
   updated_by: number
-  muestra: Muestra[]
-  cliente: Cliente
-  prueba: Prueba
+  muestra?: Muestra[]
+  cliente?: Cliente
+  prueba?: Prueba
 }

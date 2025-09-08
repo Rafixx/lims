@@ -9,19 +9,22 @@ export const MuestraItem = ({ muestra }: Props) => {
   return (
     <div className="p-3 border rounded bg-gray-50">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-        <div className="space-y-1 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 text-sm">
           <p>
-            <span className="font-semibold">Código EPI:</span> {muestra.codigo_epi}
+            <span className="font-semibold">Prueba: </span> {muestra.prueba.prueba}
           </p>
           <p>
-            <span className="font-semibold">Código externo:</span> {muestra.codigo_externo}
+            <span className="font-semibold">Cód Epidisease: </span> {muestra.codigo_epi}
           </p>
           <p>
-            <span className="font-semibold">Tipo de muestra:</span>
+            <span className="font-semibold">Cód externo: </span> {muestra.codigo_externo}
+          </p>
+          <p>
+            <span className="font-semibold">Tipo de muestra: </span>
             {muestra.tipo_muestra?.tipo_muestra}
           </p>
           <p>
-            <span className="font-semibold">Técnico responsable:</span>
+            <span className="font-semibold">Técnico: </span>
             {muestra.tecnico_resp?.nombre ?? 'Sin asignar'}
           </p>
         </div>

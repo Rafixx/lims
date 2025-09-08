@@ -18,7 +18,7 @@ export interface TecnicaPendiente {
   id_tecnica_proc: number
   id_tecnico_resp: number | null
   fecha_inicio_tec: string | null
-  estado: 'pendiente' | 'en_progreso' | 'completada' | 'cancelada'
+  estado: 'PENDIENTE' | 'EN_PROGRESO' | 'COMPLETADA' | 'CANCELADA'
   fecha_estado: string
   comentarios: string | null
   created_by: number

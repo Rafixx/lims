@@ -39,11 +39,11 @@ export const MuestraDetailCard = ({
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
-      case 'pendiente':
+      case 'PENDIENTE':
         return 'bg-yellow-100 text-yellow-800'
-      case 'en_progreso':
+      case 'EN_PROGRESO':
         return 'bg-blue-100 text-blue-800'
-      case 'completada':
+      case 'COMPLETADA':
         return 'bg-green-100 text-green-800'
       default:
         return 'bg-gray-100 text-gray-800'
@@ -78,11 +78,11 @@ export const MuestraDetailCard = ({
         </div>
 
         {/* Información de la muestra */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        {/* <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="flex items-center space-x-2">
             <TestTube className="h-4 w-4 text-gray-500" />
             <span className="text-sm text-gray-600">
-              Tipo: {getSafeValue(tecnica.muestra?.tipo_muestra)}
+              Tipo: {getSafeValue(tecnica.muestra?.tipo_muestra}
             </span>
           </div>
           <div className="flex items-center space-x-2">
@@ -91,7 +91,7 @@ export const MuestraDetailCard = ({
               Extracción: {getSafeValue(tecnica.muestra?.fecha_extraccion, 'No especificada')}
             </span>
           </div>
-        </div>
+        </div> */}
 
         {/* Comentarios si existen */}
         {tecnica.muestra?.comentarios && (
@@ -107,7 +107,7 @@ export const MuestraDetailCard = ({
         )}
 
         {/* Asignación de técnico */}
-        <div className="mb-4">
+        {/* <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Técnico Responsable
           </label>
@@ -137,11 +137,11 @@ export const MuestraDetailCard = ({
               Actualmente asignado a: {tecnicoActual.nombre}
             </p>
           )}
-        </div>
+        </div> */}
 
         {/* Acciones */}
         <div className="flex space-x-2">
-          {tecnica.estado === 'pendiente' && tecnica.id_tecnico_resp && (
+          {tecnica.estado === 'PENDIENTE' && tecnica.id_tecnico_resp && (
             <Button
               variant="primary"
               onClick={() => onIniciarTecnica(tecnica.id_tecnica)}
@@ -151,7 +151,7 @@ export const MuestraDetailCard = ({
               <span>Iniciar</span>
             </Button>
           )}
-          {tecnica.estado === 'en_progreso' && (
+          {tecnica.estado === 'EN_PROGRESO' && (
             <Button
               variant="accent"
               onClick={() => onCompletarTecnica(tecnica.id_tecnica)}

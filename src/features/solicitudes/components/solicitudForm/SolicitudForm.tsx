@@ -1,8 +1,7 @@
 import { useForm, FormProvider, SubmitHandler, useFieldArray } from 'react-hook-form'
 import { useCallback, useEffect, useState } from 'react'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
-import { useUser } from '@/shared/contexts/UserContext'
-import { useCreateSolicitud, useUpdateSolicitud } from '../../hooks/useSolicitudes'
+import { useCreateSolicitud } from '../../hooks/useSolicitudes'
 import { SolicitudAsidePreview } from './SolicitudAsidePreview'
 import { DatosGeneralesSection } from './DatosGeneralesSection'
 import { Tabs } from '@/shared/components/molecules/Tabs'
@@ -10,12 +9,10 @@ import { DatosMuestraSection } from './DatosMuestraSection'
 import { Button } from '@/shared/components/molecules/Button'
 import { Plus, SendIcon } from 'lucide-react'
 
-// import { CreateSolicitudDTO } from '../../interfaces/dto.types'
 import { defaultMuestra, EMPTY_FORM_VALUES } from '../../interfaces/form.defaults'
 import { SolicitudFormValues } from '../../interfaces/form.types'
 import { mapFormValuesToDTO } from '../../interfaces/solicitud.mapper'
 import { normalizeDates } from '@/shared/utils/helpers'
-// import { createSolicitud } from '../../services/solicitudService'
 
 interface Props {
   initialValues?: Partial<SolicitudFormValues>
@@ -30,15 +27,13 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
   })
 
   const { control, watch, handleSubmit, setValue } = methods
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append } = useFieldArray({
     control,
     name: 'muestra'
   })
 
   const { mutateAsync: createSolicitud } = useCreateSolicitud()
-  const { mutateAsync: updateSolicitud } = useUpdateSolicitud()
   const { notify } = useNotification()
-  const { user } = useUser()
 
   const [currentIndex, setCurrentIndex] = useState(0)
 
@@ -79,21 +74,18 @@ export const SolicitudForm = ({ initialValues, onClose }: Props) => {
     try {
       const isEditing = !!formValues.id_solicitud
 
-      const dtoBase = mapFormValuesToDTO(formValues, {
-        updatedBy: user?.id
-      })
-
       if (isEditing) {
-        await updateSolicitud({
-          id: formValues.id_solicitud!,
-          data: dtoBase
-        })
-        notify('Solicitud actualizada con éxito', 'success')
+        // Para edición, usaríamos el hook de actualización
+        // Por ahora solo creamos nuevas solicitudes
+        console.log('Edición de solicitud no implementada aún')
+        notify('Función de edición pendiente de implementar', 'warning')
       } else {
-        await createSolicitud({
-          ...dtoBase,
-          updated_by: user?.id
+        // Convertir formulario a DTO usando el mapper
+        const dtoPayload = mapFormValuesToDTO(formValues, {
+          updatedBy: 1 // Por ahora hardcodeado
         })
+
+        await createSolicitud(dtoPayload)
         notify('Solicitud creada con éxito', 'success')
       }
 

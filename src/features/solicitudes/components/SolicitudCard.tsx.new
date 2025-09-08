@@ -14,17 +14,12 @@ interface Props {
   onDelete?: (s: SolicitudAPIResponse) => void
 }
 
-const formatDate = (dateString: string | null | undefined) => {
-  if (!dateString) return 'N/A'
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  } catch {
-    return 'Fecha inválida'
-  }
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
 }
 
 export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
@@ -39,7 +34,7 @@ export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               Solicitud #{solicitud.num_solicitud}
             </h3>
-
+            
             {/* Badge de estado */}
             <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-3">
               {solicitud.estado_solicitud}
@@ -48,16 +43,16 @@ export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
             {/* Información básica */}
             <div className="text-sm text-gray-600 space-y-1">
               <div>
-                <span className="font-medium">Cliente:</span> {solicitud.cliente?.nombre || 'N/A'}
+                <span className="font-medium">Cliente:</span> {solicitud.cliente.nombre}
               </div>
               <div>
-                <span className="font-medium">Prueba:</span> {solicitud.prueba?.prueba || 'N/A'}
+                <span className="font-medium">Prueba:</span> {solicitud.prueba.prueba}
               </div>
               <div>
                 <span className="font-medium">Creada:</span> {formatDate(solicitud.f_creacion)}
               </div>
               <div>
-                <span className="font-medium">Muestras:</span> {solicitud.muestra?.length || 0}
+                <span className="font-medium">Muestras:</span> {solicitud.muestra.length}
               </div>
             </div>
           </div>
@@ -67,20 +62,23 @@ export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
             {onEdit && (
               <IconButton
                 onClick={() => onEdit(solicitud)}
-                title="Editar solicitud"
+                variant="ghost"
+                size="sm"
                 icon={<Edit className="w-4 h-4 text-blue-600" />}
               />
             )}
             {onDelete && (
               <IconButton
                 onClick={() => onDelete(solicitud)}
-                title="Eliminar solicitud"
+                variant="ghost"
+                size="sm"
                 icon={<Trash2 className="w-4 h-4 text-red-600" />}
               />
             )}
             <IconButton
               onClick={() => setIsExpanded(!isExpanded)}
-              title={isExpanded ? 'Contraer' : 'Expandir'}
+              variant="ghost"
+              size="sm"
               icon={
                 <ChevronDown
                   className={`w-4 h-4 text-gray-500 transition-transform ${
@@ -104,14 +102,12 @@ export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
                   </div>
                   {solicitud.f_compromiso && (
                     <div>
-                      <span className="font-medium">Compromiso:</span>{' '}
-                      {formatDate(solicitud.f_compromiso)}
+                      <span className="font-medium">Compromiso:</span> {formatDate(solicitud.f_compromiso)}
                     </div>
                   )}
                   {solicitud.f_entrega && (
                     <div>
-                      <span className="font-medium">Entrega:</span>{' '}
-                      {formatDate(solicitud.f_entrega)}
+                      <span className="font-medium">Entrega:</span> {formatDate(solicitud.f_entrega)}
                     </div>
                   )}
                 </div>
@@ -121,25 +117,23 @@ export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
                 <h4 className="font-medium text-gray-900 mb-2">Condiciones</h4>
                 <div className="space-y-1 text-gray-600">
                   <div>
-                    <span className="font-medium">Envío:</span>{' '}
-                    {solicitud.condiciones_envio || 'N/A'}
+                    <span className="font-medium">Envío:</span> {solicitud.condiciones_envio}
                   </div>
                   <div>
-                    <span className="font-medium">Tiempo en hielo:</span>{' '}
-                    {solicitud.tiempo_hielo || 'N/A'}
+                    <span className="font-medium">Tiempo en hielo:</span> {solicitud.tiempo_hielo}
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Muestras */}
-            {solicitud.muestra && solicitud.muestra.length > 0 && (
+            {solicitud.muestra.length > 0 && (
               <div>
                 <h4 className="font-medium text-gray-900 mb-2">
                   Muestras ({solicitud.muestra.length})
                 </h4>
                 <div className="space-y-2">
-                  {solicitud.muestra.map(muestra => (
+                  {solicitud.muestra.map((muestra) => (
                     <div
                       key={muestra.id_muestra}
                       className="border-l-4 border-blue-200 pl-4 py-2 bg-gray-50 rounded"
@@ -153,14 +147,12 @@ export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
                         </div>
                         {muestra.tipo_muestra && (
                           <div className="text-gray-600">
-                            <span className="font-medium">Tipo:</span>{' '}
-                            {muestra.tipo_muestra.tipo_muestra}
+                            <span className="font-medium">Tipo:</span> {muestra.tipo_muestra.tipo_muestra}
                           </div>
                         )}
                         {muestra.tecnico_resp && (
                           <div className="text-gray-600">
-                            <span className="font-medium">Técnico:</span>{' '}
-                            {muestra.tecnico_resp.nombre}
+                            <span className="font-medium">Técnico:</span> {muestra.tecnico_resp.nombre}
                           </div>
                         )}
                       </div>
