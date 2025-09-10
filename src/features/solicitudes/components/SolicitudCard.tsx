@@ -1,177 +1,163 @@
-/**
- * Componente SolicitudCard simplificado
- */
-
 import { useState } from 'react'
-import { type SolicitudAPIResponse } from '../interfaces/api.types'
-import { ChevronDown, Edit, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Edit, Trash2, Calendar, User } from 'lucide-react'
+import type { SolicitudAPIResponse } from '../interfaces/solicitudes.types'
 import { IconButton } from '@/shared/components/molecules/IconButton'
-import { Card } from '@/shared/components/molecules/Card'
+import { SolicitudBadge } from '@/shared/states'
 
 interface Props {
   solicitud: SolicitudAPIResponse
-  onEdit?: (s: SolicitudAPIResponse) => void
-  onDelete?: (s: SolicitudAPIResponse) => void
+  onEdit: (solicitud: SolicitudAPIResponse) => void
+  onDelete: (solicitud: SolicitudAPIResponse) => void
 }
 
-const formatDate = (dateString: string | null | undefined) => {
+const formatDate = (dateString?: string | null): string => {
   if (!dateString) return 'N/A'
+
   try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return 'N/A'
+
+    return date.toLocaleDateString('es-ES', {
       year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
     })
   } catch {
-    return 'Fecha inválida'
+    return 'N/A'
   }
 }
 
 export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+
+  const toggleExpanded = () => setExpanded(!expanded)
 
   return (
-    <Card className="border border-gray-200 hover:shadow-md transition-shadow">
-      <div className="p-6">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Solicitud #{solicitud.num_solicitud}
-            </h3>
+    <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+      {/* Header */}
+      <div className="p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {solicitud.num_solicitud || `SOL-${solicitud.id_solicitud}`}
+                </h3>
+                <SolicitudBadge estado={solicitud.estado_solicitud || 'PENDIENTE'} />
+              </div>
 
-            {/* Badge de estado */}
-            <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-3">
-              {solicitud.estado_solicitud}
-            </div>
+              <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                <div className="flex items-center gap-1">
+                  <User className="w-4 h-4" />
+                  <span>{solicitud.cliente?.nombre || 'N/A'}</span>
+                </div>
 
-            {/* Información básica */}
-            <div className="text-sm text-gray-600 space-y-1">
-              <div>
-                <span className="font-medium">Cliente:</span> {solicitud.cliente?.nombre || 'N/A'}
-              </div>
-              <div>
-                <span className="font-medium">Prueba:</span> {solicitud.prueba?.prueba || 'N/A'}
-              </div>
-              <div>
-                <span className="font-medium">Creada:</span> {formatDate(solicitud.f_creacion)}
-              </div>
-              <div>
-                <span className="font-medium">Muestras:</span> {solicitud.muestra?.length || 0}
+                <div className="flex items-center gap-1">
+                  <User className="w-4 h-4" />
+                  <span>{solicitud.muestras?.length || 0} muestra(s)</span>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>Creada: {formatDate(solicitud.f_creacion)}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2 ml-4">
-            {onEdit && (
-              <IconButton
-                onClick={() => onEdit(solicitud)}
-                title="Editar solicitud"
-                icon={<Edit className="w-4 h-4 text-blue-600" />}
-              />
-            )}
-            {onDelete && (
-              <IconButton
-                onClick={() => onDelete(solicitud)}
-                title="Eliminar solicitud"
-                icon={<Trash2 className="w-4 h-4 text-red-600" />}
-              />
-            )}
+          <div className="flex items-center space-x-2">
             <IconButton
-              onClick={() => setIsExpanded(!isExpanded)}
-              title={isExpanded ? 'Contraer' : 'Expandir'}
+              icon={<Edit className="w-4 h-4" />}
+              title="Editar solicitud"
+              onClick={() => onEdit(solicitud)}
+              className="text-blue-600 hover:text-blue-800"
+            />
+
+            <IconButton
+              icon={<Trash2 className="w-4 h-4" />}
+              title="Eliminar solicitud"
+              onClick={() => onDelete(solicitud)}
+              className="text-red-600 hover:text-red-800"
+            />
+
+            <IconButton
               icon={
-                <ChevronDown
-                  className={`w-4 h-4 text-gray-500 transition-transform ${
-                    isExpanded ? 'rotate-180' : ''
-                  }`}
-                />
+                expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
               }
+              title={expanded ? 'Contraer' : 'Expandir'}
+              onClick={toggleExpanded}
+              className="text-gray-600 hover:text-gray-800"
             />
           </div>
         </div>
+      </div>
 
-        {/* Expanded Content */}
-        {isExpanded && (
-          <div className="border-t pt-4 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">Fechas</h4>
-                <div className="space-y-1 text-gray-600">
-                  <div>
-                    <span className="font-medium">Entrada:</span> {formatDate(solicitud.f_entrada)}
-                  </div>
-                  {solicitud.f_compromiso && (
-                    <div>
-                      <span className="font-medium">Compromiso:</span>{' '}
-                      {formatDate(solicitud.f_compromiso)}
-                    </div>
-                  )}
-                  {solicitud.f_entrega && (
-                    <div>
-                      <span className="font-medium">Entrega:</span>{' '}
-                      {formatDate(solicitud.f_entrega)}
-                    </div>
-                  )}
+      {/* Contenido expandido */}
+      {expanded && (
+        <div className="px-4 pb-4 border-t bg-gray-50">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            {/* Fechas importantes */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">Fechas</h4>
+              <div className="space-y-1 text-sm">
+                <div>
+                  <strong>Compromiso:</strong> {formatDate(solicitud.f_compromiso)}
                 </div>
-              </div>
-
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">Condiciones</h4>
-                <div className="space-y-1 text-gray-600">
-                  <div>
-                    <span className="font-medium">Envío:</span>{' '}
-                    {solicitud.condiciones_envio || 'N/A'}
-                  </div>
-                  <div>
-                    <span className="font-medium">Tiempo en hielo:</span>{' '}
-                    {solicitud.tiempo_hielo || 'N/A'}
-                  </div>
+                <div>
+                  <strong>Entrega:</strong> {formatDate(solicitud.f_entrega)}
                 </div>
               </div>
             </div>
 
-            {/* Muestras */}
-            {solicitud.muestra && solicitud.muestra.length > 0 && (
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">
-                  Muestras ({solicitud.muestra.length})
-                </h4>
-                <div className="space-y-2">
-                  {solicitud.muestra.map(muestra => (
-                    <div
-                      key={muestra.id_muestra}
-                      className="border-l-4 border-blue-200 pl-4 py-2 bg-gray-50 rounded"
-                    >
-                      <div className="text-sm">
-                        <div className="font-medium">
-                          {muestra.codigo_epi} - {muestra.codigo_externo}
-                        </div>
-                        <div className="text-gray-600 mt-1">
-                          <span className="font-medium">Estado:</span> {muestra.estado_muestra}
-                        </div>
-                        {muestra.tipo_muestra && (
-                          <div className="text-gray-600">
-                            <span className="font-medium">Tipo:</span>{' '}
-                            {muestra.tipo_muestra.tipo_muestra}
-                          </div>
-                        )}
-                        {muestra.tecnico_resp && (
-                          <div className="text-gray-600">
-                            <span className="font-medium">Técnico:</span>{' '}
-                            {muestra.tecnico_resp.nombre}
-                          </div>
-                        )}
+            {/* Información adicional */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">Detalles</h4>
+              <div className="space-y-1 text-sm">
+                <div>
+                  <strong>ID Cliente:</strong> {solicitud.id_cliente}
+                </div>
+                {solicitud.observaciones && (
+                  <div>
+                    <strong>Observaciones:</strong> {solicitud.observaciones}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Muestras */}
+          {solicitud.muestras && solicitud.muestras.length > 0 && (
+            <div className="mt-4">
+              <h4 className="font-medium text-gray-900 mb-2">Muestras</h4>
+              <div className="space-y-2">
+                {solicitud.muestras.map((muestra, index) => (
+                  <div key={muestra.id_muestra || index} className="bg-white p-3 rounded border">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <strong>Código:</strong> {muestra.codigo_muestra || 'N/A'}
+                      </div>
+                      <div>
+                        <strong>Paciente:</strong> {muestra.paciente?.nombre || 'N/A'}
+                      </div>
+                      <div>
+                        <strong>Prueba:</strong> {muestra.prueba?.prueba || 'N/A'}
                       </div>
                     </div>
-                  ))}
-                </div>
+
+                    {muestra.observaciones_muestra && (
+                      <div className="mt-2 text-sm">
+                        <strong>Observaciones:</strong> {muestra.observaciones_muestra}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
-        )}
-      </div>
-    </Card>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   )
 }

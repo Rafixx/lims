@@ -4,8 +4,9 @@ import { RegisterPage } from '@/features/auth/pages/RegisterPage'
 import { DashboardLayout } from '@/layouts/DashboardLayout'
 import { PrivateRoute } from './PrivateRoute'
 import { HomePage } from '@/features/dashboard/pages/HomePage'
-import { SolicitudesPage } from '@/features/solicitudes/pages/SolicitudesPage'
+// import { SolicitudesPage } from '@/features/solicitudes/pages/SolicitudesPage'
 import { WorkListPage } from '@/features/workList/pages/WorkListPage'
+import { SolicitudesSimplePage } from '@/features/solicitudes/pages/SolicitudesSimplePage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -19,7 +20,7 @@ export const router = createBrowserRouter([
     ),
     children: [
       { path: 'dashboard', element: <HomePage /> },
-      { path: 'solicitudes', element: <SolicitudesPage /> },
+      { path: 'solicitudes', element: <SolicitudesSimplePage /> },
       { path: 'workList', element: <WorkListPage /> }
     ]
   }

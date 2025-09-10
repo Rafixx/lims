@@ -5,7 +5,8 @@ import { Card } from '@/shared/components/molecules/Card'
 import { Button } from '@/shared/components/molecules/Button'
 import { TecnicaConMuestra } from '../interfaces/worklist.types'
 import { TecnicoLab } from '../hooks/useTecnicosLab'
-import { User, Calendar, TestTube, FileText, Play, Check } from 'lucide-react'
+import { User, FileText, Play, Check } from 'lucide-react'
+import { APP_STATES } from '../../../shared/constants/appStates'
 
 interface Props {
   tecnica: TecnicaConMuestra
@@ -39,11 +40,11 @@ export const MuestraDetailCard = ({
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
-      case 'PENDIENTE':
+      case APP_STATES.SOLICITUD.PENDIENTE:
         return 'bg-yellow-100 text-yellow-800'
-      case 'EN_PROGRESO':
+      case APP_STATES.SOLICITUD.EN_PROCESO:
         return 'bg-blue-100 text-blue-800'
-      case 'COMPLETADA':
+      case APP_STATES.SOLICITUD.COMPLETADA:
         return 'bg-green-100 text-green-800'
       default:
         return 'bg-gray-100 text-gray-800'
