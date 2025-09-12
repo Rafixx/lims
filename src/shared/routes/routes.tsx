@@ -7,6 +7,7 @@ import { HomePage } from '@/features/dashboard/pages/HomePage'
 // import { SolicitudesPage } from '@/features/solicitudes/pages/SolicitudesPage'
 import { WorkListPage } from '@/features/workList/pages/WorkListPage'
 import { SolicitudesSimplePage } from '@/features/solicitudes/pages/SolicitudesSimplePage'
+import { SolicitudFormPage } from '@/features/solicitudes/pages/SolicitudesFormPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -21,6 +22,8 @@ export const router = createBrowserRouter([
     children: [
       { path: 'dashboard', element: <HomePage /> },
       { path: 'solicitudes', element: <SolicitudesSimplePage /> },
+      { path: 'solicitudes/nueva', element: <SolicitudFormPage /> },
+      { path: 'solicitudes/:id/editar', element: <SolicitudFormPage /> },
       { path: 'workList', element: <WorkListPage /> }
     ]
   }

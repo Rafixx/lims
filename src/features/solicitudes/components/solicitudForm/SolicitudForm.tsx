@@ -184,18 +184,20 @@ export const SolicitudForm = ({ initialValues, onSuccess, onCancel, onClose }: P
               />
             </div>
 
-            <div className="sticky bottom-0 bg-white z-10 flex justify-end gap-3 pt-4 border-t">
+            <div className="sticky bottom-0 mb-4 bg-white z-10 flex justify-end gap-3 pt-4 border-t">
               <Button type="button" variant="danger" onClick={handleCancel} disabled={isSubmitting}>
                 Cancelar
               </Button>
               <Button type="submit" variant="primary" disabled={isSubmitting}>
-                <SendIcon className="w-4 h-4 mr-2" />
-                {isSubmitting
-                  ? 'Guardando...'
-                  : initialValues?.id_solicitud
-                    ? 'Actualizar'
-                    : 'Crear'}{' '}
-                Solicitud
+                <div className="flex items-center gap-2">
+                  <SendIcon className="w-4 h-4 mr-2" />
+                  {isSubmitting
+                    ? 'Guardando...'
+                    : initialValues?.id_solicitud
+                      ? 'Actualizar'
+                      : 'Crear'}{' '}
+                  Solicitud
+                </div>
               </Button>
             </div>
           </form>

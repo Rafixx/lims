@@ -72,9 +72,12 @@ export interface Muestra {
   //estado de la muestra
   estado_muestra?: AppEstado
 
-  // Metadatos
+  // Códigos
+  codigo_muestra?: string // Código de la muestra
   codigo_epi?: string
   codigo_externo?: string
+
+  // Metadatos
   f_toma_muestra?: string // ISO date string
 
   // Condiciones de envío

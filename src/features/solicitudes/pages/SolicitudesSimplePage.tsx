@@ -1,40 +1,23 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useSolicitudes, useDeleteSolicitud } from '../hooks/useSolicitudes'
-import type { SolicitudAPIResponse, Solicitud } from '../interfaces/solicitudes.types'
+import type { SolicitudAPIResponse } from '../interfaces/solicitudes.types'
 import { SolicitudCard } from '../components/SolicitudCard'
 import { SolicitudesStats } from '../components/SolicitudesStats'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { RefreshCw, Filter, Calendar, Plus } from 'lucide-react'
 import { Button } from '@/shared/components/molecules/Button'
 import { APP_STATES } from '@/shared/states'
-import { DEFAULT_MUESTRA } from '../interfaces/defaults'
-import { Modal } from '@/shared/components/molecules/Modal'
-import { SolicitudForm } from '../components/solicitudForm/SolicitudForm'
 
 export const SolicitudesSimplePage = () => {
   const { solicitudes, isLoading, refetch } = useSolicitudes()
-  const [solicitudSeleccionada, setSolicitudSeleccionada] = useState<SolicitudAPIResponse | null>(
-    null
-  )
+  const navigate = useNavigate()
 
   const deleteMutation = useDeleteSolicitud()
   const { notify } = useNotification()
-  const [showModal, setShowModal] = useState(false)
 
   const [filtroEstado, setFiltroEstado] = useState('')
   const [soloHoy, setSoloHoy] = useState(false)
-
-  const mapSolicitudToFormValues = (solicitud: SolicitudAPIResponse): Solicitud => {
-    return {
-      ...solicitud,
-      // Asegurar que muestras siempre exista como array
-      muestras: solicitud.muestras?.length > 0 ? solicitud.muestras : [DEFAULT_MUESTRA]
-    }
-  }
-
-  const initialFormValues: Solicitud | undefined = solicitudSeleccionada
-    ? mapSolicitudToFormValues(solicitudSeleccionada)
-    : undefined
 
   // Cálculo de estadísticas locales - con validación mejorada
   const calcularEstadisticas = () => {
@@ -101,13 +84,11 @@ export const SolicitudesSimplePage = () => {
 
   // Handlers
   const handleNuevaSolicitud = () => {
-    setSolicitudSeleccionada(null)
-    setShowModal(true)
+    navigate('/solicitudes/nueva')
   }
 
   const handleEditarSolicitud = (solicitud: SolicitudAPIResponse) => {
-    setSolicitudSeleccionada(solicitud)
-    setShowModal(true)
+    navigate(`/solicitudes/${solicitud.id_solicitud}/editar`)
   }
 
   const handleEliminarSolicitud = async (solicitud: SolicitudAPIResponse) => {
@@ -121,21 +102,6 @@ export const SolicitudesSimplePage = () => {
     } catch {
       notify('Error al eliminar la solicitud', 'error')
     }
-  }
-
-  const handleCloseModal = () => {
-    setShowModal(false)
-    setSolicitudSeleccionada(null)
-  }
-
-  const handleSolicitudSaved = () => {
-    handleCloseModal()
-    notify(
-      solicitudSeleccionada
-        ? 'Solicitud actualizada correctamente'
-        : 'Solicitud creada correctamente',
-      'success'
-    )
   }
 
   const limpiarFiltros = () => {
@@ -213,6 +179,7 @@ export const SolicitudesSimplePage = () => {
             <option value={APP_STATES.SOLICITUD.EN_PROCESO}>En Progreso</option>
             <option value={APP_STATES.SOLICITUD.COMPLETADA}>Completada</option>
             <option value={APP_STATES.SOLICITUD.CANCELADA}>Cancelada</option>
+            <option value={APP_STATES.SOLICITUD.RECHAZADA}>Rechazada</option>
           </select>
 
           <Button
@@ -261,21 +228,6 @@ export const SolicitudesSimplePage = () => {
           </div>
         )}
       </div>
-
-      {/* Modal */}
-      <Modal
-        isOpen={showModal}
-        onClose={handleCloseModal}
-        title={solicitudSeleccionada ? 'Editar Solicitud' : 'Nueva Solicitud'}
-        widthClass="w-full max-w-6xl"
-        heightClass="h-[750px]"
-      >
-        <SolicitudForm
-          initialValues={initialFormValues}
-          onSuccess={handleSolicitudSaved}
-          onCancel={handleCloseModal}
-        />
-      </Modal>
     </div>
   )
 }
