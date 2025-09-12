@@ -374,11 +374,12 @@ export const ESTADO_TRANSICIONES: Record<string, string[]> = {
     APP_STATES.SOLICITUD.CANCELADA
   ],
 
-  [APP_STATES.SOLICITUD.COMPLETADA]: [], // Estado final
-
   [APP_STATES.SOLICITUD.CANCELADA]: [
     APP_STATES.SOLICITUD.PENDIENTE // Permitir reactivar
   ],
+
+  [APP_STATES.SOLICITUD.COMPLETADA]: [], // Estado final
+  [APP_STATES.SOLICITUD.RECHAZADA]: [], // Estado final
 
   // Flujos de Técnicas
   [APP_STATES.TECNICA.PENDIENTE]: [
@@ -391,7 +392,8 @@ export const ESTADO_TRANSICIONES: Record<string, string[]> = {
 
   [APP_STATES.TECNICA.BLOQUEADA]: [APP_STATES.TECNICA.PENDIENTE, APP_STATES.TECNICA.CANCELADA],
 
-  [APP_STATES.TECNICA.COMPLETADA]: [] // Estado final
+  [APP_STATES.TECNICA.COMPLETADA]: [], // Estado final
+  [APP_STATES.TECNICA.CANCELADA]: [] // Estado final
 }
 
 // ================================

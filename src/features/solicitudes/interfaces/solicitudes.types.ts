@@ -43,6 +43,17 @@ export interface TipoMuestra {
   descripcion?: string
 }
 
+export interface Tecnico_responsable {
+  id_usuario: number
+  nombre: string
+}
+
+export interface Centro {
+  id: number
+  codigo: string
+  descripcion: string
+}
+
 // ============================================
 // TIPOS PRINCIPALES DE DOMINIO
 // ============================================
@@ -58,8 +69,12 @@ export interface Muestra {
   id_prueba: number // Siempre requerido
   id_tipo_muestra: number // Siempre requerido
 
+  //estado de la muestra
+  estado_muestra?: AppEstado
+
   // Metadatos
-  codigo_muestra?: string
+  codigo_epi?: string
+  codigo_externo?: string
   f_toma_muestra?: string // ISO date string
 
   // Condiciones de envío
@@ -74,6 +89,8 @@ export interface Muestra {
   prueba?: Prueba
   tipo_muestra?: TipoMuestra
   tecnicas?: Tecnica[]
+  tecnico_responsable?: Tecnico_responsable
+  centro?: Centro
 }
 
 /**
@@ -122,12 +139,15 @@ export type UpdateSolicitudRequest = Partial<
 /** Respuesta completa del API con todas las relaciones pobladas */
 export type SolicitudAPIResponse = Required<Pick<Solicitud, 'id_solicitud'>> &
   Solicitud & {
-    num_solicitud: string // Siempre presente en respuestas
-    cliente: Cliente // Siempre poblado en respuestas
+    num_solicitud: string
+    cliente: Cliente
     muestras: (Muestra & {
-      paciente: Paciente // Siempre poblado en respuestas
-      prueba: Prueba // Siempre poblado en respuestas
-      tipo_muestra: TipoMuestra // Siempre poblado en respuestas
+      paciente: Paciente
+      prueba: Prueba
+      tipo_muestra: TipoMuestra
+      tecnicas: Tecnica[]
+      tecnico_responsable?: Tecnico_responsable
+      centro: Centro
     })[]
   }
 
@@ -162,6 +182,7 @@ export interface SolicitudesStats {
 export interface SolicitudesFiltros {
   estados?: AppEstado[]
   clientes?: number[]
+  pruebas?: number[]
   fechaDesde?: string
   fechaHasta?: string
   soloVencidas?: boolean

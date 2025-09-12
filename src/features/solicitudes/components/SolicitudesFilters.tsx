@@ -1,22 +1,19 @@
-// src/features/solicitudes/components/SolicitudesFilters.tsx
-
 import { useState } from 'react'
-import { FiltrosSolicitudes } from '../interfaces/stats.types'
+import type { SolicitudesFiltros } from '../interfaces/solicitudes.types'
 import { Button } from '@/shared/components/molecules/Button'
 import { Card } from '@/shared/components/molecules/Card'
 import { Filter, X, Calendar, User, TestTube, AlertTriangle } from 'lucide-react'
-import { APP_STATES, ESTADOS_CONFIG } from '@/shared/states'
+import { APP_STATES, AppEstado, ESTADOS_CONFIG } from '@/shared/states'
 
 interface Props {
-  filtros: FiltrosSolicitudes
-  onFiltrosChange: (filtros: FiltrosSolicitudes) => void
-  estadosDisponibles?: string[]
+  filtros: SolicitudesFiltros
+  onFiltrosChange: (filtros: SolicitudesFiltros) => void
+  estadosDisponibles?: AppEstado[]
   clientesDisponibles?: Array<{ id: number; nombre: string }>
   pruebasDisponibles?: Array<{ id: number; prueba: string }>
   isLoading?: boolean
 }
 
-// const ESTADOS_DEFAULT = ['PENDIENTE', 'EN_PROGRESO', 'COMPLETADA', 'CANCELADA', 'VENCIDA']
 const ESTADOS_DEFAULT = [
   APP_STATES.SOLICITUD.PENDIENTE,
   APP_STATES.SOLICITUD.EN_PROCESO,
@@ -34,26 +31,38 @@ export const SolicitudesFilters = ({
 }: Props) => {
   const [mostrarFiltros, setMostrarFiltros] = useState(false)
 
-  const toggleEstado = (estado: string) => {
-    const nuevosEstados = filtros.estados.includes(estado)
-      ? filtros.estados.filter(e => e !== estado)
-      : [...filtros.estados, estado]
+  // ✅ Función mejorada con validación
+  const toggleEstado = (estado: AppEstado) => {
+    if (!estado || typeof estado !== 'string') return
+
+    const estadosActuales = filtros.estados || []
+    const nuevosEstados = estadosActuales.includes(estado)
+      ? estadosActuales.filter(e => e !== estado)
+      : [...estadosActuales, estado]
 
     onFiltrosChange({ ...filtros, estados: nuevosEstados })
   }
 
+  // ✅ Función mejorada con validación
   const toggleCliente = (idCliente: number) => {
-    const nuevosClientes = filtros.clientes.includes(idCliente)
-      ? filtros.clientes.filter(id => id !== idCliente)
-      : [...filtros.clientes, idCliente]
+    if (!idCliente || typeof idCliente !== 'number') return
+
+    const clientesActuales = filtros.clientes || []
+    const nuevosClientes = clientesActuales.includes(idCliente)
+      ? clientesActuales.filter(id => id !== idCliente)
+      : [...clientesActuales, idCliente]
 
     onFiltrosChange({ ...filtros, clientes: nuevosClientes })
   }
 
+  // ✅ Función mejorada con validación
   const togglePrueba = (idPrueba: number) => {
-    const nuevasPruebas = filtros.pruebas.includes(idPrueba)
-      ? filtros.pruebas.filter(id => id !== idPrueba)
-      : [...filtros.pruebas, idPrueba]
+    if (!idPrueba || typeof idPrueba !== 'number') return
+
+    const pruebasActuales = filtros.pruebas || []
+    const nuevasPruebas = pruebasActuales.includes(idPrueba)
+      ? pruebasActuales.filter(id => id !== idPrueba)
+      : [...pruebasActuales, idPrueba]
 
     onFiltrosChange({ ...filtros, pruebas: nuevasPruebas })
   }
@@ -85,22 +94,41 @@ export const SolicitudesFilters = ({
   }
 
   const cantidadFiltrosActivos =
-    filtros.estados.length +
-    filtros.clientes.length +
-    filtros.pruebas.length +
+    (filtros.estados?.length || 0) +
+    (filtros.clientes?.length || 0) +
+    (filtros.pruebas?.length || 0) +
     (filtros.fechaDesde ? 1 : 0) +
     (filtros.fechaHasta ? 1 : 0) +
     (filtros.soloVencidas ? 1 : 0) +
     (filtros.soloHoy ? 1 : 0)
 
-  const getEstadoColor = (estado: string) => {
-    const colors: Record<string, string> = {
-      PENDIENTE: ESTADOS_CONFIG[APP_STATES.SOLICITUD.PENDIENTE].color,
-      EN_PROGRESO: ESTADOS_CONFIG[APP_STATES.SOLICITUD.EN_PROCESO].color,
-      COMPLETADA: ESTADOS_CONFIG[APP_STATES.SOLICITUD.COMPLETADA].color,
-      CANCELADA: ESTADOS_CONFIG[APP_STATES.SOLICITUD.CANCELADA].color
+  // ✅ Función mejorada con mapeo correcto de estados
+  const getEstadoColor = (estado: string): string => {
+    // Verificar si el estado existe en ESTADOS_CONFIG
+    if (ESTADOS_CONFIG[estado]) {
+      return ESTADOS_CONFIG[estado].color
     }
-    return colors[estado] || 'bg-gray-100 text-gray-800 border-gray-200'
+
+    // Fallback para compatibilidad
+    const colorMap: Record<string, string> = {
+      PENDIENTE: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      EN_PROCESO: 'bg-blue-100 text-blue-800 border-blue-200',
+      COMPLETADA: 'bg-green-100 text-green-800 border-green-200',
+      CANCELADA: 'bg-red-100 text-red-800 border-red-200',
+      VENCIDA: 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+
+    return colorMap[estado] || 'bg-gray-100 text-gray-800 border-gray-200'
+  }
+
+  // ✅ Función para formatear etiquetas de estado
+  const formatEstadoLabel = (estado: string): string => {
+    return estado
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
   }
 
   if (isLoading) {
@@ -116,6 +144,7 @@ export const SolicitudesFilters = ({
       {/* Controles principales */}
       <div className="flex flex-wrap items-center gap-3">
         <Button
+          type="button"
           onClick={() => setMostrarFiltros(!mostrarFiltros)}
           className="flex items-center gap-2"
         >
@@ -130,6 +159,7 @@ export const SolicitudesFilters = ({
 
         {/* Filtros rápidos */}
         <Button
+          type="button"
           onClick={() => toggleFiltroRapido('soloVencidas')}
           className={`flex items-center gap-2 ${
             filtros.soloVencidas
@@ -142,6 +172,7 @@ export const SolicitudesFilters = ({
         </Button>
 
         <Button
+          type="button"
           onClick={() => toggleFiltroRapido('soloHoy')}
           className={`flex items-center gap-2 ${
             filtros.soloHoy
@@ -155,6 +186,7 @@ export const SolicitudesFilters = ({
 
         {cantidadFiltrosActivos > 0 && (
           <Button
+            type="button"
             onClick={limpiarFiltros}
             className="flex items-center gap-2 bg-red-50 text-red-600 hover:bg-red-100"
           >
@@ -176,21 +208,27 @@ export const SolicitudesFilters = ({
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Desde</label>
+                  <label htmlFor="fecha-desde" className="block text-xs text-gray-600 mb-1">
+                    Desde
+                  </label>
                   <input
+                    id="fecha-desde"
                     type="date"
                     value={filtros.fechaDesde || ''}
                     onChange={e => actualizarFecha('fechaDesde', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Hasta</label>
+                  <label htmlFor="fecha-hasta" className="block text-xs text-gray-600 mb-1">
+                    Hasta
+                  </label>
                   <input
+                    id="fecha-hasta"
                     type="date"
                     value={filtros.fechaHasta || ''}
                     onChange={e => actualizarFecha('fechaHasta', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -203,14 +241,16 @@ export const SolicitudesFilters = ({
                 {estadosDisponibles.map(estado => (
                   <button
                     key={estado}
+                    type="button"
                     onClick={() => toggleEstado(estado)}
                     className={`px-3 py-2 rounded-full text-xs font-medium border transition-colors ${
-                      filtros.estados.includes(estado)
+                      filtros.estados?.includes(estado)
                         ? getEstadoColor(estado)
                         : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
                     }`}
+                    aria-pressed={filtros.estados?.includes(estado) || false}
                   >
-                    {estado.replace('_', ' ')}
+                    {formatEstadoLabel(estado)}
                   </button>
                 ))}
               </div>
@@ -225,12 +265,15 @@ export const SolicitudesFilters = ({
                 </h4>
                 <div className="max-h-32 overflow-y-auto space-y-2">
                   {clientesDisponibles.map(cliente => (
-                    <label key={cliente.id} className="flex items-center gap-2 cursor-pointer">
+                    <label
+                      key={cliente.id}
+                      className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded"
+                    >
                       <input
                         type="checkbox"
-                        checked={filtros.clientes.includes(cliente.id)}
+                        checked={filtros.clientes?.includes(cliente.id) || false}
                         onChange={() => toggleCliente(cliente.id)}
-                        className="rounded text-blue-600"
+                        className="rounded text-blue-600 focus:ring-2 focus:ring-blue-500"
                       />
                       <span className="text-sm text-gray-700">{cliente.nombre}</span>
                     </label>
@@ -248,12 +291,15 @@ export const SolicitudesFilters = ({
                 </h4>
                 <div className="max-h-32 overflow-y-auto space-y-2">
                   {pruebasDisponibles.map(prueba => (
-                    <label key={prueba.id} className="flex items-center gap-2 cursor-pointer">
+                    <label
+                      key={prueba.id}
+                      className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded"
+                    >
                       <input
                         type="checkbox"
-                        checked={filtros.pruebas.includes(prueba.id)}
+                        checked={filtros.pruebas?.includes(prueba.id) || false}
                         onChange={() => togglePrueba(prueba.id)}
-                        className="rounded text-blue-600"
+                        className="rounded text-blue-600 focus:ring-2 focus:ring-blue-500"
                       />
                       <span className="text-sm text-gray-700">{prueba.prueba}</span>
                     </label>

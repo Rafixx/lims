@@ -10,7 +10,8 @@ export const DEFAULT_MUESTRA: Muestra = {
   condiciones_envio: '',
   tiempo_hielo: '',
   observaciones_muestra: '',
-  tecnicas: []
+  tecnicas: [],
+  estado_muestra: APP_STATES.MUESTRA.RECIBIDA
 }
 
 export const EMPTY_SOLICITUD_FORM: Solicitud = {

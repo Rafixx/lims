@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { formatDate } from '@/shared/utils/helpers'
 import { ChevronDown, ChevronUp, Edit, Trash2, Calendar, User } from 'lucide-react'
 import type { SolicitudAPIResponse } from '../interfaces/solicitudes.types'
 import { IconButton } from '@/shared/components/molecules/IconButton'
@@ -8,25 +9,6 @@ interface Props {
   solicitud: SolicitudAPIResponse
   onEdit: (solicitud: SolicitudAPIResponse) => void
   onDelete: (solicitud: SolicitudAPIResponse) => void
-}
-
-const formatDate = (dateString?: string | null): string => {
-  if (!dateString) return 'N/A'
-
-  try {
-    const date = new Date(dateString)
-    if (isNaN(date.getTime())) return 'N/A'
-
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  } catch {
-    return 'N/A'
-  }
 }
 
 export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
@@ -43,9 +25,9 @@ export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
             <div className="flex-1">
               <div className="flex items-center gap-3">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  {solicitud.num_solicitud || `SOL-${solicitud.id_solicitud}`}
+                  {solicitud.num_solicitud || `SOL-ID-${solicitud.id_solicitud}`}
                 </h3>
-                <SolicitudBadge estado={solicitud.estado_solicitud || 'PENDIENTE'} />
+                <SolicitudBadge estado={solicitud.estado_solicitud || 'SIN ESTADO'} />
               </div>
 
               <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
@@ -97,36 +79,6 @@ export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
       {/* Contenido expandido */}
       {expanded && (
         <div className="px-4 pb-4 border-t bg-gray-50">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            {/* Fechas importantes */}
-            <div>
-              <h4 className="font-medium text-gray-900 mb-2">Fechas</h4>
-              <div className="space-y-1 text-sm">
-                <div>
-                  <strong>Compromiso:</strong> {formatDate(solicitud.f_compromiso)}
-                </div>
-                <div>
-                  <strong>Entrega:</strong> {formatDate(solicitud.f_entrega)}
-                </div>
-              </div>
-            </div>
-
-            {/* Información adicional */}
-            <div>
-              <h4 className="font-medium text-gray-900 mb-2">Detalles</h4>
-              <div className="space-y-1 text-sm">
-                <div>
-                  <strong>ID Cliente:</strong> {solicitud.id_cliente}
-                </div>
-                {solicitud.observaciones && (
-                  <div>
-                    <strong>Observaciones:</strong> {solicitud.observaciones}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
           {/* Muestras */}
           {solicitud.muestras && solicitud.muestras.length > 0 && (
             <div className="mt-4">
@@ -134,15 +86,25 @@ export const SolicitudCard = ({ solicitud, onEdit, onDelete }: Props) => {
               <div className="space-y-2">
                 {solicitud.muestras.map((muestra, index) => (
                   <div key={muestra.id_muestra || index} className="bg-white p-3 rounded border">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-6 gap-2 text-sm">
                       <div>
-                        <strong>Código:</strong> {muestra.codigo_muestra || 'N/A'}
+                        <strong>Cod. Epidisease:</strong> {muestra.codigo_epi || 'N/A'}
+                      </div>
+                      <div>
+                        <strong>Cod. Externo:</strong> {muestra.codigo_externo || 'N/A'}
+                      </div>
+                      <div>
+                        <strong>Centro:</strong> {muestra.centro?.descripcion || 'N/A'}
                       </div>
                       <div>
                         <strong>Paciente:</strong> {muestra.paciente?.nombre || 'N/A'}
                       </div>
                       <div>
                         <strong>Prueba:</strong> {muestra.prueba?.prueba || 'N/A'}
+                      </div>
+                      <div>
+                        <SolicitudBadge estado={muestra.estado_muestra || 'SIN ESTADO'} />
+                        {/* <strong>Estado:</strong> {muestra.estado_muestra || 'N/A'} */}
                       </div>
                     </div>
 

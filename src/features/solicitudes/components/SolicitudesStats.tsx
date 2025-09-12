@@ -1,7 +1,7 @@
 // src/features/solicitudes/components/SolicitudesStats.tsx
 
 import { Card } from '@/shared/components/molecules/Card'
-import { SolicitudesStats as SolicitudesStatsType } from '../interfaces/stats.types'
+import type { SolicitudesStats as SolicitudesStatsType } from '../interfaces/solicitudes.types'
 import {
   FileText,
   Clock,

@@ -1,5 +1,5 @@
 export const formatDate = (dateString?: string) =>
-  dateString ? new Date(dateString).toISOString().split('T')[0] : undefined
+  dateString ? new Date(dateString).toISOString().split('T')[0].replace(/-/g, '/') : undefined
 
 export const normalizeDates = <T>(obj: T): T => {
   if (Array.isArray(obj)) {
@@ -26,3 +26,22 @@ export const isIsoDate = (value: string): boolean => {
   // ISO 8601: 2025-05-01T00:00:00.000Z
   return /^\d{4}-\d{2}-\d{2}T/.test(value)
 }
+
+// export const formatDate = (dateString?: string | null, hourMinute: boolean = false): string => {
+//   if (!dateString) return 'N/A'
+
+//   try {
+//     const date = new Date(dateString)
+//     if (isNaN(date.getTime())) return 'N/A'
+
+//     return date.toLocaleDateString('es-ES', {
+//       year: 'numeric',
+//       month: '2-digit',
+//       day: '2-digit'
+//       // hour: '2-digit',
+//       // minute: '2-digit'
+//     })
+//   } catch {
+//     return 'N/A'
+//   }
+// }
