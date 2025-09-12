@@ -1,6 +1,6 @@
 import axios from 'axios'
-import { BASE_URL } from '../constants'
-import { TOKEN_KEY } from '../constants'
+import { BASE_URL } from '../constants/constants'
+import { TOKEN_KEY } from '../constants/constants'
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,

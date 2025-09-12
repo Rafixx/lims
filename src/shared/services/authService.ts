@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient'
-import { TOKEN_KEY } from '../constants'
+import { TOKEN_KEY } from '../constants/constants'
 
 export interface LoginPayload {
   username: string

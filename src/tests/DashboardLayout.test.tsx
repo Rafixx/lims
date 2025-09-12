@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { DashboardLayout } from '../layouts/DashboardLayout'
 import { UserProvider } from '../shared/contexts/UserContext'
-import { TOKEN_KEY } from '../shared/constants'
+import { TOKEN_KEY } from '../shared/constants/constants'
 
 const fakeToken = [
   btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' })),

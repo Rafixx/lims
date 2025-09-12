@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { jwtDecode } from 'jwt-decode'
-import { TOKEN_KEY } from '../constants'
+import { TOKEN_KEY } from '../constants/constants'
 
 interface DecodedToken {
   id: number

@@ -3,7 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { LoginPage } from '../pages/LoginPage'
 import { UserProvider } from '@/shared/contexts/UserContext'
 import * as authService from '@/shared/services/authService'
-import { TOKEN_KEY } from '@/shared/constants'
+import { TOKEN_KEY } from '@/shared/constants/constants'
 import { NotificationProvider } from '@/shared/components/Notification/NotificationContext'
 
 jest.mock('@/shared/services/authService')
