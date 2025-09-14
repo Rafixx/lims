@@ -1,5 +1,7 @@
 // src/features/workList/interfaces/worklist.types.ts
 
+import type { TecnicaEstado, MuestraEstado, AppEstado } from '@/shared/states'
+
 export interface TecnicaProc {
   id: number
   tecnica_proc: string
@@ -18,7 +20,7 @@ export interface TecnicaPendiente {
   id_tecnica_proc: number
   id_tecnico_resp: number | null
   fecha_inicio_tec: string | null
-  estado: 'PENDIENTE' | 'EN_PROGRESO' | 'COMPLETADA' | 'CANCELADA'
+  estado: TecnicaEstado // ✅ Usando tipo centralizado
   fecha_estado: string
   comentarios: string | null
   created_by: number
@@ -77,8 +79,21 @@ export interface MuestraDetalle {
   comentarios: string | null
   codigo_solicitud: string
   id_solicitud: number
+  estado_muestra?: MuestraEstado // ✅ Usando tipo centralizado
 }
 
 export interface TecnicaConMuestra extends TecnicaPendiente {
   muestra: MuestraDetalle
+}
+
+// Tipos para análisis de estados usando el sistema centralizado
+export interface EstadisticasWorklist {
+  total_tecnicas_pendientes: number
+  total_procesos: number
+  total_tecnicas_en_progreso: number
+  total_tecnicas_completadas_hoy: number
+  promedio_tiempo_procesamiento: number | null
+  // ✅ Estadísticas por estado usando tipos centralizados
+  conteo_por_estado: Record<TecnicaEstado, number>
+  estados_criticos: TecnicaEstado[]
 }

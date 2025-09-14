@@ -142,7 +142,7 @@ export const MuestraDetailCard = ({
 
         {/* Acciones */}
         <div className="flex space-x-2">
-          {tecnica.estado === 'PENDIENTE' && tecnica.id_tecnico_resp && (
+          {tecnica.estado === APP_STATES.TECNICA.PENDIENTE && tecnica.id_tecnico_resp && (
             <Button
               variant="primary"
               onClick={() => onIniciarTecnica(tecnica.id_tecnica)}
