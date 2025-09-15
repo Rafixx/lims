@@ -1,42 +1,59 @@
 // ============================================
-// WORKLIST FEATURE - PUBLIC API
+// WORKLIST FEATURE - PUBLIC API (NUEVA ARQUITECTURA)
 // ============================================
 
 // 📄 Pages (Páginas principales)
-export { WorkListPage } from './pages/WorkListPage'
+export { WorkListsPage } from './pages/WorkListsPage'
+export { CreateWorklistPage } from './pages/CreateWorklistPage'
+export { WorklistDetailPage } from './pages/WorklistDetailPage'
 
-// 🎯 Hooks (Lógica de negocio)
-export * from './hooks/useWorklist'
+// 🎯 Hooks (Nueva lógica de negocio)
+export * from './hooks/useWorklistsNew'
 export * from './hooks/useTecnicosLab'
-// ✅ Nuevo hook con integración de estados centralizados
-export { useWorklistWithStates } from './hooks/useWorklistNew'
 
-// 🧩 Components (Componentes reutilizables)
+// 🧩 Components (Componentes reutilizables - mantenidos)
 export { TecnicaCard } from './components/TecnicaCard'
 export { MuestraDetailCard } from './components/MuestraDetailCard'
 export { WorklistStats } from './components/WorklistStats'
-// ✅ Nuevo componente con estados centralizados
 export { WorklistWithStates } from './components/WorklistWithStates'
 
-// 📋 Types (Interfaces y tipos)
+// 📋 Types (Nuevas interfaces y tipos)
 export type {
   // Tipos principales
-  TecnicaPendiente,
-  TecnicaAgrupada,
-  TecnicaConProceso,
-  TecnicaConMuestra,
-  MuestraDetalle,
+  Worklist,
+  TecnicaWorklist,
+  TecnicaSinAsignar,
+  TecnicaSeleccionable,
 
-  // Tipos para estadísticas mejoradas
-  EstadisticasWorklist,
+  // Tipos de configuración
+  DimTecnicasProc,
+  WorklistEstadisticas,
+  TecnicasAgrupadasWorklist,
 
-  // Tipos de servicio
-  AsignacionTecnico,
-  ProcesoInfo
+  // Tipos de Request/Response
+  CreateWorklistRequest,
+  AsignarTecnicasRequest,
+  RemoverTecnicasRequest,
+  AsignarTecnicoRequest,
+  ApiResponse,
+
+  // Tipos de utilidad
+  FiltrosTecnicas,
+  TecnicoLab
 } from './interfaces/worklist.types'
 
-// 🔧 Services (Servicios)
-export { worklistService } from './services/worklistService'
+// 🔧 Services (Nuevo servicio)
+export { worklistServiceNew } from './services/worklistServiceNew'
 
-// 📚 Integration Examples (Ejemplos de integración)
-// export { MuestraCard, useWorkListStates } from './integration/estadosCentralizados.example'
+// =======================================
+// LEGACY EXPORTS (Para compatibilidad)
+// =======================================
+
+// 🔄 Mantener compatibilidad temporal
+export { WorkListPage } from './pages/WorkListPage'
+export {
+  useTecnicasAgrupadasPorProceso,
+  useTecnicasPorProceso,
+  useWorklistStats
+} from './hooks/useWorklist'
+export { useWorklistWithStates } from './hooks/useWorklistNew'

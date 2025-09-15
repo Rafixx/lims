@@ -1,99 +1,245 @@
 // src/features/workList/interfaces/worklist.types.ts
 
-import type { TecnicaEstado, MuestraEstado, AppEstado } from '@/shared/states'
+import type { TecnicaEstado } from '@/shared/states'
 
-export interface TecnicaProc {
+// ==========================================
+// TIPOS LEGACY (para compatibilidad con componentes existentes)
+// ==========================================
+
+export interface TecnicaConMuestra {
   id: number
-  tecnica_proc: string
-  orden: number
-  obligatoria: boolean
-  activa: boolean
-  created_by: number
-  update_dt: string
-  id_prueba: number
-  id_plantilla_tecnica: number
-}
-
-export interface TecnicaPendiente {
-  id_tecnica: number
-  id_muestra: number
-  id_tecnica_proc: number
-  id_tecnico_resp: number | null
-  fecha_inicio_tec: string | null
-  estado: TecnicaEstado // ✅ Usando tipo centralizado
-  fecha_estado: string
-  comentarios: string | null
-  created_by: number
-  updated_by: number | null
-  tecnica_proc?: TecnicaProc
-}
-
-export interface TecnicaConProceso extends TecnicaPendiente {
-  tecnica_proc: TecnicaProc
+  nombre: string
+  codigo: string
+  muestras: unknown[]
+  estado: string
+  tecnico_asignado?: string
 }
 
 export interface TecnicaAgrupada {
-  id_tecnica_proc: number
-  tecnica_proc: string
-  cantidad: number
-  proceso?: TecnicaProc
+  proceso: string
+  codigo_proceso: string
+  tecnicas: TecnicaConMuestra[]
+  total_muestras: number
+  completadas: number
+  pendientes: number
+  estado: string
 }
 
-// Interfaz para los datos que llegan del backend (formato diferente)
 export interface TecnicaAgrupadaBackend {
-  id_tecnica_proc: number
-  tecnica_proc: string
-  count: string // El backend envía esto como string
+  proceso: string
+  codigo_proceso: string
+  tecnicas: TecnicaConMuestra[]
+  total_muestras: number
+  completadas: number
+  pendientes: number
+  estado: string
 }
 
-export interface ProcesoInfo {
-  id_tecnica_proc: number
-  tecnica_proc: string
-  total_tecnicas: number
+export interface TecnicaPendiente {
+  id: number
+  nombre: string
+  codigo: string
+  proceso: string
+  estado: string
+  total_muestras: number
+  completadas: number
+  pendientes: number
+}
+
+export interface TecnicaConProceso extends TecnicaPendiente {
+  codigo_proceso: string
 }
 
 export interface WorklistStats {
-  total_tecnicas_pendientes: number
-  total_procesos: number
-  total_tecnicas_en_progreso: number
-  total_tecnicas_completadas_hoy: number
-  promedio_tiempo_procesamiento: number | null
+  total_tecnicas: number
+  tecnicas_pendientes: number
+  tecnicas_en_proceso: number
+  tecnicas_completadas: number
+  total_muestras: number
+  muestras_pendientes: number
+  muestras_completadas: number
 }
 
-export interface TecnicoPorProceso {
-  id_tecnica_proc: number
-  tecnicas: TecnicaPendiente[]
+export interface ProcesoInfo {
+  codigo: string
+  nombre: string
+  tecnicas_count: number
+  muestras_count: number
+  estado: string
 }
 
 export interface AsignacionTecnico {
-  id_tecnica: number
-  id_tecnico_resp: number
+  tecnica_id: number
+  tecnico_id: string
+  fecha_asignacion?: string
 }
 
-export interface MuestraDetalle {
-  id_muestra: number
-  nombre_paciente: string
-  fecha_creacion: string
-  fecha_extraccion: string | null
-  tipo_muestra: string
-  comentarios: string | null
-  codigo_solicitud: string
-  id_solicitud: number
-  estado_muestra?: MuestraEstado // ✅ Usando tipo centralizado
-}
-
-export interface TecnicaConMuestra extends TecnicaPendiente {
-  muestra: MuestraDetalle
-}
-
-// Tipos para análisis de estados usando el sistema centralizado
 export interface EstadisticasWorklist {
-  total_tecnicas_pendientes: number
-  total_procesos: number
-  total_tecnicas_en_progreso: number
-  total_tecnicas_completadas_hoy: number
-  promedio_tiempo_procesamiento: number | null
-  // ✅ Estadísticas por estado usando tipos centralizados
+  total_worklists: number
+  completadas: number
+  en_proceso: number
+  pendientes: number
+  total_tecnicas: number
+  tecnicas_sin_asignar: number
+}
+
+// ================================
+// TIPOS PRINCIPALES DE WORKLIST
+// ================================
+
+/**
+ * Entidad Worklist principal
+ */
+export interface Worklist {
+  id_worklist: number
+  nombre: string
+  create_dt: string
+  delete_dt?: string
+  update_dt: string
+  created_by?: number
+  updated_by?: number
+  // Campos adicionales calculados
+  total_tecnicas?: number
+  tecnicas_completadas?: number
+  dim_tecnicas_proc?: string
+}
+
+/**
+ * Técnica asociada a un worklist
+ */
+export interface TecnicaWorklist {
+  id: number
+  codigo: string
+  estado: TecnicaEstado
+  id_worklist?: number
+  proceso_nombre: string
+  dim_tecnicas_proc: string
+  muestra: {
+    codigo: string
+    paciente_nombre: string
+    fecha_recepcion: string
+  }
+  fecha_creacion: string
+  prioridad: number
+  tiempo_estimado?: number
+  tecnico_asignado?: {
+    id: number
+    nombre: string
+  }
+}
+
+/**
+ * Técnica sin asignar a ningún worklist
+ */
+export interface TecnicaSinAsignar {
+  id: number
+  codigo: string
+  estado: TecnicaEstado
+  proceso_nombre: string
+  dim_tecnicas_proc: string
+  muestra_codigo: string
+  paciente_nombre: string
+  fecha_creacion: string
+  prioridad: number
+}
+
+/**
+ * Información de proceso de técnicas
+ */
+export interface DimTecnicasProc {
+  dim_tecnicas_proc: string
+  descripcion?: string
+  total_tecnicas_disponibles: number
+}
+
+/**
+ * Request para crear nuevo worklist
+ */
+export interface CreateWorklistRequest {
+  nombre: string
+  dim_tecnicas_proc: string
+  tecnicas_seleccionadas: number[]
+}
+
+/**
+ * Request para asignar técnicas a worklist
+ */
+export interface AsignarTecnicasRequest {
+  tecnicas_ids: number[]
+}
+
+/**
+ * Request para remover técnicas de worklist
+ */
+export interface RemoverTecnicasRequest {
+  tecnicas_ids: number[]
+}
+
+/**
+ * Estadísticas de un worklist específico
+ */
+export interface WorklistEstadisticas {
+  total_tecnicas: number
+  tecnicas_pendientes: number
+  tecnicas_en_progreso: number
+  tecnicas_completadas: number
+  porcentaje_completado: number
+  tiempo_promedio_procesamiento?: number
   conteo_por_estado: Record<TecnicaEstado, number>
-  estados_criticos: TecnicaEstado[]
+}
+
+/**
+ * Técnicas agrupadas por proceso en un worklist
+ */
+export interface TecnicasAgrupadasWorklist {
+  dim_tecnicas_proc: string
+  proceso_nombre: string
+  tecnicas: TecnicaWorklist[]
+  total: number
+  completadas: number
+  porcentaje_completado: number
+}
+
+/**
+ * Información del técnico de laboratorio
+ */
+export interface TecnicoLab {
+  id: number
+  nombre: string
+  email?: string
+  activo: boolean
+}
+
+/**
+ * Request para asignar técnico a una técnica
+ */
+export interface AsignarTecnicoRequest {
+  id_tecnico: number
+}
+
+/**
+ * Response estándar de la API
+ */
+export interface ApiResponse<T = unknown> {
+  success: boolean
+  data: T
+  message: string
+  error?: unknown
+}
+
+/**
+ * Parámetros para filtros de técnicas
+ */
+export interface FiltrosTecnicas {
+  dim_tecnicas_proc?: string
+  estado?: TecnicaEstado
+  fecha_desde?: string
+  fecha_hasta?: string
+}
+
+/**
+ * Estado de selección para crear worklist
+ */
+export interface TecnicaSeleccionable extends TecnicaSinAsignar {
+  seleccionada: boolean
 }
