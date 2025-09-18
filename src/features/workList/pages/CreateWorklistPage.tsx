@@ -6,7 +6,7 @@ import {
   useProcesosDisponibles,
   useTecnicasSinAsignar,
   useCreateWorklist
-} from '../hooks/useWorklistsNew'
+} from '../hooks/useWorklists'
 import { Card } from '@/shared/components/molecules/Card'
 import { Button } from '@/shared/components/molecules/Button'
 import { ArrowLeft, Search, CheckCircle, Circle, User, Calendar, AlertTriangle } from 'lucide-react'
@@ -100,7 +100,7 @@ export const CreateWorklistPage = () => {
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
           <Button
-            variant="ghost"
+            variant="accent"
             onClick={() => navigate('/worklist')}
             className="flex items-center gap-2"
           >
@@ -151,8 +151,8 @@ export const CreateWorklistPage = () => {
               >
                 <option value="">Seleccionar proceso...</option>
                 {procesos?.map(proceso => (
-                  <option key={proceso.dim_tecnicas_proc} value={proceso.dim_tecnicas_proc}>
-                    {proceso.descripcion || proceso.dim_tecnicas_proc}(
+                  <option key={proceso.dim_tecnicas_proc} value={proceso.tecnica_proc}>
+                    {proceso.tecnica_proc || proceso.dim_tecnicas_proc}(
                     {proceso.total_tecnicas_disponibles} técnicas disponibles)
                   </option>
                 ))}
@@ -172,7 +172,7 @@ export const CreateWorklistPage = () => {
               {totalCount > 0 && (
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="accent"
                   onClick={toggleAll}
                   className="flex items-center gap-2"
                 >
@@ -238,7 +238,7 @@ export const CreateWorklistPage = () => {
 
         {/* Botones de Acción */}
         <div className="flex justify-end gap-3">
-          <Button type="button" variant="ghost" onClick={() => navigate('/worklist')}>
+          <Button type="button" variant="primary" onClick={() => navigate('/worklist')}>
             Cancelar
           </Button>
 

@@ -64,25 +64,29 @@ export const WorklistStats = ({ stats, isLoading = false }: Props) => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <StatCard
         title="Técnicas Pendientes"
-        value={getSafeValue(stats?.total_tecnicas_pendientes).toString()}
+        value="1"
+        // value= 1 {getSafeValue(stats?.total_tecnicas_pendientes).toString()}
         icon={<AlertCircle className="h-6 w-6" />}
         color="warning"
       />
       <StatCard
         title="En Progreso"
-        value={getSafeValue(stats?.total_tecnicas_en_progreso).toString()}
+        value="2"
+        // value={getSafeValue(stats?.total_tecnicas_en_progreso).toString()}
         icon={<Clock className="h-6 w-6" />}
         color="info"
       />
       <StatCard
         title="Completadas Hoy"
-        value={getSafeValue(stats?.total_tecnicas_completadas_hoy).toString()}
+        value="3"
+        // value={getSafeValue(stats?.total_tecnicas_completadas_hoy).toString()}
         icon={<CheckCircle className="h-6 w-6" />}
         color="success"
       />
       <StatCard
         title="Procesos Activos"
-        value={getSafeValue(stats?.total_procesos).toString()}
+        value="4"
+        // value={getSafeValue(stats?.total_procesos).toString()}
         icon={<TrendingUp className="h-6 w-6" />}
         color="primary"
       />

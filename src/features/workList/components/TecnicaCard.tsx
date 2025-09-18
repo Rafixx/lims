@@ -15,13 +15,13 @@ export const TecnicaCard = ({ tecnica, onClick, isSelected = false }: Props) => 
   const [isHovered, setIsHovered] = useState(false)
 
   const handleClick = () => {
-    onClick(tecnica.id_tecnica_proc)
+    // onClick(tecnica.id_tecnica_proc)
   }
 
   // Valores seguros para evitar errores
-  const safeOrden = tecnica.proceso?.orden ?? 0
-  const safeObligatoria = tecnica.proceso?.obligatoria ?? false
-  const safeCantidad = tecnica.cantidad ?? 0
+  const safeOrden = '' //tecnica.proceso?.orden ?? 0
+  const safeObligatoria = '' // tecnica.proceso?.obligatoria ?? false
+  const safeCantidad = 0 //tecnica.cantidad ?? 0
 
   return (
     <div
@@ -39,7 +39,9 @@ export const TecnicaCard = ({ tecnica, onClick, isSelected = false }: Props) => 
               <Beaker className="h-8 w-8 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-medium text-gray-900 truncate">{tecnica.tecnica_proc}</h3>
+              <h3 className="text-lg font-medium text-gray-900 truncate">
+                {tecnica.total_muestras}
+              </h3>
               <div className="flex items-center space-x-2 text-sm text-gray-500">
                 <Clock className="h-4 w-4" />
                 {tecnica.proceso ? (
@@ -52,7 +54,7 @@ export const TecnicaCard = ({ tecnica, onClick, isSelected = false }: Props) => 
                     )}
                   </>
                 ) : (
-                  <span>ID: {tecnica.id_tecnica_proc}</span>
+                  <span>ID: {tecnica.total_muestras}</span>
                 )}
               </div>
             </div>

@@ -1,2 +1,2 @@
-export const BASE_URL = process.env.VITE_BASE_URL || 'http://localhost:3000/api'
-export const TOKEN_KEY = process.env.VITE_TOKEN_KEY || 'LIMS_TOKEN'
+export const BASE_URL = (import.meta.env.VITE_BASE_URL as string) || 'http://localhost:3002/api'
+export const TOKEN_KEY = (import.meta.env.VITE_TOKEN_KEY as string) || 'LIMS_TOKEN'

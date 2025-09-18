@@ -8,8 +8,8 @@ import { HomePage } from '@/features/dashboard/pages/HomePage'
 import {
   WorkListsPage,
   CreateWorklistPage,
-  WorklistDetailPage,
-  WorkListPage
+  WorklistDetailPage
+  // WorkListPage // TODO: Página legacy no disponible
 } from '@/features/workList'
 import { SolicitudesSimplePage } from '@/features/solicitudes/pages/SolicitudesSimplePage'
 import { SolicitudFormPage } from '@/features/solicitudes/pages/SolicitudesFormPage'
@@ -33,10 +33,10 @@ export const router = createBrowserRouter([
       // Nuevas rutas de WorkList
       { path: 'worklist', element: <WorkListsPage /> },
       { path: 'worklist/nuevo', element: <CreateWorklistPage /> },
-      { path: 'worklist/:id', element: <WorklistDetailPage /> },
+      { path: 'worklist/:id', element: <WorklistDetailPage /> }
 
-      // Mantener ruta legacy para compatibilidad temporal
-      { path: 'workList', element: <WorkListPage /> }
+      // Mantener ruta legacy para compatibilidad temporal (redirige a nueva página)
+      // { path: 'workList', element: <WorkListPage /> } // TODO: Página legacy no disponible
     ]
   }
 ])

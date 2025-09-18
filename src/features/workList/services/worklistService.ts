@@ -1,127 +1,154 @@
-// src/features/workList/services/worklistService.ts
+// src/features/workList/services/worklistServiceNew.ts
 
 import { apiClient } from '@/shared/services/apiClient'
-import {
-  TecnicaPendiente,
-  TecnicaAgrupada,
-  TecnicaAgrupadaBackend,
-  TecnicaConProceso,
-  WorklistStats,
-  ProcesoInfo,
-  AsignacionTecnico,
-  TecnicaConMuestra
+import type {
+  Worklist,
+  TecnicaSinAsignar,
+  WorklistEstadisticas,
+  TecnicasAgrupadasWorklist,
+  CreateWorklistRequest,
+  AsignarTecnicasRequest,
+  RemoverTecnicasRequest,
+  AsignarTecnicoRequest,
+  DimTecnicasProc,
+  ApiResponse
 } from '../interfaces/worklist.types'
 
-export const worklistService = {
-  // Obtiene todas las técnicas pendientes
-  getTecnicasPendientes: async (): Promise<TecnicaPendiente[]> => {
-    const { data } = await apiClient.get('/worklist/tecnicas-pendientes')
-    return data.data || []
-  },
+// ================================
+// SERVICIO DE WORKLIST
+// ================================
 
-  // Obtiene técnicas agrupadas por proceso/técnica
-  getTecnicasAgrupadasPorProceso: async (): Promise<TecnicaAgrupada[]> => {
-    try {
-      const { data } = await apiClient.get('/worklist/tecnicas-agrupadas')
-      const backendData: TecnicaAgrupadaBackend[] = data.data || []
+class WorklistService {
+  private readonly basePath = '/worklist'
 
-      // Mapear los datos del backend al formato esperado por la interfaz
-      const mappedData: TecnicaAgrupada[] = backendData.map(item => ({
-        id_tecnica_proc: item.id_tecnica_proc,
-        tecnica_proc: item.tecnica_proc,
-        cantidad: parseInt(item.count) || 0,
-        // El proceso no viene del backend, se asignará posteriormente o será undefined
-        proceso: undefined
-      }))
+  // ================================
+  // CRUD DE WORKLIST
+  // ================================
 
-      return mappedData
-    } catch (error) {
-      console.error('Error fetching tecnicas agrupadas:', error)
-      return []
-    }
-  },
+  /**
+   * Crear nuevo worklist
+   */
+  async crearWorklist(data: CreateWorklistRequest): Promise<Worklist> {
+    const response = await apiClient.post<ApiResponse<Worklist>>(this.basePath, data)
+    return response.data.data
+  }
 
-  // Obtiene técnicas pendientes con información del proceso incluida
-  getTecnicasPendientesConProceso: async (): Promise<TecnicaConProceso[]> => {
-    const { data } = await apiClient.get('/worklist/tecnicas-con-proceso')
-    return data.data || []
-  },
+  /**
+   * Obtener todos los worklists
+   */
+  async obtenerWorklists(): Promise<Worklist[]> {
+    const response = await apiClient.get<ApiResponse<Worklist[]>>(this.basePath)
+    return response.data.data
+  }
 
-  // Obtiene estadísticas completas del worklist
-  getWorklistStats: async (): Promise<WorklistStats> => {
-    try {
-      const { data } = await apiClient.get('/worklist/estadisticas')
-      const stats = data.data || {}
+  /**
+   * Obtener técnicas sin asignar por tipo de proceso
+   */
+  async obtenerTecnicasSinAsignar(dimTecnicasProc?: string): Promise<TecnicaSinAsignar[]> {
+    const params = dimTecnicasProc ? { dim_tecnicas_proc: dimTecnicasProc } : {}
+    const response = await apiClient.get<ApiResponse<TecnicaSinAsignar[]>>(
+      `${this.basePath}/tecnicas-sin-asignar`,
+      { params }
+    )
+    return response.data.data
+  }
 
-      // Asegurar que todas las propiedades necesarias existen
-      return {
-        total_tecnicas_pendientes: stats.total_tecnicas_pendientes || 0,
-        total_tecnicas_en_progreso: stats.total_tecnicas_en_progreso || 0,
-        total_tecnicas_completadas_hoy: stats.total_tecnicas_completadas_hoy || 0,
-        total_procesos: stats.total_procesos || 0,
-        promedio_tiempo_procesamiento: stats.promedio_tiempo_procesamiento || null
-      }
-    } catch (error) {
-      console.error('Error getting worklist stats:', error)
-      // Valores por defecto en caso de error
-      return {
-        total_tecnicas_pendientes: 0,
-        total_tecnicas_en_progreso: 0,
-        total_tecnicas_completadas_hoy: 0,
-        total_procesos: 0,
-        promedio_tiempo_procesamiento: null
-      }
-    }
-  },
+  /**
+   * Obtener procesos disponibles para crear worklist
+   */
+  async obtenerProcesosDisponibles(): Promise<DimTecnicasProc[]> {
+    const response = await apiClient.get<ApiResponse<DimTecnicasProc[]>>(
+      `${this.basePath}/procesos-disponibles`
+    )
+    return response.data.data
+  }
 
-  // Obtiene procesos que tienen técnicas pendientes
-  getProcesosPendientes: async (): Promise<ProcesoInfo[]> => {
-    const { data } = await apiClient.get('/worklist/procesos-pendientes')
-    return data.data || []
-  },
+  /**
+   * Obtener worklist por ID
+   */
+  async obtenerWorklistPorId(id: number): Promise<Worklist> {
+    const response = await apiClient.get<ApiResponse<Worklist>>(`${this.basePath}/${id}`)
+    return response.data.data
+  }
 
-  // Obtiene el conteo total de técnicas pendientes
-  getConteoTecnicasPendientes: async (): Promise<{ total: number }> => {
-    const { data } = await apiClient.get('/worklist/conteo')
-    return data.data || { total: 0 }
-  },
+  /**
+   * Actualizar worklist
+   */
+  async actualizarWorklist(id: number, data: Partial<Worklist>): Promise<Worklist> {
+    const response = await apiClient.put<ApiResponse<Worklist>>(`${this.basePath}/${id}`, data)
+    return response.data.data
+  }
 
-  // Obtiene técnicas pendientes para un proceso específico
-  getTecnicasPendientesPorProceso: async (idTecnicaProc: number): Promise<TecnicaConMuestra[]> => {
-    try {
-      const { data } = await apiClient.get(`/worklist/proceso/${idTecnicaProc}/tecnicas`)
-      // Access the actual data from the response structure
-      return Array.isArray(data.data) ? data.data : []
-    } catch (error) {
-      console.error('Error fetching tecnicas por proceso:', error)
-      throw error
-    }
-  },
+  /**
+   * Eliminar worklist
+   */
+  async eliminarWorklist(id: number): Promise<void> {
+    await apiClient.delete<ApiResponse<void>>(`${this.basePath}/${id}`)
+  }
 
-  // Valida si existe un proceso específico con técnicas pendientes
-  existeProcesoConTecnicasPendientes: async (
-    idTecnicaProc: number
-  ): Promise<{ existe: boolean }> => {
-    const { data } = await apiClient.get(`/worklist/proceso/${idTecnicaProc}/existe`)
-    return data.data || { existe: false }
-  },
+  // ================================
+  // OPERACIONES ESPECÍFICAS DE WORKLIST
+  // ================================
 
-  // Asignar técnico a una técnica específica (asumiendo que existe este endpoint)
-  asignarTecnico: async (asignacion: AsignacionTecnico): Promise<void> => {
-    await apiClient.patch(`/worklist/tecnica/${asignacion.id_tecnica}/asignar`, {
-      id_tecnico_resp: asignacion.id_tecnico_resp
-    })
-  },
+  /**
+   * Asignar técnicas a un worklist
+   */
+  async asignarTecnicas(id: number, data: AsignarTecnicasRequest): Promise<void> {
+    await apiClient.post<ApiResponse<void>>(`${this.basePath}/${id}/asignar-tecnicas`, data)
+  }
 
-  // Iniciar una técnica (cambiar estado a en_progreso)
-  iniciarTecnica: async (idTecnica: number): Promise<void> => {
-    await apiClient.patch(`/worklist/tecnica/${idTecnica}/iniciar`)
-  },
+  /**
+   * Remover técnicas de un worklist
+   */
+  async removerTecnicas(id: number, data: RemoverTecnicasRequest): Promise<void> {
+    await apiClient.delete<ApiResponse<void>>(`${this.basePath}/${id}/remover-tecnicas`, { data })
+  }
 
-  // Completar una técnica
-  completarTecnica: async (idTecnica: number, comentarios?: string): Promise<void> => {
-    await apiClient.patch(`/worklist/tecnica/${idTecnica}/completar`, {
-      comentarios
-    })
+  /**
+   * Obtener estadísticas de un worklist
+   */
+  async obtenerEstadisticas(id: number): Promise<WorklistEstadisticas> {
+    const response = await apiClient.get<ApiResponse<WorklistEstadisticas>>(
+      `${this.basePath}/${id}/estadisticas`
+    )
+    return response.data.data
+  }
+
+  /**
+   * Obtener técnicas agrupadas por proceso de un worklist
+   */
+  async obtenerTecnicasAgrupadas(id: number): Promise<TecnicasAgrupadasWorklist[]> {
+    const response = await apiClient.get<ApiResponse<TecnicasAgrupadasWorklist[]>>(
+      `${this.basePath}/${id}/tecnicas-agrupadas`
+    )
+    return response.data.data
+  }
+
+  // ================================
+  // DELEGACIÓN DE OPERACIONES DE TÉCNICA
+  // ================================
+
+  /**
+   * Asignar técnico a una técnica
+   */
+  async asignarTecnico(idTecnica: number, data: AsignarTecnicoRequest): Promise<void> {
+    await apiClient.patch<ApiResponse<void>>(`${this.basePath}/tecnica/${idTecnica}/asignar`, data)
+  }
+
+  /**
+   * Iniciar técnica
+   */
+  async iniciarTecnica(idTecnica: number): Promise<void> {
+    await apiClient.patch<ApiResponse<void>>(`${this.basePath}/tecnica/${idTecnica}/iniciar`)
+  }
+
+  /**
+   * Completar técnica
+   */
+  async completarTecnica(idTecnica: number): Promise<void> {
+    await apiClient.patch<ApiResponse<void>>(`${this.basePath}/tecnica/${idTecnica}/completar`)
   }
 }
+
+// Exportar instancia singleton
+export const worklistService = new WorklistService()

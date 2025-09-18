@@ -93,15 +93,19 @@ export interface EstadisticasWorklist {
 export interface Worklist {
   id_worklist: number
   nombre: string
+  id_tecnica_proc?: number
   create_dt: string
   delete_dt?: string
   update_dt: string
   created_by?: number
   updated_by?: number
+  tecnicas: TecnicaWorklist[]
   // Campos adicionales calculados
   total_tecnicas?: number
   tecnicas_completadas?: number
-  dim_tecnicas_proc?: string
+  tecnica_proc?: {
+    tecnica_proc: string
+  }
 }
 
 /**
@@ -115,11 +119,13 @@ export interface TecnicaWorklist {
   proceso_nombre: string
   dim_tecnicas_proc: string
   muestra: {
-    codigo: string
+    codigo_epi: string
+    codigo_externo: string
     paciente_nombre: string
     fecha_recepcion: string
+    paciente: { nombre: string }
   }
-  fecha_creacion: string
+  fecha_estado: string
   prioridad: number
   tiempo_estimado?: number
   tecnico_asignado?: {
@@ -149,6 +155,7 @@ export interface TecnicaSinAsignar {
 export interface DimTecnicasProc {
   dim_tecnicas_proc: string
   descripcion?: string
+  tecnica_proc?: string
   total_tecnicas_disponibles: number
 }
 

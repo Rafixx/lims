@@ -23,9 +23,7 @@ export const MuestraDetailCard = ({
   onIniciarTecnica,
   onCompletarTecnica
 }: Props) => {
-  const [selectedTecnico, setSelectedTecnico] = useState<string>(
-    tecnica.id_tecnico_resp?.toString() || ''
-  )
+  const [selectedTecnico, setSelectedTecnico] = useState<string>(tecnica.id?.toString() || '')
 
   // Funciones helper para valores seguros
   const getSafeValue = (value: string | undefined | null, defaultValue: string = 'N/A'): string => {
@@ -34,7 +32,7 @@ export const MuestraDetailCard = ({
 
   const handleAsignarTecnico = () => {
     if (selectedTecnico) {
-      onAsignarTecnico(tecnica.id_tecnica, parseInt(selectedTecnico))
+      onAsignarTecnico(tecnica.id, parseInt(selectedTecnico))
     }
   }
 
@@ -51,7 +49,7 @@ export const MuestraDetailCard = ({
     }
   }
 
-  const tecnicoActual = tecnicos.find(t => t.id_usuario === tecnica.id_tecnico_resp)
+  const tecnicoActual = tecnicos.find(t => t.id_usuario === tecnica.id)
 
   return (
     <Card className="mb-4">
@@ -62,10 +60,11 @@ export const MuestraDetailCard = ({
             <User className="h-5 w-5 text-gray-500" />
             <div>
               <h3 className="text-lg font-semibold text-gray-900">
-                {getSafeValue(tecnica.muestra?.nombre_paciente)}
+                {/* {getSafeValue(tecnica.muestras[0]?.nombre_paciente)} */}
               </h3>
               <p className="text-sm text-gray-500">
-                Solicitud: {getSafeValue(tecnica.muestra?.codigo_solicitud)}
+                Solicitud:
+                {/* Solicitud: {getSafeValue(tecnica.muestras[0]?.codigo_solicitud)} */}
               </p>
             </div>
           </div>
@@ -95,7 +94,7 @@ export const MuestraDetailCard = ({
         </div> */}
 
         {/* Comentarios si existen */}
-        {tecnica.muestra?.comentarios && (
+        {/* {tecnica.muestra?.comentarios && (
           <div className="mb-4 p-3 bg-gray-50 rounded-md">
             <div className="flex items-start space-x-2">
               <FileText className="h-4 w-4 text-gray-500 mt-0.5" />
@@ -105,7 +104,7 @@ export const MuestraDetailCard = ({
               </div>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Asignación de técnico */}
         {/* <div className="mb-4">
@@ -142,7 +141,7 @@ export const MuestraDetailCard = ({
 
         {/* Acciones */}
         <div className="flex space-x-2">
-          {tecnica.estado === APP_STATES.TECNICA.PENDIENTE && tecnica.id_tecnico_resp && (
+          {/* {tecnica.estado === APP_STATES.TECNICA.PENDIENTE && tecnica.id_tecnico_resp && (
             <Button
               variant="primary"
               onClick={() => onIniciarTecnica(tecnica.id_tecnica)}
@@ -161,7 +160,7 @@ export const MuestraDetailCard = ({
               <Check className="h-4 w-4" />
               <span>Completar</span>
             </Button>
-          )}
+          )} */}
         </div>
       </div>
     </Card>

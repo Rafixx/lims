@@ -1,34 +1,21 @@
 // src/features/workList/pages/WorklistDetailPage.tsx
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   useWorklist,
   useWorklistEstadisticas,
-  useWorklistTecnicasAgrupadas,
+  // useWorklistTecnicasAgrupadas,
   useAsignarTecnico,
   useIniciarTecnica,
   useCompletarTecnica,
   useDeleteWorklist
-} from '../hooks/useWorklistsNew'
+} from '../hooks/useWorklists'
 import { useTecnicosLab } from '../hooks/useTecnicosLab'
 import { Card } from '@/shared/components/molecules/Card'
 import { Button } from '@/shared/components/molecules/Button'
-import { EstadoBadge } from '@/shared/components/atoms/EstadoBadge'
-import {
-  ArrowLeft,
-  BarChart3,
-  Clock,
-  CheckCircle,
-  User,
-  Calendar,
-  Play,
-  Check,
-  UserCheck,
-  AlertTriangle,
-  Trash2
-} from 'lucide-react'
-import type { TecnicaWorklist } from '../interfaces/worklist.types'
+import { ArrowLeft, BarChart3, Clock, CheckCircle, AlertTriangle, Trash2 } from 'lucide-react'
+import { TecnicaItem } from '../components/TecnicaItem'
 
 export const WorklistDetailPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -40,8 +27,9 @@ export const WorklistDetailPage = () => {
   // Queries
   const { data: worklist, isLoading: loadingWorklist } = useWorklist(worklistId)
   const { data: estadisticas, isLoading: loadingEstadisticas } = useWorklistEstadisticas(worklistId)
-  const { data: tecnicasAgrupadas = [], isLoading: loadingTecnicas } =
-    useWorklistTecnicasAgrupadas(worklistId)
+
+  // const { data: tecnicasAgrupadas = [], isLoading: loadingTecnicas } =
+  // useWorklistTecnicasAgrupadas(worklistId)
   const { data: tecnicos = [] } = useTecnicosLab()
 
   // Mutations
@@ -135,7 +123,7 @@ export const WorklistDetailPage = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <Button
-              variant="ghost"
+              variant="accent"
               onClick={() => navigate('/worklist')}
               className="flex items-center gap-2"
             >
@@ -150,7 +138,7 @@ export const WorklistDetailPage = () => {
           </div>
 
           <Button
-            variant="danger"
+            variant="primary"
             onClick={handleDeleteWorklist}
             className="flex items-center gap-2"
           >
@@ -201,7 +189,9 @@ export const WorklistDetailPage = () => {
                 <BarChart3 className="h-8 w-8 text-purple-600" />
                 <div className="ml-3">
                   <p className="text-2xl font-bold text-gray-900">
-                    {Math.round(estadisticas.porcentaje_completado)}%
+                    {estadisticas.porcentaje_completado
+                      ? `${Math.round(estadisticas.porcentaje_completado)} %`
+                      : ''}
                   </p>
                   <p className="text-gray-600">Progreso</p>
                 </div>
@@ -212,55 +202,46 @@ export const WorklistDetailPage = () => {
       </div>
 
       {/* Técnicas por Proceso */}
-      {loadingTecnicas ? (
+      {loadingWorklist ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <span className="ml-2 text-gray-600">Cargando técnicas...</span>
         </div>
-      ) : tecnicasAgrupadas && tecnicasAgrupadas.length > 0 ? (
+      ) : worklist.tecnicas && worklist.tecnicas.length > 0 ? (
         <div className="space-y-6">
-          {tecnicasAgrupadas.map(grupo => (
-            <Card key={grupo.dim_tecnicas_proc} className="p-6">
-              <div className="mb-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-gray-900">{grupo.proceso_nombre}</h2>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <span>
-                      {grupo.completadas} de {grupo.total} completadas
-                    </span>
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${grupo.porcentaje_completado}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
+          {/* {worklist.tecnicas.map(tecnica => ( */}
+          <Card className="p-6">
+            <div className="mb-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {worklist.tecnica_proc?.tecnica_proc}
+                </h2>
+                <div className="flex items-center gap-4 text-sm text-gray-600"></div>
               </div>
+            </div>
 
-              <div className="space-y-3">
-                {(grupo.tecnicas || []).map(tecnica => (
-                  <TecnicaItem
-                    key={tecnica.id}
-                    tecnica={tecnica}
-                    tecnicos={tecnicos}
-                    selectedTecnicoId={selectedTecnicoId[tecnica.id]}
-                    onTecnicoChange={tecnicoId =>
-                      setSelectedTecnicoId(prev => ({ ...prev, [tecnica.id]: tecnicoId }))
-                    }
-                    onAsignarTecnico={() => handleAsignarTecnico(tecnica.id)}
-                    onIniciar={() => handleIniciarTecnica(tecnica.id)}
-                    onCompletar={() => handleCompletarTecnica(tecnica.id)}
-                    isLoading={
-                      asignarTecnico.isPending ||
-                      iniciarTecnica.isPending ||
-                      completarTecnica.isPending
-                    }
-                  />
-                ))}
-              </div>
-            </Card>
-          ))}
+            <div className="space-y-3">
+              {(worklist.tecnicas || []).map(tecnica => (
+                <TecnicaItem
+                  key={tecnica.id}
+                  tecnica={tecnica}
+                  // tecnicos={tecnicos}
+                  // selectedTecnicoId={selectedTecnicoId[tecnica.id]}
+                  // onTecnicoChange={tecnicoId =>
+                  //   setSelectedTecnicoId(prev => ({ ...prev, [tecnica.id]: tecnicoId }))
+                  // }
+                  // onAsignarTecnico={() => handleAsignarTecnico(tecnica.id)}
+                  // onIniciar={() => handleIniciarTecnica(tecnica.id)}
+                  // onCompletar={() => handleCompletarTecnica(tecnica.id)}
+                  isLoading={
+                    asignarTecnico.isPending ||
+                    iniciarTecnica.isPending ||
+                    completarTecnica.isPending
+                  }
+                />
+              ))}
+            </div>
+          </Card>
         </div>
       ) : (
         <Card className="p-8 text-center">
@@ -273,107 +254,6 @@ export const WorklistDetailPage = () => {
           </p>
         </Card>
       )}
-    </div>
-  )
-}
-
-// Componente para cada técnica individual
-interface TecnicaItemProps {
-  tecnica: TecnicaWorklist
-  tecnicos: any[]
-  selectedTecnicoId?: number
-  onTecnicoChange: (tecnicoId: number) => void
-  onAsignarTecnico: () => void
-  onIniciar: () => void
-  onCompletar: () => void
-  isLoading: boolean
-}
-
-const TecnicaItem: React.FC<TecnicaItemProps> = ({
-  tecnica,
-  tecnicos,
-  selectedTecnicoId,
-  onTecnicoChange,
-  onAsignarTecnico,
-  onIniciar,
-  onCompletar,
-  isLoading
-}) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES')
-  }
-
-  return (
-    <div className="border border-gray-200 rounded-lg p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <div className="flex items-center gap-4 mb-2">
-            <h3 className="font-medium text-gray-900">{tecnica.codigo}</h3>
-            <EstadoBadge estado={tecnica.estado} />
-          </div>
-
-          <div className="text-sm text-gray-600 flex items-center gap-4">
-            <span className="flex items-center gap-1">
-              <User size={14} />
-              {tecnica.muestra.paciente_nombre}
-            </span>
-            <span className="flex items-center gap-1">
-              <Calendar size={14} />
-              {formatDate(tecnica.fecha_creacion)}
-            </span>
-            {tecnica.tecnico_asignado && (
-              <span className="flex items-center gap-1">
-                <UserCheck size={14} />
-                {tecnica.tecnico_asignado.nombre}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Asignación de técnico */}
-          {tecnica.estado === 'PENDIENTE_TECNICA' && !tecnica.tecnico_asignado && (
-            <>
-              <select
-                value={selectedTecnicoId || ''}
-                onChange={e => onTecnicoChange(Number(e.target.value))}
-                className="text-sm border border-gray-300 rounded px-2 py-1"
-              >
-                <option value="">Seleccionar técnico</option>
-                {(tecnicos || []).map(tecnico => (
-                  <option key={tecnico.id} value={tecnico.id}>
-                    {tecnico.nombre}
-                  </option>
-                ))}
-              </select>
-              <Button disabled={!selectedTecnicoId || isLoading} onClick={onAsignarTecnico}>
-                <UserCheck size={16} />
-              </Button>
-            </>
-          )}
-
-          {/* Iniciar técnica */}
-          {tecnica.estado === 'PENDIENTE_TECNICA' && tecnica.tecnico_asignado && (
-            <Button disabled={isLoading} onClick={onIniciar} className="flex items-center gap-1">
-              <Play size={16} />
-              Iniciar
-            </Button>
-          )}
-
-          {/* Completar técnica */}
-          {tecnica.estado === 'EN_PROGRESO' && (
-            <Button
-              disabled={isLoading}
-              onClick={onCompletar}
-              variant="accent"
-              className="flex items-center gap-1"
-            >
-              <Check size={16} />
-              Completar
-            </Button>
-          )}
-        </div>
-      </div>
     </div>
   )
 }

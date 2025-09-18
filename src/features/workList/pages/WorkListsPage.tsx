@@ -1,19 +1,15 @@
 // src/features/workList/pages/WorkListsPage.tsx
 
-import React from 'react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useWorklists, useDeleteWorklist, useProcesosDisponibles } from '../hooks/useWorklistsNew'
-import { Card } from '@/shared/components/molecules/Card'
+import { useWorklists, useDeleteWorklist, useProcesosDisponibles } from '../hooks/useWorklists'
 import { Button } from '@/shared/components/molecules/Button'
-import { Plus, Search, Trash2, Settings, BarChart3, Clock, CheckCircle } from 'lucide-react'
-import { EstadoBadge } from '@/shared/components/atoms/EstadoBadge'
-import { useNotification } from '@/shared/components/Notification/NotificationContext'
-import type { Worklist } from '../interfaces/worklist.types'
+import { Plus, Search, BarChart3 } from 'lucide-react'
+import { WorklistCard } from '../components/WorkListCard'
 
 export const WorkListsPage = () => {
   const navigate = useNavigate()
-  const { notify } = useNotification()
+  // const { notify } = useNotification()
   const [searchTerm, setSearchTerm] = useState('')
 
   // Queries
@@ -38,7 +34,7 @@ export const WorkListsPage = () => {
     worklists?.filter(
       worklist =>
         worklist.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        worklist.dim_tecnicas_proc?.toLowerCase().includes(searchTerm.toLowerCase())
+        worklist.tecnica_proc?.tecnica_proc?.toLowerCase().includes(searchTerm.toLowerCase())
     ) || []
 
   const getProcesoNombre = (dimTecnicasProc?: string) => {
@@ -77,7 +73,11 @@ export const WorkListsPage = () => {
             <h1 className="text-3xl font-bold text-gray-900">Worklists</h1>
             <p className="text-gray-600 mt-2">Gestiona las listas de trabajo del laboratorio</p>
           </div>
-          <Button onClick={() => navigate('/worklist/nuevo')} className="flex items-center gap-2">
+          <Button
+            variant="accent"
+            onClick={() => navigate('/worklist/nuevo')}
+            className="flex items-center gap-2"
+          >
             <Plus size={20} />
             Nuevo Worklist
           </Button>
@@ -121,7 +121,7 @@ export const WorkListsPage = () => {
             <WorklistCard
               key={worklist.id_worklist}
               worklist={worklist}
-              procesoNombre={getProcesoNombre(worklist.dim_tecnicas_proc)}
+              procesoNombre={worklist.tecnica_proc?.tecnica_proc || 'Sin proceso'}
               onDelete={handleDeleteWorklist}
               onView={() => navigate(`/worklist/${worklist.id_worklist}`)}
             />
@@ -129,95 +129,5 @@ export const WorkListsPage = () => {
         </div>
       )}
     </div>
-  )
-}
-
-// Componente para cada tarjeta de worklist
-interface WorklistCardProps {
-  worklist: Worklist
-  procesoNombre: string
-  onDelete: (id: number, nombre: string) => void
-  onView: () => void
-}
-
-const WorklistCard: React.FC<WorklistCardProps> = ({
-  worklist,
-  procesoNombre,
-  onDelete,
-  onView
-}) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
-
-  const completionPercentage = worklist.total_tecnicas
-    ? Math.round(((worklist.tecnicas_completadas || 0) / worklist.total_tecnicas) * 100)
-    : 0
-
-  return (
-    <Card className="hover:shadow-lg transition-shadow duration-200 cursor-pointer">
-      <div onClick={onView} className="p-6">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{worklist.nombre}</h3>
-            <div className="text-sm text-gray-600">{procesoNombre}</div>
-          </div>
-          <div className="flex gap-2" onClick={e => e.stopPropagation()}>
-            <Button
-              variant="ghost"
-              onClick={() => onDelete(worklist.id_worklist, worklist.nombre)}
-              className="text-red-600 hover:text-red-800"
-            >
-              <Trash2 size={16} />
-            </Button>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2 text-gray-600">
-              <BarChart3 size={16} />
-              <span>Total técnicas</span>
-            </div>
-            <span className="font-medium">{worklist.total_tecnicas || 0}</span>
-          </div>
-
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2 text-gray-600">
-              <CheckCircle size={16} />
-              <span>Completadas</span>
-            </div>
-            <span className="font-medium">{worklist.tecnicas_completadas || 0}</span>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-green-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${completionPercentage}%` }}
-            ></div>
-          </div>
-          <div className="text-xs text-gray-500 text-center">
-            {completionPercentage}% completado
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <div className="flex items-center gap-1">
-              <Clock size={14} />
-              <span>Creado: {formatDate(worklist.create_dt)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Card>
   )
 }
