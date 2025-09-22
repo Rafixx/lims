@@ -1,6 +1,9 @@
 /**
  * Componente Badge para mostrar estados de manera consistente
- * Utiliza el sistema centralizado de estados para garantizar uniformidad
+ * Utiliza el siste        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-surface-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+          {config.descripcion}
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-surface-900"></div>
+        </div>entralizado de estados para garantizar uniformidad
  */
 
 import React from 'react'
@@ -84,9 +87,9 @@ export const EstadoBadge: React.FC<EstadoBadgeProps> = ({
     return (
       <div className="relative group">
         {badgeElement}
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-surface-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
           {config.description}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-surface-900"></div>
         </div>
       </div>
     )
@@ -132,7 +135,7 @@ export const PriorityBadge: React.FC<EstadoBadgeProps & { showPriority?: boolean
   return (
     <div className="flex items-center gap-2">
       <EstadoBadge estado={estado} {...props} />
-      {showPriority && <span className="text-xs text-gray-500">P{config.priority}</span>}
+      {showPriority && <span className="text-xs text-surface-500">P{config.priority}</span>}
     </div>
   )
 }

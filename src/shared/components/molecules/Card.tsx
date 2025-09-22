@@ -9,11 +9,11 @@ interface Props {
 }
 
 export const Card = ({ children, className, variant = 'default' }: Props) => {
-  const baseStyles = 'rounded p-4 shadow-sm'
+  const baseStyles = 'rounded-lg p-4 shadow-soft'
   const variantStyles =
     variant === 'ghost'
-      ? 'bg-transparent border border-gray-200'
-      : 'bg-white border border-gray-300'
+      ? 'bg-transparent border border-surface-200'
+      : 'bg-white border border-surface-300'
 
   return <div className={clsx(baseStyles, variantStyles, className)}>{children}</div>
 }

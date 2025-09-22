@@ -33,15 +33,15 @@ export const EditableListItem = ({
       {...attributes}
       className={`
         flex justify-between items-center px-2 py-1
-        ${isDeleted ? 'bg-gray-100 border border-gray-300' : 'bg-white border'}
-        rounded shadow-sm text-sm
+        ${isDeleted ? 'bg-surface-100 border border-surface-300' : 'bg-white border border-surface-200'}
+        rounded-md shadow-soft text-sm
         transition-opacity duration-200 ease-in-out
       `}
     >
       <span className="flex items-center gap-2">
         {/* Oculta el drag handle si es deleted */}
         {!isDeleted && (
-          <span {...listeners} className="cursor-grab text-gray-400">
+          <span {...listeners} className="cursor-grab text-surface-400">
             <GripVertical size={16} />
           </span>
         )}
@@ -52,11 +52,11 @@ export const EditableListItem = ({
         type="button"
         onClick={onDelete}
         className={`
-          ml-2 rounded-full p-1
+          ml-2 rounded-full p-1 transition-colors
           ${
             isDeleted
-              ? 'bg-gray-200 text-blue-500 hover:bg-gray-300'
-              : 'text-danger hover:text-danger/50'
+              ? 'bg-surface-200 text-info-500 hover:bg-surface-300'
+              : 'text-danger-600 hover:text-danger-400'
           }
         `}
         aria-label={isDeleted ? 'Reinsertar técnica' : 'Eliminar técnica'}

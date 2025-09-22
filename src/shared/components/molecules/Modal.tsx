@@ -25,17 +25,17 @@ export const Modal = ({
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div
-        className={`bg-white p-6 rounded shadow-lg relative overflow-y-auto ${widthClass} ${heightClass}`}
+        className={`bg-white p-6 rounded-xl shadow-strong relative overflow-y-auto ${widthClass} ${heightClass}`}
       >
         <Button
           onClick={onClose}
-          variant="dark_ghost"
+          variant="ghost"
           aria-label="Cerrar modal"
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          className="absolute top-2 right-2 text-surface-500 hover:text-surface-700"
         >
           ✕
         </Button>
-        <h3 className="text-lg font-bold mb-4">{title}</h3>
+        <h3 className="text-lg font-semibold mb-4 text-surface-900">{title}</h3>
         {children}
       </div>
     </div>,

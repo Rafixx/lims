@@ -20,18 +20,18 @@ export const Tabs = ({ tabs, defaultTabId }: Props) => {
   return (
     <div>
       {/* Encabezado de tabs */}
-      <div className="flex gap-4 border-b border-gray-200 mb-4">
+      <div className="flex gap-4 border-b border-surface-200 mb-4">
         {tabs.map(tab => (
           <Button
-            variant="dark_ghost"
+            variant="ghost"
             type="button"
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={clsx(
               'pb-2 font-semibold text-sm transition-colors',
               activeTab === tab.id
-                ? 'border-b-2 border-primary text-primary'
-                : 'text-gray-500 hover:text-primary'
+                ? 'border-b-2 border-primary-600 text-primary-600'
+                : 'text-surface-500 hover:text-primary-600'
             )}
           >
             {tab.label}

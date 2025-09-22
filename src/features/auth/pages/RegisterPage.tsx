@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { createUser } from '@/shared/services/userService'
+import { createUser } from '@/shared/services/userUser'
 import { Button } from '@/shared/components/molecules/Button'
 
 // Validación de campos según backend

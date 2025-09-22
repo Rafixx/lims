@@ -33,7 +33,7 @@ export const EntitySelect = <T, F extends FieldValues>({
 }: EntitySelectProps<T, F>) => {
   return (
     <div className="mb-4 px-2">
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+      <label htmlFor={name} className="block text-sm font-medium text-surface-700 mb-1">
         {label}
       </label>
       <div className={icon && onIconClick ? 'flex items-center' : ''}>
@@ -47,7 +47,8 @@ export const EntitySelect = <T, F extends FieldValues>({
               id={name}
               disabled={isLoading}
               className={`
-                border p-2 rounded focus:outline-none focus:ring
+                border border-surface-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+                disabled:bg-surface-50 disabled:text-surface-500 disabled:cursor-not-allowed
                 ${icon && onIconClick ? 'flex-1' : 'w-full'}
                 ${className}
               `}

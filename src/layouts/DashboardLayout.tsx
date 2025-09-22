@@ -28,13 +28,13 @@ export const DashboardLayout = () => {
               >
                 <div className="text-sm text-gray-800">
                   <div className="font-semibold">{user.username}</div>
-                  <div className="flex items-center text-xs text-gray-500 gap-2">
+                  <div className="flex items-center text-xs text-surface-500 gap-2">
                     <span>{user.rol_name}</span>
                   </div>
                 </div>
                 <Button
-                  variant="dark_ghost"
-                  className="text-gray-500"
+                  variant="ghost"
+                  className="text-surface-500"
                   onClick={handleLogout}
                   title="Cerrar sesión"
                 >

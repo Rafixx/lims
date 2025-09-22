@@ -6,7 +6,7 @@ import { Button } from '@/shared/components/molecules/Button'
 import { TecnicaConMuestra } from '../interfaces/worklist.types'
 import { TecnicoLab } from '../hooks/useTecnicosLab'
 import { User, FileText, Play, Check } from 'lucide-react'
-import { APP_STATES } from '../../../shared/constants/appStates'
+import { APP_STATES } from '@/shared/states'
 
 interface Props {
   tecnica: TecnicaConMuestra

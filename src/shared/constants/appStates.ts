@@ -91,10 +91,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.SOLICITUD.PENDIENTE]: {
     label: 'Pendiente',
     description: 'Solicitud en espera de procesamiento',
-    color: 'amber',
-    bgColor: 'bg-amber-100',
-    borderColor: 'border-amber-200',
-    textColor: 'text-amber-800',
+    color: 'warning',
+    bgColor: 'bg-warning-100',
+    borderColor: 'border-warning-200',
+    textColor: 'text-warning-800',
     icon: 'Clock',
     priority: 2
   },
@@ -102,10 +102,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.SOLICITUD.EN_PROCESO]: {
     label: 'En Proceso',
     description: 'Solicitud siendo procesada actualmente',
-    color: 'blue',
-    bgColor: 'bg-blue-100',
-    borderColor: 'border-blue-200',
-    textColor: 'text-blue-800',
+    color: 'info',
+    bgColor: 'bg-info-100',
+    borderColor: 'border-info-200',
+    textColor: 'text-info-800',
     icon: 'PlayCircle',
     priority: 1
   },
@@ -113,10 +113,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.SOLICITUD.COMPLETADA]: {
     label: 'Completada',
     description: 'Solicitud procesada exitosamente',
-    color: 'green',
-    bgColor: 'bg-green-100',
-    borderColor: 'border-green-200',
-    textColor: 'text-green-800',
+    color: 'success',
+    bgColor: 'bg-success-100',
+    borderColor: 'border-success-200',
+    textColor: 'text-success-800',
     icon: 'CheckCircle',
     priority: 5
   },
@@ -124,10 +124,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.SOLICITUD.CANCELADA]: {
     label: 'Cancelada',
     description: 'Solicitud cancelada por el usuario',
-    color: 'gray',
-    bgColor: 'bg-gray-100',
-    borderColor: 'border-gray-200',
-    textColor: 'text-gray-800',
+    color: 'surface',
+    bgColor: 'bg-surface-100',
+    borderColor: 'border-surface-200',
+    textColor: 'text-surface-800',
     icon: 'XCircle',
     priority: 4
   },
@@ -135,10 +135,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.SOLICITUD.RECHAZADA]: {
     label: 'Rechazada',
     description: 'Solicitud rechazada por no cumplir criterios',
-    color: 'red',
-    bgColor: 'bg-red-100',
-    borderColor: 'border-red-200',
-    textColor: 'text-red-800',
+    color: 'danger',
+    bgColor: 'bg-danger-100',
+    borderColor: 'border-danger-200',
+    textColor: 'text-danger-800',
     icon: 'AlertCircle',
     priority: 3
   },
@@ -147,10 +147,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.TECNICA.PENDIENTE]: {
     label: 'Pendiente',
     description: 'Técnica en cola de procesamiento',
-    color: 'amber',
-    bgColor: 'bg-amber-100',
-    borderColor: 'border-amber-200',
-    textColor: 'text-amber-800',
+    color: 'warning',
+    bgColor: 'bg-warning-100',
+    borderColor: 'border-warning-200',
+    textColor: 'text-warning-800',
     icon: 'Clock',
     priority: 2
   },
@@ -158,10 +158,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.TECNICA.EN_PROGRESO]: {
     label: 'En Progreso',
     description: 'Técnica siendo ejecutada',
-    color: 'blue',
-    bgColor: 'bg-blue-100',
-    borderColor: 'border-blue-200',
-    textColor: 'text-blue-800',
+    color: 'info',
+    bgColor: 'bg-info-100',
+    borderColor: 'border-info-200',
+    textColor: 'text-info-800',
     icon: 'PlayCircle',
     priority: 1
   },
@@ -169,10 +169,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.TECNICA.COMPLETADA]: {
     label: 'Completada',
     description: 'Técnica finalizada exitosamente',
-    color: 'green',
-    bgColor: 'bg-green-100',
-    borderColor: 'border-green-200',
-    textColor: 'text-green-800',
+    color: 'success',
+    bgColor: 'bg-success-100',
+    borderColor: 'border-success-200',
+    textColor: 'text-success-800',
     icon: 'CheckCircle',
     priority: 5
   },
@@ -180,10 +180,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.TECNICA.BLOQUEADA]: {
     label: 'Bloqueada',
     description: 'Técnica bloqueada por dependencias',
-    color: 'orange',
-    bgColor: 'bg-orange-100',
-    borderColor: 'border-orange-200',
-    textColor: 'text-orange-800',
+    color: 'warning',
+    bgColor: 'bg-warning-100',
+    borderColor: 'border-warning-300',
+    textColor: 'text-warning-900',
     icon: 'Lock',
     priority: 2
   },
@@ -191,10 +191,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.TECNICA.CANCELADA]: {
     label: 'Cancelada',
     description: 'Técnica cancelada por el usuario',
-    color: 'gray',
-    bgColor: 'bg-gray-100',
-    borderColor: 'border-gray-200',
-    textColor: 'text-gray-800',
+    color: 'surface',
+    bgColor: 'bg-surface-100',
+    borderColor: 'border-surface-200',
+    textColor: 'text-surface-800',
     icon: 'XCircle',
     priority: 4
   },
@@ -203,10 +203,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.MUESTRA.RECIBIDA]: {
     label: 'Recibida',
     description: 'Muestra recibida y registrada',
-    color: 'green',
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-200',
-    textColor: 'text-green-700',
+    color: 'success',
+    bgColor: 'bg-success-50',
+    borderColor: 'border-success-200',
+    textColor: 'text-success-700',
     icon: 'Package',
     priority: 2
   },
@@ -214,10 +214,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.MUESTRA.EN_PROCESAMIENTO]: {
     label: 'En Procesamiento',
     description: 'Muestra siendo procesada',
-    color: 'blue',
-    bgColor: 'bg-blue-100',
-    borderColor: 'border-blue-200',
-    textColor: 'text-blue-800',
+    color: 'info',
+    bgColor: 'bg-info-100',
+    borderColor: 'border-info-200',
+    textColor: 'text-info-800',
     icon: 'Zap',
     priority: 1
   },
@@ -225,10 +225,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.MUESTRA.PROCESADA]: {
     label: 'Procesada',
     description: 'Muestra procesada completamente',
-    color: 'green',
-    bgColor: 'bg-green-100',
-    borderColor: 'border-green-200',
-    textColor: 'text-green-800',
+    color: 'success',
+    bgColor: 'bg-success-100',
+    borderColor: 'border-success-200',
+    textColor: 'text-success-800',
     icon: 'CheckSquare',
     priority: 5
   },
@@ -236,10 +236,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.MUESTRA.RECHAZADA]: {
     label: 'Rechazada',
     description: 'Muestra rechazada por criterios de calidad',
-    color: 'red',
-    bgColor: 'bg-red-100',
-    borderColor: 'border-red-200',
-    textColor: 'text-red-800',
+    color: 'danger',
+    bgColor: 'bg-danger-100',
+    borderColor: 'border-danger-200',
+    textColor: 'text-danger-800',
     icon: 'XSquare',
     priority: 3
   },
@@ -247,10 +247,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.MUESTRA.CADUCADA]: {
     label: 'Caducada',
     description: 'Muestra caducada o vencida',
-    color: 'gray',
-    bgColor: 'bg-gray-200',
-    borderColor: 'border-gray-300',
-    textColor: 'text-gray-700',
+    color: 'surface',
+    bgColor: 'bg-surface-200',
+    borderColor: 'border-surface-300',
+    textColor: 'text-surface-700',
     icon: 'Calendar',
     priority: 4
   },
@@ -259,10 +259,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.USUARIO.ACTIVO]: {
     label: 'Activo',
     description: 'Usuario activo en el sistema',
-    color: 'green',
-    bgColor: 'bg-green-100',
-    borderColor: 'border-green-200',
-    textColor: 'text-green-800',
+    color: 'success',
+    bgColor: 'bg-success-100',
+    borderColor: 'border-success-200',
+    textColor: 'text-success-800',
     icon: 'UserCheck',
     priority: 1
   },
@@ -270,10 +270,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.USUARIO.INACTIVO]: {
     label: 'Inactivo',
     description: 'Usuario temporalmente inactivo',
-    color: 'yellow',
-    bgColor: 'bg-yellow-100',
-    borderColor: 'border-yellow-200',
-    textColor: 'text-yellow-800',
+    color: 'warning',
+    bgColor: 'bg-warning-100',
+    borderColor: 'border-warning-200',
+    textColor: 'text-warning-800',
     icon: 'UserMinus',
     priority: 3
   },
@@ -281,10 +281,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.USUARIO.SUSPENDIDO]: {
     label: 'Suspendido',
     description: 'Usuario suspendido temporalmente',
-    color: 'orange',
-    bgColor: 'bg-orange-100',
-    borderColor: 'border-orange-200',
-    textColor: 'text-orange-800',
+    color: 'warning',
+    bgColor: 'bg-warning-100',
+    borderColor: 'border-warning-300',
+    textColor: 'text-warning-900',
     icon: 'UserX',
     priority: 2
   },
@@ -292,10 +292,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.USUARIO.BLOQUEADO]: {
     label: 'Bloqueado',
     description: 'Usuario bloqueado permanentemente',
-    color: 'red',
-    bgColor: 'bg-red-100',
-    borderColor: 'border-red-200',
-    textColor: 'text-red-800',
+    color: 'danger',
+    bgColor: 'bg-danger-100',
+    borderColor: 'border-danger-200',
+    textColor: 'text-danger-800',
     icon: 'Shield',
     priority: 1
   },
@@ -304,10 +304,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.SISTEMA.LOADING]: {
     label: 'Cargando',
     description: 'Operación en progreso',
-    color: 'blue',
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-100',
-    textColor: 'text-blue-600',
+    color: 'info',
+    bgColor: 'bg-info-50',
+    borderColor: 'border-info-100',
+    textColor: 'text-info-600',
     icon: 'Loader2',
     priority: 1
   },
@@ -315,10 +315,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.SISTEMA.SUCCESS]: {
     label: 'Éxito',
     description: 'Operación completada exitosamente',
-    color: 'green',
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-200',
-    textColor: 'text-green-600',
+    color: 'success',
+    bgColor: 'bg-success-50',
+    borderColor: 'border-success-200',
+    textColor: 'text-success-600',
     icon: 'CheckCircle',
     priority: 5
   },
@@ -326,10 +326,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.SISTEMA.ERROR]: {
     label: 'Error',
     description: 'Ha ocurrido un error',
-    color: 'red',
-    bgColor: 'bg-red-50',
-    borderColor: 'border-red-200',
-    textColor: 'text-red-600',
+    color: 'danger',
+    bgColor: 'bg-danger-50',
+    borderColor: 'border-danger-200',
+    textColor: 'text-danger-600',
     icon: 'AlertTriangle',
     priority: 1
   },
@@ -337,10 +337,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.SISTEMA.IDLE]: {
     label: 'Inactivo',
     description: 'Sistema en estado de reposo',
-    color: 'gray',
-    bgColor: 'bg-gray-50',
-    borderColor: 'border-gray-200',
-    textColor: 'text-gray-500',
+    color: 'surface',
+    bgColor: 'bg-surface-50',
+    borderColor: 'border-surface-200',
+    textColor: 'text-surface-500',
     icon: 'Pause',
     priority: 4
   },
@@ -348,10 +348,10 @@ export const ESTADOS_CONFIG: Record<string, EstadoConfig> = {
   [APP_STATES.SISTEMA.EMPTY]: {
     label: 'Sin Datos',
     description: 'No hay información disponible',
-    color: 'gray',
-    bgColor: 'bg-gray-50',
-    borderColor: 'border-gray-200',
-    textColor: 'text-gray-500',
+    color: 'surface',
+    bgColor: 'bg-surface-50',
+    borderColor: 'border-surface-200',
+    textColor: 'text-surface-500',
     icon: 'Inbox',
     priority: 3
   }
