@@ -1,20 +1,18 @@
 import { useState } from 'react'
-import { Prueba } from '@/shared/interfaces/dim_tables.types'
+import { Paciente } from '@/shared/interfaces/dim_tables.types'
 // import { EstadoBadge } from '@/shared/states'
-import { Calendar, ChevronDown, ChevronUp, Edit, Trash2, User } from 'lucide-react'
+import { ChevronDown, ChevronUp, Edit, Trash2 } from 'lucide-react'
 // import { formatDate } from '@/shared/utils/helpers'
 import { IconButton } from '@/shared/components/molecules/IconButton'
-import { useTecnicasProcByPrueba } from '@/shared/hooks/useDim_tables'
-import { TecnicaProcCard } from './TecnicaProcCard'
+// import { usePacientes } from '@/shared/hooks/useDim_tables'
 
 interface Props {
-  prueba: Prueba
-  onEdit: (prueba: Prueba) => void
-  onDelete: (prueba: Prueba) => void
+  paciente: Paciente
+  onEdit: (paciente: Paciente) => void
+  onDelete: (paciente: Paciente) => void
 }
 
-export const PruebasCard = ({ prueba, onEdit, onDelete }: Props) => {
-  const { data: tecnicas } = useTecnicasProcByPrueba(prueba.id)
+export const PacienteCard = ({ paciente, onEdit, onDelete }: Props) => {
   const [expanded, setExpanded] = useState(false)
   const toggleExpanded = () => setExpanded(!expanded)
 
@@ -23,56 +21,58 @@ export const PruebasCard = ({ prueba, onEdit, onDelete }: Props) => {
       {/* Header modernizado en una sola línea */}
       <div className="px-4 py-3 flex items-center gap-4 w-full">
         <span className="text-xs text-surface-400 font-mono min-w-[80px]">
-          {prueba.cod_prueba || 'Sin código'}
+          {paciente.sip ? `🪪 ${paciente.sip}` : 'Sin SIP'}
         </span>
         <span className="flex-1 truncate text-surface-800 text-sm">
           {/* <User className="inline w-4 h-4 mr-1 text-surface-400 align-text-bottom" /> */}
-          {prueba.prueba || 'Sin cliente'}
+          {paciente.nombre || 'Sin nombre'}
         </span>
-        {/* <span className="text-xs text-surface-500 flex items-center gap-1 min-w-[120px]">
-          <Calendar className="w-4 h-4 text-surface-300" />
-          {formatDate(muestra.solicitud?.f_creacion) || 'Sin fecha'}
-        </span> */}
+        {paciente.direccion && (
+          <span className="flex-1 text-xs text-surface-500 max-w-[200px] truncate">
+            {`📍 ${paciente.direccion}`}
+          </span>
+        )}
         <div className="flex items-center gap-1 ml-2">
           <IconButton
             icon={<Edit className="w-4 h-4" />}
-            title="Editar solicitud"
-            onClick={() => onEdit(prueba)}
+            title="Editar paciente"
+            onClick={() => onEdit(paciente)}
             className="text-info-600 hover:text-info-800 transition-colors"
           />
           <IconButton
             icon={<Trash2 className="w-4 h-4" />}
-            title="Eliminar solicitud"
-            onClick={() => onDelete(prueba)}
+            title="Eliminar paciente"
+            onClick={() => onDelete(paciente)}
             className="text-danger-600 hover:text-danger-800 transition-colors"
           />
-          <IconButton
+          {/* <IconButton
             icon={
               expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
             }
             title={expanded ? 'Contraer' : 'Expandir'}
             onClick={toggleExpanded}
             className="text-surface-600 hover:text-surface-800 transition-colors"
-          />
+          /> */}
         </div>
       </div>
 
       {/* Contenido expandido */}
-      {expanded && (
+      {/* {expanded && (
         <div className="px-4 pb-4 border-t border-surface-200 bg-surface-50">
-          {prueba && (
-            <div className="mt-2 space-y-1">
-              {tecnicas && tecnicas.length > 0 ? (
-                tecnicas.map((tecnica, index) => <TecnicaProcCard key={index} tecnica={tecnica} />)
-              ) : (
-                <p className="text-sm text-surface-600">
-                  No hay técnicas asociadas a esta muestra.
-                </p>
-              )}
+          <div className="mt-2 space-y-1">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-medium text-surface-700">SIP:</span>
+                <span className="text-surface-600 ml-2">{paciente.sip || 'No asignado'}</span>
+              </div>
+              <div>
+                <span className="font-medium text-surface-700">Dirección:</span>
+                <span className="text-surface-600 ml-2">{paciente.direccion || 'No especificada'}</span>
+              </div>
             </div>
-          )}
+          </div>
         </div>
-      )}
+      )} */}
     </div>
   )
 }

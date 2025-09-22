@@ -12,7 +12,7 @@ import {
   ToggleFilter,
   SearchFilter
 } from '@/shared/components/organisms/Filters/FilterComponents'
-import { Calendar } from 'lucide-react'
+import { Calendar, PlusCircle } from 'lucide-react'
 import { APP_STATES } from '@/shared/states'
 import {
   createExactFilter,
@@ -63,7 +63,8 @@ export const MuestrasPage = () => {
   } = useListFilters(muestras || [], filterConfig)
 
   const handlers = {
-    onNew: () => navigate('/solicitudes/nueva')
+    onNew: () => navigate('/solicitudes/nueva'),
+    onSecondaryAction: () => navigate('/muestras/grupo-nuevo')
   }
 
   const renderStats = () => (
@@ -112,7 +113,9 @@ export const MuestrasPage = () => {
       renderFilters={renderFilters}
       config={{
         newButtonText: 'Nueva Muestra',
-        emptyStateMessage: 'No hay muestras disponibles'
+        emptyStateMessage: 'No hay muestras disponibles',
+        secondaryActionIcon: <PlusCircle className="w-4 h-4" />,
+        secondaryActionText: 'Grupo de muestras'
       }}
     >
       <div className="grid gap-1">

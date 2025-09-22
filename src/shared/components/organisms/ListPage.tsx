@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { RefreshCw, Calendar, Plus } from 'lucide-react'
+import { RefreshCw, Calendar, Plus, ArrowLeft } from 'lucide-react'
 import { Button } from '@/shared/components/molecules/Button'
+import { Link } from 'react-router-dom'
 
 interface ListPageProps {
   title: string
@@ -19,6 +20,7 @@ interface ListPageProps {
   // Handlers principales
   handlers: {
     onNew: () => void
+    onSecondaryAction?: () => void
     onRefresh?: () => void
   }
 
@@ -32,6 +34,8 @@ interface ListPageProps {
     showStatsToggle?: boolean
     showRefreshButton?: boolean
     newButtonText?: string
+    secondaryActionText?: string
+    secondaryActionIcon?: React.ReactNode
     emptyStateMessage?: string
   }
 
@@ -65,12 +69,20 @@ export const ListPage = ({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-8 ">
+      {/* Header con navegación */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-surface-900">{title}</h1>
-          {subtitle && <p className="text-surface-600 mt-1">{subtitle}</p>}
+          {/* Header */}
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-2 text-surface-600 hover:text-primary-600 transition-colors mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Volver a Inicio</span>
+          </Link>
+          <h1 className="text-3xl font-bold text-surface-900 mb-2">{title}</h1>
+          {subtitle && <p className="text-surface-600">{subtitle}</p>}
           <p className="text-surface-600 mt-1">
             {data.filtered ?? data.items.length} de {data.total ?? data.items.length} elementos
             {data.filtered !== undefined &&
@@ -78,7 +90,6 @@ export const ListPage = ({
               ` (${(data.total ?? data.items.length) - data.filtered} filtrados)`}
           </p>
         </div>
-
         <div className="flex items-center gap-3">
           {/* Acciones personalizadas */}
           {renderActions && renderActions()}
@@ -87,7 +98,7 @@ export const ListPage = ({
           {showRefreshButton && (
             <Button
               onClick={handlers.onRefresh || data.refetch}
-              variant="primary"
+              variant="secondary"
               disabled={data.isLoading}
             >
               <RefreshCw className={`w-4 h-4 ${data.isLoading ? 'animate-spin' : ''}`} />
@@ -96,10 +107,20 @@ export const ListPage = ({
           )}
 
           {/* Botón nuevo */}
-          <Button onClick={handlers.onNew} variant="accent">
-            <Plus className="w-4 h-4" />
-            {newButtonText}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={handlers.onNew} variant="primary">
+              <Plus className="w-4 h-4" />
+              {newButtonText}
+            </Button>
+            {config.secondaryActionText &&
+              config.secondaryActionIcon &&
+              handlers.onSecondaryAction && (
+                <Button onClick={handlers.onSecondaryAction} variant="primary">
+                  {config.secondaryActionIcon}
+                  {config.secondaryActionText}
+                </Button>
+              )}
+          </div>
         </div>
       </div>
 

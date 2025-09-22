@@ -1,16 +1,16 @@
 import { SearchFilter } from '@/shared/components/organisms/Filters/FilterComponents'
 import { FilterContainer } from '@/shared/components/organisms/Filters/FilterContainer'
 import { ListPage } from '@/shared/components/organisms/ListPage'
-import { usePruebas } from '@/shared/hooks/useDim_tables'
+import { useClientes } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
-import { Prueba } from '@/shared/interfaces/dim_tables.types'
+import { Cliente } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PruebaCard } from '../components/PruebaCard'
+import { ClienteCard } from '../components/ClienteCard'
 
-export const PruebasPage = () => {
-  const { data: pruebas, isLoading, error, refetch } = usePruebas()
+export const ClientesPage = () => {
+  const { data: clientes, isLoading, error, refetch } = useClientes()
 
   const navigate = useNavigate()
   const filterConfig = useMemo(
@@ -18,7 +18,12 @@ export const PruebasPage = () => {
       busqueda: {
         type: 'search' as const,
         defaultValue: '',
-        filterFn: createMultiFieldSearchFilter<Prueba>(prueba => [prueba.cod_prueba, prueba.prueba])
+        filterFn: createMultiFieldSearchFilter<Cliente>(cliente => [
+          cliente.nombre,
+          cliente.razon_social,
+          cliente.nif,
+          cliente.direccion
+        ])
       }
     }),
     []
@@ -26,14 +31,14 @@ export const PruebasPage = () => {
 
   const {
     filters,
-    filteredItems: pruebasFiltradas,
+    filteredItems: clientesFiltrados,
     hasActiveFilters,
     updateFilter,
     clearFilters
-  } = useListFilters<Prueba>(pruebas || [], filterConfig)
+  } = useListFilters<Cliente>(clientes || [], filterConfig)
 
   const handlers = {
-    onNew: () => navigate('/pruebas/nueva')
+    onNew: () => navigate('/clientes/nuevo')
   }
 
   const renderFilters = () => (
@@ -42,16 +47,17 @@ export const PruebasPage = () => {
         label="Búsqueda"
         value={filters.busqueda as string}
         onChange={value => updateFilter('busqueda', value)}
-        placeholder="Buscar por código, prueba..."
+        placeholder="Buscar por nombre, razón social, NIF..."
         className="min-w-[300px]"
       />
     </FilterContainer>
   )
+
   return (
     <ListPage
-      title="Gestión de pruebas"
+      title="Gestión de Clientes"
       data={{
-        items: pruebasFiltradas,
+        items: clientesFiltrados,
         isLoading,
         error,
         refetch
@@ -59,16 +65,16 @@ export const PruebasPage = () => {
       handlers={handlers}
       renderFilters={renderFilters}
       config={{
-        newButtonText: 'Nueva prueba',
-        emptyStateMessage: 'No hay pruebas disponibles'
+        newButtonText: 'Nuevo cliente',
+        emptyStateMessage: 'No hay clientes disponibles'
       }}
     >
       <div className="grid gap-1">
-        {pruebasFiltradas.map((prueba: Prueba) => (
-          <PruebaCard
-            key={prueba.id}
-            prueba={prueba}
-            onEdit={m => navigate(`/pruebas/${prueba.id}/editar`)}
+        {clientesFiltrados.map((cliente: Cliente) => (
+          <ClienteCard
+            key={cliente.id}
+            cliente={cliente}
+            onEdit={() => navigate(`/clientes/${cliente.id}/editar`)}
             onDelete={() => {
               /* handle delete */
             }}

@@ -1,16 +1,16 @@
 import { SearchFilter } from '@/shared/components/organisms/Filters/FilterComponents'
 import { FilterContainer } from '@/shared/components/organisms/Filters/FilterContainer'
 import { ListPage } from '@/shared/components/organisms/ListPage'
-import { usePruebas } from '@/shared/hooks/useDim_tables'
+import { useCriteriosValidacion } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
-import { Prueba } from '@/shared/interfaces/dim_tables.types'
+import { CriterioValidacion } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PruebaCard } from '../components/PruebaCard'
+import { CriterioValidacionCard } from '../components/CriterioValidacionCard'
 
-export const PruebasPage = () => {
-  const { data: pruebas, isLoading, error, refetch } = usePruebas()
+export const CriteriosValidacionPage = () => {
+  const { data: criterios, isLoading, error, refetch } = useCriteriosValidacion()
 
   const navigate = useNavigate()
   const filterConfig = useMemo(
@@ -18,7 +18,10 @@ export const PruebasPage = () => {
       busqueda: {
         type: 'search' as const,
         defaultValue: '',
-        filterFn: createMultiFieldSearchFilter<Prueba>(prueba => [prueba.cod_prueba, prueba.prueba])
+        filterFn: createMultiFieldSearchFilter<CriterioValidacion>(criterio => [
+          criterio.codigo,
+          criterio.descripcion
+        ])
       }
     }),
     []
@@ -26,14 +29,14 @@ export const PruebasPage = () => {
 
   const {
     filters,
-    filteredItems: pruebasFiltradas,
+    filteredItems: criteriosFiltrados,
     hasActiveFilters,
     updateFilter,
     clearFilters
-  } = useListFilters<Prueba>(pruebas || [], filterConfig)
+  } = useListFilters<CriterioValidacion>(criterios || [], filterConfig)
 
   const handlers = {
-    onNew: () => navigate('/pruebas/nueva')
+    onNew: () => navigate('/criterios-validacion/nuevo')
   }
 
   const renderFilters = () => (
@@ -42,16 +45,17 @@ export const PruebasPage = () => {
         label="Búsqueda"
         value={filters.busqueda as string}
         onChange={value => updateFilter('busqueda', value)}
-        placeholder="Buscar por código, prueba..."
+        placeholder="Buscar por código, descripción..."
         className="min-w-[300px]"
       />
     </FilterContainer>
   )
+
   return (
     <ListPage
-      title="Gestión de pruebas"
+      title="Gestión de Criterios de Validación"
       data={{
-        items: pruebasFiltradas,
+        items: criteriosFiltrados,
         isLoading,
         error,
         refetch
@@ -59,16 +63,16 @@ export const PruebasPage = () => {
       handlers={handlers}
       renderFilters={renderFilters}
       config={{
-        newButtonText: 'Nueva prueba',
-        emptyStateMessage: 'No hay pruebas disponibles'
+        newButtonText: 'Nuevo criterio',
+        emptyStateMessage: 'No hay criterios de validación disponibles'
       }}
     >
       <div className="grid gap-1">
-        {pruebasFiltradas.map((prueba: Prueba) => (
-          <PruebaCard
-            key={prueba.id}
-            prueba={prueba}
-            onEdit={m => navigate(`/pruebas/${prueba.id}/editar`)}
+        {criteriosFiltrados.map((criterio: CriterioValidacion) => (
+          <CriterioValidacionCard
+            key={criterio.id}
+            criterio={criterio}
+            onEdit={() => navigate(`/criterios-validacion/${criterio.id}/editar`)}
             onDelete={() => {
               /* handle delete */
             }}

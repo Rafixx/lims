@@ -1,16 +1,16 @@
 import { SearchFilter } from '@/shared/components/organisms/Filters/FilterComponents'
 import { FilterContainer } from '@/shared/components/organisms/Filters/FilterContainer'
 import { ListPage } from '@/shared/components/organisms/ListPage'
-import { usePruebas } from '@/shared/hooks/useDim_tables'
+import { useMaquinas } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
-import { Prueba } from '@/shared/interfaces/dim_tables.types'
+import { Maquina } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PruebaCard } from '../components/PruebaCard'
+import { MaquinaCard } from '../components/MaquinaCard'
 
-export const PruebasPage = () => {
-  const { data: pruebas, isLoading, error, refetch } = usePruebas()
+export const MaquinasPage = () => {
+  const { data: maquinas, isLoading, error, refetch } = useMaquinas()
 
   const navigate = useNavigate()
   const filterConfig = useMemo(
@@ -18,7 +18,11 @@ export const PruebasPage = () => {
       busqueda: {
         type: 'search' as const,
         defaultValue: '',
-        filterFn: createMultiFieldSearchFilter<Prueba>(prueba => [prueba.cod_prueba, prueba.prueba])
+        filterFn: createMultiFieldSearchFilter<Maquina>(maquina => [
+          maquina.codigo,
+          maquina.maquina,
+          maquina.perfil_termico
+        ])
       }
     }),
     []
@@ -26,14 +30,14 @@ export const PruebasPage = () => {
 
   const {
     filters,
-    filteredItems: pruebasFiltradas,
+    filteredItems: maquinasFiltradas,
     hasActiveFilters,
     updateFilter,
     clearFilters
-  } = useListFilters<Prueba>(pruebas || [], filterConfig)
+  } = useListFilters<Maquina>(maquinas || [], filterConfig)
 
   const handlers = {
-    onNew: () => navigate('/pruebas/nueva')
+    onNew: () => navigate('/maquinas/nueva')
   }
 
   const renderFilters = () => (
@@ -42,16 +46,17 @@ export const PruebasPage = () => {
         label="Búsqueda"
         value={filters.busqueda as string}
         onChange={value => updateFilter('busqueda', value)}
-        placeholder="Buscar por código, prueba..."
+        placeholder="Buscar por código, máquina, perfil térmico..."
         className="min-w-[300px]"
       />
     </FilterContainer>
   )
+
   return (
     <ListPage
-      title="Gestión de pruebas"
+      title="Gestión de Máquinas"
       data={{
-        items: pruebasFiltradas,
+        items: maquinasFiltradas,
         isLoading,
         error,
         refetch
@@ -59,16 +64,16 @@ export const PruebasPage = () => {
       handlers={handlers}
       renderFilters={renderFilters}
       config={{
-        newButtonText: 'Nueva prueba',
-        emptyStateMessage: 'No hay pruebas disponibles'
+        newButtonText: 'Nueva máquina',
+        emptyStateMessage: 'No hay máquinas disponibles'
       }}
     >
       <div className="grid gap-1">
-        {pruebasFiltradas.map((prueba: Prueba) => (
-          <PruebaCard
-            key={prueba.id}
-            prueba={prueba}
-            onEdit={m => navigate(`/pruebas/${prueba.id}/editar`)}
+        {maquinasFiltradas.map((maquina: Maquina) => (
+          <MaquinaCard
+            key={maquina.id}
+            maquina={maquina}
+            onEdit={() => navigate(`/maquinas/${maquina.id}/editar`)}
             onDelete={() => {
               /* handle delete */
             }}

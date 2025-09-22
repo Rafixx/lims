@@ -1,16 +1,16 @@
 import { SearchFilter } from '@/shared/components/organisms/Filters/FilterComponents'
 import { FilterContainer } from '@/shared/components/organisms/Filters/FilterContainer'
 import { ListPage } from '@/shared/components/organisms/ListPage'
-import { usePruebas } from '@/shared/hooks/useDim_tables'
+import { useCentros } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
-import { Prueba } from '@/shared/interfaces/dim_tables.types'
+import { Centro, Prueba } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PruebaCard } from '../components/PruebaCard'
+import { CentroCard } from '../components/CentroCard'
 
-export const PruebasPage = () => {
-  const { data: pruebas, isLoading, error, refetch } = usePruebas()
+export const CentrosPage = () => {
+  const { data: centros, isLoading, error, refetch } = useCentros()
 
   const navigate = useNavigate()
   const filterConfig = useMemo(
@@ -18,7 +18,10 @@ export const PruebasPage = () => {
       busqueda: {
         type: 'search' as const,
         defaultValue: '',
-        filterFn: createMultiFieldSearchFilter<Prueba>(prueba => [prueba.cod_prueba, prueba.prueba])
+        filterFn: createMultiFieldSearchFilter<Centro>(centro => [
+          centro.codigo,
+          centro.descripcion
+        ])
       }
     }),
     []
@@ -26,14 +29,14 @@ export const PruebasPage = () => {
 
   const {
     filters,
-    filteredItems: pruebasFiltradas,
+    filteredItems: centrosFiltrados,
     hasActiveFilters,
     updateFilter,
     clearFilters
-  } = useListFilters<Prueba>(pruebas || [], filterConfig)
+  } = useListFilters<Centro>(centros || [], filterConfig)
 
   const handlers = {
-    onNew: () => navigate('/pruebas/nueva')
+    onNew: () => navigate('/Centro/nueva')
   }
 
   const renderFilters = () => (
@@ -49,9 +52,9 @@ export const PruebasPage = () => {
   )
   return (
     <ListPage
-      title="Gestión de pruebas"
+      title="Gestión de Centro"
       data={{
-        items: pruebasFiltradas,
+        items: centrosFiltrados,
         isLoading,
         error,
         refetch
@@ -60,15 +63,15 @@ export const PruebasPage = () => {
       renderFilters={renderFilters}
       config={{
         newButtonText: 'Nueva prueba',
-        emptyStateMessage: 'No hay pruebas disponibles'
+        emptyStateMessage: 'No hay Centro disponibles'
       }}
     >
       <div className="grid gap-1">
-        {pruebasFiltradas.map((prueba: Prueba) => (
-          <PruebaCard
-            key={prueba.id}
-            prueba={prueba}
-            onEdit={m => navigate(`/pruebas/${prueba.id}/editar`)}
+        {centrosFiltrados.map((centro: Centro) => (
+          <CentroCard
+            key={centro.id}
+            centro={centro}
+            onEdit={c => navigate(`/Centro/${centro.id}/editar`)}
             onDelete={() => {
               /* handle delete */
             }}

@@ -1,16 +1,16 @@
 import { SearchFilter } from '@/shared/components/organisms/Filters/FilterComponents'
 import { FilterContainer } from '@/shared/components/organisms/Filters/FilterContainer'
 import { ListPage } from '@/shared/components/organisms/ListPage'
-import { usePruebas } from '@/shared/hooks/useDim_tables'
+import { useTiposMuestra } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
-import { Prueba } from '@/shared/interfaces/dim_tables.types'
+import { TipoMuestra } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PruebaCard } from '../components/PruebaCard'
+import { TipoMuestraCard } from '../components/TipoMuestraCard'
 
-export const PruebasPage = () => {
-  const { data: pruebas, isLoading, error, refetch } = usePruebas()
+export const TiposMuestraPage = () => {
+  const { data: tiposMuestra, isLoading, error, refetch } = useTiposMuestra()
 
   const navigate = useNavigate()
   const filterConfig = useMemo(
@@ -18,7 +18,10 @@ export const PruebasPage = () => {
       busqueda: {
         type: 'search' as const,
         defaultValue: '',
-        filterFn: createMultiFieldSearchFilter<Prueba>(prueba => [prueba.cod_prueba, prueba.prueba])
+        filterFn: createMultiFieldSearchFilter<TipoMuestra>(tipoMuestra => [
+          tipoMuestra.cod_tipo_muestra,
+          tipoMuestra.tipo_muestra
+        ])
       }
     }),
     []
@@ -26,14 +29,14 @@ export const PruebasPage = () => {
 
   const {
     filters,
-    filteredItems: pruebasFiltradas,
+    filteredItems: tiposMuestraFiltrados,
     hasActiveFilters,
     updateFilter,
     clearFilters
-  } = useListFilters<Prueba>(pruebas || [], filterConfig)
+  } = useListFilters<TipoMuestra>(tiposMuestra || [], filterConfig)
 
   const handlers = {
-    onNew: () => navigate('/pruebas/nueva')
+    onNew: () => navigate('/tipos-muestra/nuevo')
   }
 
   const renderFilters = () => (
@@ -42,16 +45,17 @@ export const PruebasPage = () => {
         label="Búsqueda"
         value={filters.busqueda as string}
         onChange={value => updateFilter('busqueda', value)}
-        placeholder="Buscar por código, prueba..."
+        placeholder="Buscar por código, tipo de muestra..."
         className="min-w-[300px]"
       />
     </FilterContainer>
   )
+
   return (
     <ListPage
-      title="Gestión de pruebas"
+      title="Gestión de Tipos de Muestra"
       data={{
-        items: pruebasFiltradas,
+        items: tiposMuestraFiltrados,
         isLoading,
         error,
         refetch
@@ -59,16 +63,16 @@ export const PruebasPage = () => {
       handlers={handlers}
       renderFilters={renderFilters}
       config={{
-        newButtonText: 'Nueva prueba',
-        emptyStateMessage: 'No hay pruebas disponibles'
+        newButtonText: 'Nuevo Tipo de Muestra',
+        emptyStateMessage: 'No hay tipos de muestra disponibles'
       }}
     >
       <div className="grid gap-1">
-        {pruebasFiltradas.map((prueba: Prueba) => (
-          <PruebaCard
-            key={prueba.id}
-            prueba={prueba}
-            onEdit={m => navigate(`/pruebas/${prueba.id}/editar`)}
+        {tiposMuestraFiltrados.map((tipoMuestra: TipoMuestra) => (
+          <TipoMuestraCard
+            key={tipoMuestra.id}
+            tipoMuestra={tipoMuestra}
+            onEdit={() => navigate(`/tipos-muestra/${tipoMuestra.id}/editar`)}
             onDelete={() => {
               /* handle delete */
             }}
