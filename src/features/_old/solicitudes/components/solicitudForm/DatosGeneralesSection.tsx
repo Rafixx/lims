@@ -26,6 +26,7 @@ export const DatosGeneralesSection = ({ index }: Props) => {
   // Carga de datos - usando hooks existentes o temporales
   const { data: pruebas = [], isLoading: loadingPruebas } = usePruebas()
   const { data: pacientes = [], isLoading: loadingPacientes } = usePacientes()
+  const { data: clientes = [], isLoading: loadingClientes } = useClientes()
   const { data: tiposMuestra = [], isLoading: loadingTipos } = useTiposMuestra()
   const { data: centros = [], isLoading: loadingCentros } = useCentros()
   const { data: tec_resp = [], isLoading: loadingTecResp } = useTecnicosLab()
@@ -44,6 +45,18 @@ export const DatosGeneralesSection = ({ index }: Props) => {
       <div className="bg-gray-50 p-4 rounded-lg">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Datos de la Muestra {index + 1}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <EntitySelect
+            name={`muestras.${index}.id_cliente`}
+            control={control}
+            label="Cliente *"
+            options={clientes}
+            isLoading={loadingClientes}
+            getValue={cliente => cliente.id}
+            getLabel={cliente => cliente.nombre}
+            required
+            className={muestraStyle}
+            // error={errors.muestras?.[index]?.id_paciente?.message}
+          />
           <EntitySelect
             name={`muestras.${index}.id_paciente`}
             control={control}

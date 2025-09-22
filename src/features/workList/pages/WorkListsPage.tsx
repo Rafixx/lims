@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useWorklists, useDeleteWorklist, useProcesosDisponibles } from '../hooks/useWorklists'
+import { useWorklists } from '../hooks/useWorklists'
 import { Button } from '@/shared/components/molecules/Button'
 import { Plus, Search, BarChart3 } from 'lucide-react'
 import { WorklistCard } from '../components/WorkListCard'
@@ -13,16 +13,15 @@ export const WorkListsPage = () => {
   const [searchTerm, setSearchTerm] = useState('')
 
   // Queries
-  const { data: worklists, isLoading, error, refetch } = useWorklists()
-  const { data: procesos } = useProcesosDisponibles()
+  const { worklists, isLoading, error, refetch } = useWorklists()
 
   // Mutations
-  const deleteWorklist = useDeleteWorklist()
+  // const deleteWorklist = useDeleteWorklist()
 
   const handleDeleteWorklist = async (id: number, nombre: string) => {
     if (window.confirm(`¿Está seguro de eliminar el worklist "${nombre}"?`)) {
       try {
-        await deleteWorklist.mutateAsync(id)
+        // await deleteWorklist.mutateAsync(id)
         refetch()
       } catch (error) {
         console.error('Error deleting worklist:', error)
@@ -36,11 +35,6 @@ export const WorkListsPage = () => {
         worklist.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
         worklist.tecnica_proc?.tecnica_proc?.toLowerCase().includes(searchTerm.toLowerCase())
     ) || []
-
-  const getProcesoNombre = (dimTecnicasProc?: string) => {
-    const proceso = procesos?.find(p => p.dim_tecnicas_proc === dimTecnicasProc)
-    return proceso?.descripcion || dimTecnicasProc || 'Sin proceso'
-  }
 
   if (isLoading) {
     return (
@@ -121,7 +115,6 @@ export const WorkListsPage = () => {
             <WorklistCard
               key={worklist.id_worklist}
               worklist={worklist}
-              procesoNombre={worklist.tecnica_proc?.tecnica_proc || 'Sin proceso'}
               onDelete={handleDeleteWorklist}
               onView={() => navigate(`/worklist/${worklist.id_worklist}`)}
             />

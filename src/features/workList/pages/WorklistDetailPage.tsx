@@ -2,20 +2,14 @@
 
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import {
-  useWorklist,
-  useWorklistEstadisticas,
-  // useWorklistTecnicasAgrupadas,
-  useAsignarTecnico,
-  useIniciarTecnica,
-  useCompletarTecnica,
-  useDeleteWorklist
-} from '../hooks/useWorklists'
-import { useTecnicosLab } from '../hooks/useTecnicosLab'
+import { useWorklist } from '../hooks/useWorklists'
+import { useTecnicosLaboratorio } from '@/shared/hooks/useDim_tables'
 import { Card } from '@/shared/components/molecules/Card'
 import { Button } from '@/shared/components/molecules/Button'
 import { ArrowLeft, BarChart3, Clock, CheckCircle, AlertTriangle, Trash2 } from 'lucide-react'
 import { TecnicaItem } from '../components/TecnicaItem'
+import { APP_STATES, type AppEstado } from '@/shared/states'
+import { EstadoBadge } from '@/shared/components/atoms/EstadoBadge'
 
 export const WorklistDetailPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -25,28 +19,28 @@ export const WorklistDetailPage = () => {
   const [selectedTecnicoId, setSelectedTecnicoId] = useState<Record<number, number>>({})
 
   // Queries
-  const { data: worklist, isLoading: loadingWorklist } = useWorklist(worklistId)
-  const { data: estadisticas, isLoading: loadingEstadisticas } = useWorklistEstadisticas(worklistId)
+  const { worklist, isLoading: loadingWorklist } = useWorklist(worklistId)
+  // const { data: estadisticas, isLoading: loadingEstadisticas } = useWorklistEstadisticas(worklistId)
 
   // const { data: tecnicasAgrupadas = [], isLoading: loadingTecnicas } =
   // useWorklistTecnicasAgrupadas(worklistId)
-  const { data: tecnicos = [] } = useTecnicosLab()
+  const { data: tecnicos = [] } = useTecnicosLaboratorio()
 
   // Mutations
-  const asignarTecnico = useAsignarTecnico()
-  const iniciarTecnica = useIniciarTecnica()
-  const completarTecnica = useCompletarTecnica()
-  const deleteWorklist = useDeleteWorklist()
+  // const asignarTecnico = useAsignarTecnico()
+  // const iniciarTecnica = useIniciarTecnica()
+  // const completarTecnica = useCompletarTecnica()
+  // const deleteWorklist = useDeleteWorklist()
 
   const handleAsignarTecnico = async (idTecnica: number) => {
     const tecnicoId = selectedTecnicoId[idTecnica]
     if (!tecnicoId) return
 
     try {
-      await asignarTecnico.mutateAsync({
-        idTecnica,
-        data: { id_tecnico: tecnicoId }
-      })
+      // await asignarTecnico.mutateAsync({
+      //   idTecnica,
+      //   data: { id_tecnico: tecnicoId }
+      // })
     } catch (error) {
       console.error('Error assigning technician:', error)
     }
@@ -54,7 +48,7 @@ export const WorklistDetailPage = () => {
 
   const handleIniciarTecnica = async (idTecnica: number) => {
     try {
-      await iniciarTecnica.mutateAsync(idTecnica)
+      // await iniciarTecnica.mutateAsync(idTecnica)
     } catch (error) {
       console.error('Error starting technique:', error)
     }
@@ -62,7 +56,7 @@ export const WorklistDetailPage = () => {
 
   const handleCompletarTecnica = async (idTecnica: number) => {
     try {
-      await completarTecnica.mutateAsync(idTecnica)
+      // await completarTecnica.mutateAsync(idTecnica)
     } catch (error) {
       console.error('Error completing technique:', error)
     }
@@ -73,8 +67,8 @@ export const WorklistDetailPage = () => {
 
     if (window.confirm(`¿Está seguro de eliminar el worklist "${worklist.nombre}"?`)) {
       try {
-        await deleteWorklist.mutateAsync(worklistId)
-        navigate('/worklist')
+        // await deleteWorklist.mutateAsync(worklistId)
+        // navigate('/worklist')
       } catch (error) {
         console.error('Error deleting worklist:', error)
       }
@@ -91,7 +85,7 @@ export const WorklistDetailPage = () => {
     })
   }
 
-  if (loadingWorklist || loadingEstadisticas) {
+  if (loadingWorklist) {
     return (
       <div className="flex items-center justify-center min-h-96">
         <div className="text-center">
@@ -148,57 +142,60 @@ export const WorklistDetailPage = () => {
         </div>
 
         {/* Estadísticas */}
-        {estadisticas && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="p-4">
-              <div className="flex items-center">
-                <BarChart3 className="h-8 w-8 text-blue-600" />
-                <div className="ml-3">
-                  <p className="text-2xl font-bold text-gray-900">{estadisticas.total_tecnicas}</p>
-                  <p className="text-gray-600">Total técnicas</p>
-                </div>
+        {/* {estadisticas && ( */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="p-4">
+            <div className="flex items-center">
+              <BarChart3 className="h-8 w-8 text-blue-600" />
+              <div className="ml-3">
+                <p className="text-2xl font-bold text-gray-900">{worklist.tecnicas.length || 0}</p>
+                <p className="text-gray-600">Total técnicas</p>
               </div>
-            </Card>
+            </div>
+          </Card>
 
-            <Card className="p-4">
-              <div className="flex items-center">
-                <Clock className="h-8 w-8 text-yellow-600" />
-                <div className="ml-3">
-                  <p className="text-2xl font-bold text-gray-900">
-                    {estadisticas.tecnicas_en_progreso}
-                  </p>
-                  <p className="text-gray-600">En progreso</p>
-                </div>
+          <Card className="p-4">
+            <div className="flex items-center">
+              <Clock className="h-8 w-8 text-yellow-600" />
+              <div className="ml-3">
+                <p className="text-2xl font-bold text-gray-900">
+                  {worklist.tecnicas.filter(
+                    tecnica => tecnica.estado === APP_STATES.TECNICA.EN_PROGRESO
+                  ).length || 0}
+                </p>
+                <p className="text-gray-600">En progreso</p>
               </div>
-            </Card>
+            </div>
+          </Card>
 
-            <Card className="p-4">
-              <div className="flex items-center">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-                <div className="ml-3">
-                  <p className="text-2xl font-bold text-gray-900">
-                    {estadisticas.tecnicas_completadas}
-                  </p>
-                  <p className="text-gray-600">Completadas</p>
-                </div>
+          <Card className="p-4">
+            <div className="flex items-center">
+              <CheckCircle className="h-8 w-8 text-green-600" />
+              <div className="ml-3">
+                <p className="text-2xl font-bold text-gray-900">
+                  {worklist.tecnicas.filter(
+                    tecnica => tecnica.estado === APP_STATES.TECNICA.COMPLETADA
+                  ).length || 0}
+                </p>
+                <p className="text-gray-600">Completadas</p>
               </div>
-            </Card>
+            </div>
+          </Card>
 
-            <Card className="p-4">
-              <div className="flex items-center">
-                <BarChart3 className="h-8 w-8 text-purple-600" />
-                <div className="ml-3">
-                  <p className="text-2xl font-bold text-gray-900">
-                    {estadisticas.porcentaje_completado
-                      ? `${Math.round(estadisticas.porcentaje_completado)} %`
-                      : ''}
-                  </p>
-                  <p className="text-gray-600">Progreso</p>
-                </div>
+          <Card className="p-4">
+            <div className="flex items-center">
+              <BarChart3 className="h-8 w-8 text-purple-600" />
+              <div className="ml-3">
+                <p className="text-2xl font-bold text-gray-900">
+                  {worklist.tecnicas.length > 0
+                    ? `${Math.round((worklist.tecnicas.filter(tecnica => tecnica.estado === APP_STATES.TECNICA.COMPLETADA).length / worklist.tecnicas.length) * 100)} %`
+                    : ''}
+                </p>
+                <p className="text-gray-600">Progreso</p>
               </div>
-            </Card>
-          </div>
-        )}
+            </div>
+          </Card>
+        </div>
       </div>
 
       {/* Técnicas por Proceso */}
@@ -220,25 +217,31 @@ export const WorklistDetailPage = () => {
               </div>
             </div>
 
-            <div className="space-y-3">
-              {(worklist.tecnicas || []).map(tecnica => (
-                <TecnicaItem
-                  key={tecnica.id}
-                  tecnica={tecnica}
-                  // tecnicos={tecnicos}
-                  // selectedTecnicoId={selectedTecnicoId[tecnica.id]}
-                  // onTecnicoChange={tecnicoId =>
-                  //   setSelectedTecnicoId(prev => ({ ...prev, [tecnica.id]: tecnicoId }))
-                  // }
-                  // onAsignarTecnico={() => handleAsignarTecnico(tecnica.id)}
-                  // onIniciar={() => handleIniciarTecnica(tecnica.id)}
-                  // onCompletar={() => handleCompletarTecnica(tecnica.id)}
-                  isLoading={
-                    asignarTecnico.isPending ||
-                    iniciarTecnica.isPending ||
-                    completarTecnica.isPending
-                  }
-                />
+            <div className="space-y-2">
+              {(worklist.tecnicas || []).map((tecnica, index) => (
+                <div
+                  key={index}
+                  className="border p-3 rounded bg-gray-50 hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-4">
+                      <span className="font-medium text-gray-900">
+                        Código Epidisease: {tecnica.muestra.codigo_epi}
+                      </span>
+                      <span className="text-gray-600">
+                        • Código Externo: {tecnica.muestra.codigo_externo || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <EstadoBadge
+                        estado={tecnica.estado as AppEstado}
+                        size="sm"
+                        showIcon={true}
+                        showTooltip={true}
+                      />
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </Card>

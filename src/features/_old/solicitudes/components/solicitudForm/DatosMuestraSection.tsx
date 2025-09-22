@@ -18,7 +18,7 @@ export const DatosMuestraSection = ({ index }: Props) => {
         <h3 className="text-lg font-medium text-gray-900 mb-4">
           Cronología de la Muestra {index + 1}
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField
             id={`muestras.${index}.f_toma_muestra`}
             label="Fecha Toma de Muestra"
@@ -30,36 +30,53 @@ export const DatosMuestraSection = ({ index }: Props) => {
             // helpText="Cuándo se tomó la muestra"
           />
 
-          {/* Campos adicionales de cronología de muestra */}
           <FormField
-            id={`muestras.${index}.condiciones_envio`}
-            label="Condiciones de Envío"
+            id={`muestras.${index}.solicitud.f_creacion`}
+            label="Fecha de Creación"
             inputProps={{
-              ...register(`muestras.${index}.condiciones_envio`),
-              type: 'text',
-              placeholder: 'Ej: Temperatura ambiente, refrigerada...'
+              ...register(`muestras.${index}.solicitud.f_creacion`),
+              type: 'date',
+              placeholder: 'Fecha de creación de la solicitud'
             }}
             className={muestraStyle}
           />
-
           <FormField
-            id={`muestras.${index}.tiempo_hielo`}
-            label="Tiempo en Hielo"
+            id={`muestras.${index}.solicitud.f_entrada`}
+            label="Fecha de Entrada"
             inputProps={{
-              ...register(`muestras.${index}.tiempo_hielo`),
-              type: 'text',
-              placeholder: 'Ej: 2 horas, No aplica...'
+              ...register(`muestras.${index}.solicitud.f_entrada`),
+              type: 'date',
+              placeholder: 'Fecha de entrada de la solicitud'
             }}
             className={muestraStyle}
           />
-
           <FormField
-            id={`muestras.${index}.observaciones_muestra`}
-            label="Observaciones de la Muestra"
+            id={`muestras.${index}.solicitud.f_compromiso`}
+            label="Fecha Compromiso"
             inputProps={{
-              ...register(`muestras.${index}.observaciones_muestra`),
-              type: 'text',
-              placeholder: 'Observaciones específicas de esta muestra'
+              ...register(`muestras.${index}.solicitud.f_compromiso`),
+              type: 'date',
+              placeholder: 'Fecha de compromiso de la solicitud'
+            }}
+            className={muestraStyle}
+          />
+          <FormField
+            id={`muestras.${index}.solicitud.f_entrega`}
+            label="Fecha de Entrega"
+            inputProps={{
+              ...register(`muestras.${index}.solicitud.f_entrega`),
+              type: 'date',
+              placeholder: 'Fecha de entrega de la solicitud'
+            }}
+            className={muestraStyle}
+          />
+          <FormField
+            id={`muestras.${index}.solicitud.f_recepcion`}
+            label="Fecha de Recepción"
+            inputProps={{
+              ...register(`muestras.${index}.solicitud.f_recepcion`),
+              type: 'date',
+              placeholder: 'Fecha de recepción de la solicitud'
             }}
             className={muestraStyle}
           />

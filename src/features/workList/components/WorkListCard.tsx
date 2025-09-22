@@ -4,20 +4,15 @@ import { Card } from '@/shared/components/molecules/Card'
 import { Trash2, BarChart3, Clock, CheckCircle } from 'lucide-react'
 import type { Worklist } from '../interfaces/worklist.types'
 import { Button } from '@/shared/components/molecules/Button'
+import { APP_STATES } from '@/shared/states'
 
 interface WorklistCardProps {
   worklist: Worklist
-  procesoNombre: string
   onDelete: (id: number, nombre: string) => void
   onView: () => void
 }
 
-export const WorklistCard: React.FC<WorklistCardProps> = ({
-  worklist,
-  procesoNombre,
-  onDelete,
-  onView
-}) => {
+export const WorklistCard: React.FC<WorklistCardProps> = ({ worklist, onDelete, onView }) => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
@@ -26,8 +21,8 @@ export const WorklistCard: React.FC<WorklistCardProps> = ({
     })
   }
 
-  const completionPercentage = worklist.total_tecnicas
-    ? Math.round(((worklist.tecnicas_completadas || 0) / worklist.total_tecnicas) * 100)
+  const completionPercentage = worklist.tecnicas
+    ? Math.round(((worklist.tecnicas.length || 0) / worklist.tecnicas.length) * 100)
     : 0
 
   return (
@@ -57,7 +52,7 @@ export const WorklistCard: React.FC<WorklistCardProps> = ({
               <BarChart3 size={16} />
               <span>Total técnicas</span>
             </div>
-            <span className="font-medium">{worklist.total_tecnicas || 0}</span>
+            <span className="font-medium">{worklist.tecnicas.length || 0}</span>
           </div>
 
           <div className="flex items-center justify-between text-sm">
@@ -65,7 +60,10 @@ export const WorklistCard: React.FC<WorklistCardProps> = ({
               <CheckCircle size={16} />
               <span>Completadas</span>
             </div>
-            <span className="font-medium">{worklist.tecnicas_completadas || 0}</span>
+            <span className="font-medium">
+              {worklist.tecnicas.filter(tecnica => tecnica.estado === APP_STATES.TECNICA.COMPLETADA)
+                .length || 0}
+            </span>
           </div>
 
           {/* Progress Bar */}

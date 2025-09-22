@@ -1,0 +1,87 @@
+import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query'
+import { worklistService } from '../services/worklistService'
+import { Worklist, Tecnica } from '../interfaces/worklist.types'
+
+export const useWorklists = () => {
+  const { data, isLoading, error, refetch }: UseQueryResult<Worklist[], Error> = useQuery({
+    queryKey: ['worklists'],
+    queryFn: async () => worklistService.getWorklists(),
+    staleTime: 5 * 60 * 1000, // Los datos son válidos por 5 minutos
+    placeholderData: [] // Valor inicial para data
+  })
+
+  return {
+    worklists: data || [],
+    isLoading,
+    error,
+    refetch
+  }
+}
+
+// Hook para obtener un worklist específico
+export const useWorklist = (id: number) => {
+  const { data, isLoading, error, refetch }: UseQueryResult<Worklist, Error> = useQuery({
+    queryKey: ['worklist', id],
+    queryFn: async () => worklistService.getWorklist(id),
+    enabled: !!id && id > 0,
+    staleTime: 5 * 60 * 1000 // Los datos son válidos por 5 minutos
+  })
+
+  return {
+    worklist: data || null,
+    isLoading,
+    error,
+    refetch
+  }
+}
+
+export const useTecnicasByWorklist = (id: number) => {
+  const { data, isLoading, error, refetch }: UseQueryResult<Tecnica[], Error> = useQuery({
+    queryKey: ['worklist', id, 'tecnicas'],
+    queryFn: async () => worklistService.getTecnicasByWorklist(id),
+    enabled: !!id && id > 0,
+    staleTime: 5 * 60 * 1000 // Los datos son válidos por 5 minutos
+  })
+
+  return {
+    tecnicas: data || [],
+    isLoading,
+    error,
+    refetch
+  }
+}
+
+export const useCreateWorklist = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Partial<Worklist>) => worklistService.createWorklist(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['worklists'] })
+    }
+  })
+}
+
+export const useUpdateWorklist = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Worklist> }) =>
+      worklistService.updateWorklist(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['worklist', id] })
+      queryClient.invalidateQueries({ queryKey: ['worklists'] })
+    }
+  })
+}
+
+export const useDeleteWorklist = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => worklistService.deleteWorklist(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['worklists'] })
+    }
+  })
+}
