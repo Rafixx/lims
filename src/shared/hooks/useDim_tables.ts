@@ -14,13 +14,7 @@ import type {
   Pipeta,
   Reactivo
 } from '../interfaces/dim_tables.types'
-
-// ================================
-// CONFIGURACIÓN
-// ================================
-
-const STALE_TIME = 10 * 60 * 1000 // 10 minutos
-const GC_TIME = 30 * 60 * 1000 // 30 minutos (antes cacheTime)
+import { STALE_TIME, GC_TIME } from '@/shared/constants/constants'
 
 // Query keys centralizadas para mantener consistencia
 export const dimTablesQueryKeys = {
@@ -94,12 +88,12 @@ export const useClientes = (options?: Omit<UseQueryOptions<Cliente[]>, 'queryKey
 }
 
 export const useCliente = (
-  id: number,
+  id?: number,
   options?: Omit<UseQueryOptions<Cliente>, 'queryKey' | 'queryFn' | 'enabled'>
 ) => {
   return useQuery<Cliente, Error>({
-    queryKey: dimTablesQueryKeys.cliente(id),
-    queryFn: () => dimTablesService.getCliente(id),
+    queryKey: dimTablesQueryKeys.cliente(id || 0),
+    queryFn: () => dimTablesService.getCliente(id!),
     staleTime: STALE_TIME,
     gcTime: GC_TIME,
     enabled: !!id && id > 0,
@@ -154,12 +148,12 @@ export const usePacientes = (
 }
 
 export const usePaciente = (
-  id: number,
+  id?: number,
   options?: Omit<UseQueryOptions<Paciente>, 'queryKey' | 'queryFn' | 'enabled'>
 ) => {
   return useQuery<Paciente, Error>({
-    queryKey: dimTablesQueryKeys.paciente(id),
-    queryFn: () => dimTablesService.getPaciente(id),
+    queryKey: dimTablesQueryKeys.paciente(id || 0),
+    queryFn: () => dimTablesService.getPaciente(id!),
     staleTime: STALE_TIME,
     gcTime: GC_TIME,
     enabled: !!id && id > 0,

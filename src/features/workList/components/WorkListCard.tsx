@@ -22,7 +22,12 @@ export const WorklistCard: React.FC<WorklistCardProps> = ({ worklist, onDelete, 
   }
 
   const completionPercentage = worklist.tecnicas
-    ? Math.round(((worklist.tecnicas.length || 0) / worklist.tecnicas.length) * 100)
+    ? Math.round(
+        ((worklist.tecnicas.filter(tecnica => tecnica.estado === APP_STATES.TECNICA.COMPLETADA)
+          .length || 0) /
+          worklist.tecnicas.length) *
+          100
+      )
     : 0
 
   return (
@@ -32,7 +37,7 @@ export const WorklistCard: React.FC<WorklistCardProps> = ({ worklist, onDelete, 
         <div className="flex justify-between items-start mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">{worklist.nombre}</h3>
-            <div className="text-sm text-gray-600">{worklist.tecnica_proc?.tecnica_proc}</div>
+            <div className="text-sm text-gray-600">{worklist.tecnica_proc}</div>
           </div>
           <div className="flex gap-2" onClick={e => e.stopPropagation()}>
             <Button
@@ -50,7 +55,7 @@ export const WorklistCard: React.FC<WorklistCardProps> = ({ worklist, onDelete, 
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-gray-600">
               <BarChart3 size={16} />
-              <span>Total técnicas</span>
+              <span>Total muestras</span>
             </div>
             <span className="font-medium">{worklist.tecnicas.length || 0}</span>
           </div>

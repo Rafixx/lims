@@ -15,6 +15,7 @@ interface EntitySelectProps<T, F extends FieldValues> {
   onIconClick?: () => void
   onChangeCapture?: (e: React.ChangeEvent<HTMLSelectElement>) => void
   className?: string
+  disabled?: boolean
 }
 
 export const EntitySelect = <T, F extends FieldValues>({
@@ -29,7 +30,8 @@ export const EntitySelect = <T, F extends FieldValues>({
   icon,
   onIconClick,
   onChangeCapture,
-  className
+  className,
+  disabled = false
 }: EntitySelectProps<T, F>) => {
   return (
     <div className="mb-4 px-2">
@@ -45,7 +47,7 @@ export const EntitySelect = <T, F extends FieldValues>({
             <select
               {...field}
               id={name}
-              disabled={isLoading}
+              disabled={isLoading || disabled}
               className={`
                 border border-surface-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
                 disabled:bg-surface-50 disabled:text-surface-500 disabled:cursor-not-allowed

@@ -1,98 +1,96 @@
 // src/features/workList/pages/CreateWorklistPage.tsx
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  useProcesosDisponibles,
-  useTecnicasSinAsignar,
-  useCreateWorklist
-} from '../hooks/useWorklists'
 import { Card } from '@/shared/components/molecules/Card'
 import { Button } from '@/shared/components/molecules/Button'
-import { ArrowLeft, Search, CheckCircle, Circle, User, Calendar, AlertTriangle } from 'lucide-react'
-import type { TecnicaSinAsignar, TecnicaSeleccionable } from '../interfaces/worklist.types'
+import { ArrowLeft } from 'lucide-react'
+import {
+  usePosiblesTecnicasProc,
+  usePosiblesTecnicas,
+  useCreateWorklist
+} from '../hooks/useWorklists'
+import { CreateWorklistRequest } from '../interfaces/worklist.types'
+import { Input } from '@/shared/components/molecules/Input'
+import { Label } from '@/shared/components/atoms/Label'
+import { TecnicaCard } from '../components/TecnicaCard'
+import { useUser } from '@/shared/contexts/UserContext'
 
 export const CreateWorklistPage = () => {
   const navigate = useNavigate()
+  const { user } = useUser()
 
-  // Estados del formulario
   const [nombre, setNombre] = useState('')
-  const [selectedProceso, setSelectedProceso] = useState('')
-  const [tecnicasSeleccionadas, setTecnicasSeleccionadas] = useState<TecnicaSeleccionable[]>([])
-  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedTecnicaProc, setSelectedTecnicaProc] = useState('')
+  const [selectedTecnicas, setSelectedTecnicas] = useState<Set<number>>(new Set())
 
-  // Queries
-  const { data: procesos, isLoading: loadingProcesos } = useProcesosDisponibles()
-  const { data: tecnicasSinAsignar, isLoading: loadingTecnicas } =
-    useTecnicasSinAsignar(selectedProceso)
+  const { posiblesTecnicasProc, isLoading: loadingPosiblesTecnicasProc } = usePosiblesTecnicasProc()
 
-  // Mutations
+  // Hook para crear worklist
   const createWorklist = useCreateWorklist()
 
-  // Actualizar técnicas seleccionables cuando cambien las técnicas sin asignar
-  useEffect(() => {
-    if (tecnicasSinAsignar) {
-      const tecnicasConSeleccion: TecnicaSeleccionable[] = tecnicasSinAsignar.map(tecnica => ({
-        ...tecnica,
-        seleccionada: false
-      }))
-      setTecnicasSeleccionadas(tecnicasConSeleccion)
-    }
-  }, [tecnicasSinAsignar])
+  // Hook para obtener técnicas basado en el proceso seleccionado
+  const {
+    posiblesTecnicas,
+    isLoading: loadingTecnicas,
+    error: errorTecnicas
+  } = usePosiblesTecnicas(selectedTecnicaProc)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!nombre.trim() || !selectedProceso) {
+    if (!nombre.trim() || !selectedTecnicaProc) {
+      alert('Por favor completa el nombre del worklist y selecciona un proceso.')
       return
     }
 
-    const tecnicasIds = tecnicasSeleccionadas.filter(t => t.seleccionada).map(t => t.id)
-
-    if (tecnicasIds.length === 0) {
+    if (selectedTecnicas.size === 0) {
+      alert('Por favor selecciona al menos una técnica.')
       return
     }
 
     try {
-      await createWorklist.mutateAsync({
-        nombre: nombre.trim(),
-        dim_tecnicas_proc: selectedProceso,
-        tecnicas_seleccionadas: tecnicasIds
-      })
+      // Crear el worklist con la estructura exacta que espera el endpoint
+      const worklistData: CreateWorklistRequest = {
+        nombre,
+        tecnica_proc: selectedTecnicaProc,
+        tecnicas: Array.from(selectedTecnicas),
+        created_by: user?.id || 0
+      }
 
+      await createWorklist.mutateAsync(worklistData)
       navigate('/worklist')
     } catch (error) {
       console.error('Error creating worklist:', error)
+      alert('Error al crear el worklist. Por favor intenta de nuevo.')
+    }
+  }
+  const handleTecnicaToggle = (tecnicaId: number) => {
+    setSelectedTecnicas(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(tecnicaId)) {
+        newSet.delete(tecnicaId)
+      } else {
+        newSet.add(tecnicaId)
+      }
+      return newSet
+    })
+  }
+
+  const handleSelectAll = () => {
+    if (selectedTecnicas.size === posiblesTecnicas.length) {
+      // Si todas están seleccionadas, deseleccionar todas
+      setSelectedTecnicas(new Set())
+    } else {
+      // Seleccionar todas
+      const allIds = new Set(posiblesTecnicas.map(t => t.id_tecnica).filter(Boolean) as number[])
+      setSelectedTecnicas(allIds)
     }
   }
 
-  const toggleTecnica = (id: number) => {
-    setTecnicasSeleccionadas(prev =>
-      prev.map(tecnica =>
-        tecnica.id === id ? { ...tecnica, seleccionada: !tecnica.seleccionada } : tecnica
-      )
-    )
+  const clearSelection = () => {
+    setSelectedTecnicas(new Set())
   }
-
-  const toggleAll = () => {
-    const allSelected = tecnicasSeleccionadas.every(t => t.seleccionada)
-    setTecnicasSeleccionadas(prev =>
-      prev.map(tecnica => ({
-        ...tecnica,
-        seleccionada: !allSelected
-      }))
-    )
-  }
-
-  const filteredTecnicas = tecnicasSeleccionadas.filter(
-    tecnica =>
-      (tecnica.codigo || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (tecnica.paciente_nombre || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (tecnica.proceso_nombre || '').toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
-  const selectedCount = tecnicasSeleccionadas.filter(t => t.seleccionada).length
-  const totalCount = tecnicasSeleccionadas.length
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -115,7 +113,6 @@ export const CreateWorklistPage = () => {
           </div>
         </div>
       </div>
-
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Información Básica */}
         <Card className="p-6">
@@ -124,68 +121,69 @@ export const CreateWorklistPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Nombre del Worklist */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre del Worklist *
-              </label>
-              <input
+              <Label htmlFor="nombre">Nombre del Worklist *</Label>
+              <Input
+                id="nombre"
                 type="text"
                 value={nombre}
-                onChange={e => setNombre(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNombre(e.target.value)}
                 placeholder="Ej: Análisis Microbiología - Lunes"
                 required
+                className="mt-1"
               />
             </div>
 
             {/* Selección de Proceso */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tipo de Proceso *
-              </label>
+              <Label htmlFor="proceso">Tipo de Proceso *</Label>
               <select
-                value={selectedProceso}
-                onChange={e => setSelectedProceso(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                id="proceso"
+                value={selectedTecnicaProc}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                  const procesoNombre = e.target.value
+                  setSelectedTecnicaProc(procesoNombre)
+
+                  // Limpiar técnicas seleccionadas al cambiar de proceso
+                  setSelectedTecnicas(new Set())
+                }}
                 required
-                disabled={loadingProcesos}
+                disabled={loadingPosiblesTecnicasProc}
+                className="mt-1 block w-full border border-surface-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               >
-                <option value="">Seleccionar proceso...</option>
-                {procesos?.map(proceso => (
-                  <option key={proceso.dim_tecnicas_proc} value={proceso.tecnica_proc}>
-                    {proceso.tecnica_proc || proceso.dim_tecnicas_proc}(
-                    {proceso.total_tecnicas_disponibles} técnicas disponibles)
+                <option value="">Selecciona un proceso</option>
+                {posiblesTecnicasProc?.map(proceso => (
+                  <option key={proceso.tecnica_proc} value={proceso.tecnica_proc}>
+                    {proceso.tecnica_proc}
                   </option>
                 ))}
               </select>
+              {loadingPosiblesTecnicasProc && (
+                <p className="text-sm text-gray-500 mt-1">Cargando procesos...</p>
+              )}
             </div>
           </div>
         </Card>
 
-        {/* Selección de Técnicas */}
-        {selectedProceso && (
-          <Card className="p-6">
-            <div className="flex justify-between items-center mb-4">
+        {/* Listar las Tecnicas asociadas al proceso seleccionado */}
+        {selectedTecnicaProc && (
+          <div className="mt-6">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">
-                Seleccionar Técnicas ({selectedCount}/{totalCount})
+                Técnicas Disponibles ({selectedTecnicas.size} seleccionadas)
               </h2>
-
-              {totalCount > 0 && (
-                <Button
-                  type="button"
-                  variant="accent"
-                  onClick={toggleAll}
-                  className="flex items-center gap-2"
-                >
-                  {tecnicasSeleccionadas.every(t => t.seleccionada) ? (
-                    <>
-                      <CheckCircle size={16} /> Desmarcar todas
-                    </>
-                  ) : (
-                    <>
-                      <Circle size={16} /> Marcar todas
-                    </>
+              {posiblesTecnicas.length > 0 && (
+                <div className="flex gap-2">
+                  <Button type="button" variant="ghost" size="sm" onClick={handleSelectAll}>
+                    {selectedTecnicas.size === posiblesTecnicas.length
+                      ? 'Deseleccionar Todas'
+                      : 'Seleccionar Todas'}
+                  </Button>
+                  {selectedTecnicas.size > 0 && (
+                    <Button type="button" variant="ghost" size="sm" onClick={clearSelection}>
+                      Limpiar Selección
+                    </Button>
                   )}
-                </Button>
+                </div>
               )}
             </div>
 
@@ -194,129 +192,50 @@ export const CreateWorklistPage = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 <span className="ml-2 text-gray-600">Cargando técnicas...</span>
               </div>
-            ) : totalCount === 0 ? (
-              <div className="text-center py-8">
-                <AlertTriangle className="mx-auto h-12 w-12 text-yellow-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">
-                  No hay técnicas disponibles
-                </h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  No existen técnicas sin asignar para este proceso.
+            ) : errorTecnicas ? (
+              <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                <p className="text-red-600">
+                  Error al cargar las técnicas: {errorTecnicas.message}
                 </p>
               </div>
+            ) : posiblesTecnicas.length === 0 ? (
+              <p className="text-gray-600">
+                No hay técnicas disponibles para el proceso seleccionado.
+              </p>
             ) : (
-              <>
-                {/* Búsqueda */}
-                <div className="relative mb-4">
-                  <Search
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    size={20}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {posiblesTecnicas.map(tecnica => (
+                  <TecnicaCard
+                    tecnica={tecnica}
+                    key={tecnica.id_tecnica}
+                    onToggle={() => handleTecnicaToggle(tecnica.id_tecnica!)}
+                    isSelected={selectedTecnicas.has(tecnica.id_tecnica!)}
                   />
-                  <input
-                    type="text"
-                    placeholder="Buscar por código, paciente o proceso..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                  />
-                </div>
-
-                {/* Lista de Técnicas */}
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {filteredTecnicas.map(tecnica => (
-                    <TecnicaItem
-                      key={tecnica.id}
-                      tecnica={tecnica}
-                      onToggle={() => toggleTecnica(tecnica.id)}
-                    />
-                  ))}
-                </div>
-              </>
+                ))}
+              </div>
             )}
-          </Card>
+          </div>
         )}
 
         {/* Botones de Acción */}
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="primary" onClick={() => navigate('/worklist')}>
+        <div className="flex justify-end gap-4 pt-6 border-t">
+          <Button type="button" variant="ghost" onClick={() => navigate('/worklist')}>
             Cancelar
           </Button>
-
           <Button
             type="submit"
+            variant="primary"
             disabled={
-              !nombre.trim() || !selectedProceso || selectedCount === 0 || createWorklist.isPending
+              !nombre.trim() ||
+              !selectedTecnicaProc ||
+              selectedTecnicas.size === 0 ||
+              createWorklist.isPending
             }
           >
-            {createWorklist.isPending ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Creando...
-              </>
-            ) : (
-              `Crear Worklist (${selectedCount} técnicas)`
-            )}
+            {createWorklist.isPending ? 'Creando...' : 'Crear Worklist'}
           </Button>
         </div>
       </form>
-    </div>
-  )
-}
-
-// Componente para cada item de técnica
-interface TecnicaItemProps {
-  tecnica: TecnicaSeleccionable
-  onToggle: () => void
-}
-
-const TecnicaItem: React.FC<TecnicaItemProps> = ({ tecnica, onToggle }) => {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
-
-  return (
-    <div
-      className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${
-        tecnica.seleccionada
-          ? 'border-blue-500 bg-blue-50'
-          : 'border-gray-300 hover:border-gray-400'
-      }`}
-      onClick={onToggle}
-    >
-      <div className="flex items-center">
-        {tecnica.seleccionada ? (
-          <CheckCircle className="text-blue-600" size={20} />
-        ) : (
-          <Circle className="text-gray-400" size={20} />
-        )}
-      </div>
-
-      <div className="ml-3 flex-1">
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="font-medium text-gray-900">{tecnica.codigo}</div>
-            <div className="text-sm text-gray-600 flex items-center gap-4">
-              <span className="flex items-center gap-1">
-                <User size={14} />
-                {tecnica.paciente_nombre}
-              </span>
-              <span className="flex items-center gap-1">
-                <Calendar size={14} />
-                {formatDate(tecnica.fecha_creacion)}
-              </span>
-            </div>
-          </div>
-
-          <div className="text-right">
-            <div className="text-sm font-medium text-gray-900">{tecnica.proceso_nombre}</div>
-            <div className="text-xs text-gray-500">Prioridad: {tecnica.prioridad}</div>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }

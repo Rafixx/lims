@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query'
 import muestrasService from '../services/muestras.services'
 import { Muestra, MuestraStats, Tecnica } from '../interfaces/muestras.types'
+import { STALE_TIME } from '@/shared/constants/constants'
 
 export const useMuestras = () => {
   const { data, isLoading, error, refetch }: UseQueryResult<Muestra[], Error> = useQuery({
     queryKey: ['muestras'],
     queryFn: async () => muestrasService.getMuestras(),
-    staleTime: 5 * 60 * 1000, // Los datos son válidos por 5 minutos
+    staleTime: STALE_TIME,
     placeholderData: [] // Valor inicial para data
   })
 
@@ -19,11 +20,12 @@ export const useMuestras = () => {
 }
 
 // Hook para obtener una muestra específica
-export const useMuestra = (id: number) => {
+export const useMuestra = (id?: number) => {
   const { data, isLoading, error, refetch }: UseQueryResult<Muestra, Error> = useQuery({
     queryKey: ['muestra', id],
-    queryFn: async () => muestrasService.getMuestra(id),
-    staleTime: 5 * 60 * 1000 // Los datos son válidos por 5 minutos
+    queryFn: async () => muestrasService.getMuestra(id!),
+    staleTime: STALE_TIME,
+    enabled: !!id && id > 0
   })
 
   return {
@@ -39,7 +41,7 @@ export const useTecnicasByMuestra = (id: number) => {
     queryKey: ['muestra', id, 'tecnicas'],
     queryFn: async () => muestrasService.getTecnicasByMuestra(id),
     enabled: !!id && id > 0,
-    staleTime: 5 * 60 * 1000 // Los datos son válidos por 5 minutos
+    staleTime: STALE_TIME
   })
 
   return {
@@ -54,7 +56,7 @@ export const useMuestrasStats = () => {
   const { data, isLoading, error, refetch }: UseQueryResult<MuestraStats, Error> = useQuery({
     queryKey: ['muestras', 'stats'],
     queryFn: async () => muestrasService.getMuestrasStats(),
-    staleTime: 5 * 60 * 1000 // Los datos son válidos por 5 minutos
+    staleTime: STALE_TIME
   })
 
   return {

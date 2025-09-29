@@ -1,5 +1,6 @@
 import { apiClient } from '@/shared/services/apiClient'
-import { Worklist } from '../interfaces/worklist.types'
+import { Tecnica, Worklist, CreateWorklistRequest } from '../interfaces/worklist.types'
+import { TecnicaProc } from '@/shared/interfaces/dim_tables.types'
 
 class WorklistService {
   private readonly basePath = '/worklists'
@@ -19,13 +20,32 @@ class WorklistService {
     return response.data
   }
 
-  async createWorklist(data: Partial<Worklist>): Promise<Worklist> {
+  async getPosiblesTecnicasProc(): Promise<TecnicaProc[]> {
+    const response = await apiClient.get<TecnicaProc[]>(`${this.basePath}/posiblesTecnicasProc`)
+    return response.data
+  }
+
+  async getPosiblesTecnicas(tecnicaProc: string): Promise<Tecnica[]> {
+    const response = await apiClient.get<Tecnica[]>(
+      `${this.basePath}/posiblesTecnicas/${tecnicaProc}`
+    )
+    return response.data
+  }
+
+  async createWorklist(data: CreateWorklistRequest): Promise<Worklist> {
     const response = await apiClient.post<Worklist>(this.basePath, data)
     return response.data
   }
 
   async updateWorklist(id: number, data: Partial<Worklist>): Promise<Worklist> {
     const response = await apiClient.put<Worklist>(`${this.basePath}/${id}`, data)
+    return response.data
+  }
+
+  async setTecnicoLab(id: number, idTecnico: number): Promise<Worklist> {
+    const response = await apiClient.put<Worklist>(`${this.basePath}/${id}/setTecnicoLab`, {
+      id_tecnico: idTecnico
+    })
     return response.data
   }
 

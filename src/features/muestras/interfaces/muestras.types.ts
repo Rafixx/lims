@@ -11,7 +11,7 @@ import {
   TecnicaProc
 } from '@/shared/interfaces/dim_tables.types'
 
-export interface Solicitud {
+export type Solicitud = {
   id_solicitud: number
   cliente: Cliente | null
   f_creacion?: string
@@ -20,10 +20,10 @@ export interface Solicitud {
   f_entrega?: string
   f_resultado?: string
   condiciones_envio?: string
-  tiempo_hielo?: boolean
+  tiempo_hielo?: string
 }
 
-export interface Muestra {
+export type Muestra = {
   id_muestra: number
   paciente?: Paciente | null
   solicitud?: Solicitud | null
@@ -43,17 +43,18 @@ export interface Muestra {
 
   estado_muestra: AppEstado
 }
-export interface MuestraWithTecnicas {
+
+export type MuestraWithTecnicas = {
   id_muestra: number
   tecnicas: Tecnica[]
 }
 
-export interface Worklist {
+export type Worklist = {
   id_worklist: number
   nombre: string
 }
 
-export interface Tecnica {
+export type Tecnica = {
   id_tecnica: number
   fecha_inicio_tec?: string
   estado?: AppEstado
@@ -64,7 +65,7 @@ export interface Tecnica {
   tecnico_resp?: TecnicoLaboratorio | null
 }
 
-export interface MuestraStats {
+export type MuestraStats = {
   total: number
   pendientes: number
   en_proceso: number
@@ -72,4 +73,24 @@ export interface MuestraStats {
   vencidas: number
   creadas_hoy: number
   completadas_hoy: number
+}
+
+export type EMPTY_MUESTRA_FORM = {
+  paciente: null
+  solicitud: null
+  tecnico_resp: null
+  tipo_muestra: null
+  centro: null
+  criterio_validacion: null
+  ubicacion: null
+  prueba: null
+
+  codigo_epi: ''
+  codigo_externo: ''
+  f_toma: ''
+  f_recepcion: ''
+  f_destruccion: ''
+  f_devolucion: ''
+
+  estado_muestra: 'PENDIENTE'
 }

@@ -23,13 +23,18 @@ export const IconButton = ({
   icon,
   title,
   className = '',
-  effect = 'scale'
+  effect = 'scale',
+  disabled = false,
+  ...rest
 }: IconButtonProps) => {
   return (
     <button
       onClick={onClick}
+      type={type}
       title={title}
       className={className}
+      disabled={disabled}
+      {...rest}
       // className={`p-1 rounded hover:bg-gray-200 transition ${className}`}
     >
       <div className={effectClasses[effect]}>{icon}</div>

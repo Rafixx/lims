@@ -63,7 +63,7 @@ export const MuestrasPage = () => {
   } = useListFilters(muestras || [], filterConfig)
 
   const handlers = {
-    onNew: () => navigate('/solicitudes/nueva'),
+    onNew: () => navigate('/muestras/nueva'),
     onSecondaryAction: () => navigate('/muestras/grupo-nuevo')
   }
 

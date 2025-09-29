@@ -1,21 +1,32 @@
 export interface Worklist {
   id_worklist: number
   nombre: string
-  id_tecnica_proc?: number
+  tecnica_proc?: string
   create_dt: string
   delete_dt?: string
   update_dt: string
   created_by?: number
   updated_by?: number
   tecnicas: Tecnica[]
-  tecnica_proc?: TecnicaProc
+}
+
+// Estructura específica para crear un worklist
+export interface CreateWorklistRequest {
+  nombre: string
+  tecnica_proc?: string
+  created_by: number
+  tecnicas: number[]
 }
 
 export interface Tecnica {
-  estado: string
-  muestra: {
+  id_tecnica?: number
+  estado?: string
+  muestra?: {
     codigo_epi: string
     codigo_externo: string
+  }
+  tecnico_resp?: {
+    nombre: string
   }
 }
 

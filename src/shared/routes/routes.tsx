@@ -20,6 +20,8 @@ import { PipetasPage } from '@/features/dim_tables/pipetas/pages/PipetasPage'
 import { ReactivosPage } from '@/features/dim_tables/reactivos/pages/ReactivosPage'
 import { MaestrosPage } from '@/features/dashboard/pages/MaestrosPage'
 import { WorklistDetailPage } from '@/features/workList/pages/WorklistDetailPage'
+import { CreateWorklistPage } from '@/features/workList/pages/CreateWorklistPage'
+import { CreateMuestraPage } from '@/features/muestras/pages/CreateMuestraPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -33,15 +35,19 @@ export const router = createBrowserRouter([
     ),
     children: [
       { path: 'dashboard', element: <HomePage /> },
+
       { path: 'solicitudes', element: <SolicitudesSimplePage /> },
       { path: 'solicitudes/nueva', element: <SolicitudFormPage /> },
       { path: 'solicitudes/:id/editar', element: <SolicitudFormPage /> },
 
       { path: 'worklist', element: <WorkListsPage /> },
-      // { path: 'worklist/nuevo', element: <CreateWorklistPage /> },
-      { path: 'worklist/:id', element: <WorklistDetailPage /> },
+      { path: 'worklist/nuevo', element: <CreateWorklistPage /> },
+      { path: 'worklist/:id/editar', element: <WorklistDetailPage /> },
 
       { path: 'muestras', element: <MuestrasPage /> },
+      { path: 'muestras/nueva', element: <CreateMuestraPage /> },
+      { path: 'muestras/:id/editar', element: <CreateMuestraPage /> },
+
       { path: 'maestros', element: <MaestrosPage /> },
       { path: 'pruebas', element: <PruebasPage /> },
       { path: 'centros', element: <CentrosPage /> },

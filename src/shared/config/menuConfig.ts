@@ -49,12 +49,12 @@ export const mainMenuItems: MenuItemBase[] = [
     icon: TestTube,
     description: 'Gestión de muestras de laboratorio'
   },
-  {
-    path: '/solicitudes',
-    label: 'Solicitudes',
-    icon: LucideFileText,
-    description: 'Solicitudes y técnicas'
-  },
+  // {
+  //   path: '/solicitudes',
+  //   label: 'Solicitudes',
+  //   icon: LucideFileText,
+  //   description: 'Solicitudes y técnicas'
+  // },
   {
     path: '/worklist',
     label: 'Listas de trabajo',
@@ -79,7 +79,7 @@ export const configMenuItems: MenuItemWithChildren = {
       path: '/centros',
       label: 'Centros',
       icon: Building,
-      description: 'Centros de salud y laboratorios'
+      description: 'Centros sanitarios y laboratorios'
     },
     {
       path: '/pacientes',
@@ -143,12 +143,12 @@ export const homePageMainCards: MenuItemBase[] = [
     icon: TestTube,
     description: 'Gestión de muestras de laboratorio'
   },
-  {
-    path: '/solicitudes',
-    label: 'Solicitudes',
-    icon: LucideFileText,
-    description: 'Solicitudes y técnicas'
-  },
+  // {
+  //   path: '/solicitudes',
+  //   label: 'Solicitudes',
+  //   icon: LucideFileText,
+  //   description: 'Solicitudes y técnicas'
+  // },
   {
     path: '/worklist',
     label: 'Listas de trabajo',

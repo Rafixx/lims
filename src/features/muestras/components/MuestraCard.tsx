@@ -23,7 +23,7 @@ export const MuestraCard = ({ muestra, onEdit, onDelete }: Props) => {
       {/* Header modernizado en una sola línea */}
       <div className="px-4 py-3 flex items-center gap-4 w-full">
         <span className="text-xs text-surface-400 font-mono min-w-[80px]">
-          {muestra.codigo_epi || 'Sin código'}
+          {muestra.codigo_externo || 'Sin código'}
         </span>
         <span className="flex-1 truncate text-surface-800 text-sm">
           <User className="inline w-4 h-4 mr-1 text-surface-400 align-text-bottom" />
