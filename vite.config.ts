@@ -18,6 +18,8 @@ export default defineConfig(({ mode }) => {
     )
 
   return {
+    // 🔴 CLAVE: base por entorno. Para Hostinger debe ser /lims/
+    base: env.VITE_APP_BASE || '/',
     plugins: [react(), tsconfigPaths()],
     define: processEnv
   }

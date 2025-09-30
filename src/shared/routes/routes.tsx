@@ -5,8 +5,8 @@ import { DashboardLayout } from '@/layouts/DashboardLayout'
 import { PrivateRoute } from './PrivateRoute'
 import { HomePage } from '@/features/dashboard/pages/HomePage'
 import { WorkListsPage } from '@/features/workList/pages/WorkListsPage'
-import { SolicitudesSimplePage } from '@/features/_old/solicitudes/pages/SolicitudesSimplePage'
-import { SolicitudFormPage } from '@/features/_old/solicitudes/pages/SolicitudesFormPage'
+// import { SolicitudesSimplePage } from '@/features/_old/solicitudes/pages/SolicitudesSimplePage'
+// import { SolicitudFormPage } from '@/features/_old/solicitudes/pages/SolicitudesFormPage'
 import { MuestrasPage } from '@/features/muestras/pages/MuestrasPage'
 import { PruebasPage } from '@/features/dim_tables/pruebas/pages/PruebasPage'
 import { CentrosPage } from '@/features/dim_tables/centros/pages/CentrosPage'
@@ -23,42 +23,46 @@ import { WorklistDetailPage } from '@/features/workList/pages/WorklistDetailPage
 import { CreateWorklistPage } from '@/features/workList/pages/CreateWorklistPage'
 import { CreateMuestraPage } from '@/features/muestras/pages/CreateMuestraPage'
 
-export const router = createBrowserRouter([
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
-  {
-    path: '/',
-    element: (
-      <PrivateRoute>
-        <DashboardLayout />
-      </PrivateRoute>
-    ),
-    children: [
-      { path: 'dashboard', element: <HomePage /> },
+export const router = createBrowserRouter(
+  [
+    { path: '/login', element: <LoginPage /> },
+    { path: '/register', element: <RegisterPage /> },
+    {
+      path: '/',
+      element: (
+        <PrivateRoute>
+          <DashboardLayout />
+        </PrivateRoute>
+      ),
+      children: [
+        { path: 'dashboard', element: <HomePage /> },
 
-      { path: 'solicitudes', element: <SolicitudesSimplePage /> },
-      { path: 'solicitudes/nueva', element: <SolicitudFormPage /> },
-      { path: 'solicitudes/:id/editar', element: <SolicitudFormPage /> },
+        // { path: 'solicitudes', element: <SolicitudesSimplePage /> },
+        // { path: 'solicitudes/nueva', element: <SolicitudFormPage /> },
+        // { path: 'solicitudes/:id/editar', element: <SolicitudFormPage /> },
 
-      { path: 'worklist', element: <WorkListsPage /> },
-      { path: 'worklist/nuevo', element: <CreateWorklistPage /> },
-      { path: 'worklist/:id/editar', element: <WorklistDetailPage /> },
+        { path: 'worklist', element: <WorkListsPage /> },
+        { path: 'worklist/nuevo', element: <CreateWorklistPage /> },
+        { path: 'worklist/:id', element: <WorklistDetailPage /> },
+        { path: 'worklist/:id/editar', element: <WorklistDetailPage /> },
 
-      { path: 'muestras', element: <MuestrasPage /> },
-      { path: 'muestras/nueva', element: <CreateMuestraPage /> },
-      { path: 'muestras/:id/editar', element: <CreateMuestraPage /> },
+        { path: 'muestras', element: <MuestrasPage /> },
+        { path: 'muestras/nueva', element: <CreateMuestraPage /> },
+        { path: 'muestras/:id/editar', element: <CreateMuestraPage /> },
 
-      { path: 'maestros', element: <MaestrosPage /> },
-      { path: 'pruebas', element: <PruebasPage /> },
-      { path: 'centros', element: <CentrosPage /> },
-      { path: 'pacientes', element: <PacientesPage /> },
-      { path: 'clientes', element: <ClientesPage /> },
-      { path: 'criterios-validacion', element: <CriteriosValidacionPage /> },
-      { path: 'ubicaciones', element: <UbicacionesPage /> },
-      { path: 'maquinas', element: <MaquinasPage /> },
-      { path: 'pipetas', element: <PipetasPage /> },
-      { path: 'reactivos', element: <ReactivosPage /> },
-      { path: 'tipos-muestra', element: <TiposMuestraPage /> }
-    ]
-  }
-])
+        { path: 'maestros', element: <MaestrosPage /> },
+        { path: 'pruebas', element: <PruebasPage /> },
+        { path: 'centros', element: <CentrosPage /> },
+        { path: 'pacientes', element: <PacientesPage /> },
+        { path: 'clientes', element: <ClientesPage /> },
+        { path: 'criterios-validacion', element: <CriteriosValidacionPage /> },
+        { path: 'ubicaciones', element: <UbicacionesPage /> },
+        { path: 'maquinas', element: <MaquinasPage /> },
+        { path: 'pipetas', element: <PipetasPage /> },
+        { path: 'reactivos', element: <ReactivosPage /> },
+        { path: 'tipos-muestra', element: <TiposMuestraPage /> }
+      ]
+    }
+  ],
+  { basename: import.meta.env.BASE_URL }
+)
