@@ -64,7 +64,7 @@ export const MuestrasPage = () => {
 
   const handlers = {
     onNew: () => navigate('/muestras/nueva'),
-    onSecondaryAction: () => navigate('/muestras/grupo-nuevo')
+    onSecondaryAction: () => alert('Funcionalidad no implementada')
   }
 
   const renderStats = () => (
@@ -78,7 +78,7 @@ export const MuestrasPage = () => {
         value={filters.busqueda as string}
         onChange={value => updateFilter('busqueda', value)}
         placeholder="Buscar por código, cliente, paciente..."
-        className="min-w-[300px]"
+        className="min-w-[200px]"
       />
 
       <SelectFilter

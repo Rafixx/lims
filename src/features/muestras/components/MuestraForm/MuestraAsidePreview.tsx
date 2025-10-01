@@ -8,12 +8,18 @@ import { IconButton } from '@/shared/components/molecules/IconButton'
 import { List } from 'lucide-react'
 import { Modal } from '@/shared/components/molecules/Modal'
 import { EditableList } from '@/shared/components/organisms/EditableList'
+import { CambioRapidoEstado } from '@/shared/components/organisms/CambiarEstado'
+import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
+import { useEstados } from '@/shared/hooks/useEstados'
+import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import type { DimEstado } from '@/shared/interfaces/estados.types'
 
 interface Props {
   id_cliente?: number
   id_prueba?: number
   id_paciente?: number
   id_muestra?: number
+  estado_muestra?: string
   onTecnicasChange?: (tecnicas: { id_tecnica_proc: number }[]) => void
 }
 
@@ -22,9 +28,15 @@ export const MuestraAsidePreview = ({
   id_prueba,
   id_paciente,
   id_muestra,
+  estado_muestra,
   onTecnicasChange
 }: Props) => {
   const [modalOpen, setModalOpen] = useState(false)
+  const { notify } = useNotification()
+
+  // Obtener estados para la muestra
+  const { data: estadosMuestra = [] } = useEstados('MUESTRA')
+  const estadoActual = estadosMuestra.find(e => e.estado === estado_muestra)
 
   const {
     tecnicas,
@@ -53,6 +65,31 @@ export const MuestraAsidePreview = ({
   return (
     <>
       <aside className="pl-4 w-72 space-y-4 text-sm text-gray-700">
+        {/* Sección de estado (solo para muestras existentes) */}
+        {id_muestra && id_muestra > 0 && (
+          <Card variant="ghost">
+            <h4 className="text-xs font-semibold text-gray-500 mb-2">Estado de la muestra</h4>
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">Estado actual:</span>
+                <IndicadorEstado estado={estadoActual} size="small" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">Cambiar estado:</label>
+                <CambioRapidoEstado
+                  entidad="MUESTRA"
+                  itemId={id_muestra}
+                  estadoActual={estadoActual}
+                  onEstadoCambiado={(nuevoEstado: DimEstado) => {
+                    notify(`Estado cambiado a: ${nuevoEstado.estado}`, 'success')
+                    // Aquí podrías actualizar el estado en el formulario si es necesario
+                  }}
+                />
+              </div>
+            </div>
+          </Card>
+        )}
+
         {showTecnicas && (
           <Card variant="ghost">
             <div className="flex items-center justify-between mb-2">

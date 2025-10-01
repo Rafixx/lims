@@ -1,4 +1,4 @@
-import { AppEstado, EstadoBadge } from '@/shared/states'
+import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { Tecnica } from '../interfaces/muestras.types'
 import { formatDate } from '@/shared/utils/helpers'
 
@@ -34,7 +34,7 @@ export const TecnicaCard = ({ tecnica }: TecnicaCardProps) => {
           👤 {tecnica.tecnico_resp.nombre}
         </span>
       )}
-      <EstadoBadge estado={tecnica.estado as AppEstado} size="sm" />
+      <IndicadorEstado estado={tecnica.estadoInfo} size="small" />
     </div>
   )
 }

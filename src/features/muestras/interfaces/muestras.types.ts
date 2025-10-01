@@ -10,6 +10,7 @@ import {
   Prueba,
   TecnicaProc
 } from '@/shared/interfaces/dim_tables.types'
+import { DimEstado } from '@/shared/interfaces/estados.types'
 
 export type Solicitud = {
   id_solicitud: number
@@ -42,6 +43,7 @@ export type Muestra = {
   f_devolucion?: string
 
   estado_muestra: AppEstado
+  estadoInfo: DimEstado
 }
 
 export type MuestraWithTecnicas = {
@@ -63,6 +65,8 @@ export type Tecnica = {
   tecnica_proc?: TecnicaProc
   worklist?: Worklist
   tecnico_resp?: TecnicoLaboratorio | null
+
+  estadoInfo: DimEstado
 }
 
 export type MuestraStats = {

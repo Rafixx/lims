@@ -22,6 +22,7 @@ import { MaestrosPage } from '@/features/dashboard/pages/MaestrosPage'
 import { WorklistDetailPage } from '@/features/workList/pages/WorklistDetailPage'
 import { CreateWorklistPage } from '@/features/workList/pages/CreateWorklistPage'
 import { CreateMuestraPage } from '@/features/muestras/pages/CreateMuestraPage'
+import EstadosDemo from '@/features/demo/EstadosDemo'
 
 export const router = createBrowserRouter(
   [
@@ -49,6 +50,8 @@ export const router = createBrowserRouter(
         { path: 'muestras', element: <MuestrasPage /> },
         { path: 'muestras/nueva', element: <CreateMuestraPage /> },
         { path: 'muestras/:id/editar', element: <CreateMuestraPage /> },
+
+        { path: 'demo/estados', element: <EstadosDemo /> },
 
         { path: 'maestros', element: <MaestrosPage /> },
         { path: 'pruebas', element: <PruebasPage /> },

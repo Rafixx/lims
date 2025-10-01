@@ -57,6 +57,7 @@ export const MuestraForm = ({ initialValues, onSuccess, onCancel }: Props) => {
   const pruebaId = watch('prueba.id')
   const pacienteId = watch('paciente.id')
   const id_muestra = watch('id_muestra')
+  const estado_muestra = watch('estado_muestra')
   const asideVisible = Boolean(clienteId || pruebaId || pacienteId)
 
   // Callback para capturar las técnicas seleccionadas
@@ -168,6 +169,7 @@ export const MuestraForm = ({ initialValues, onSuccess, onCancel }: Props) => {
             id_prueba={pruebaId}
             id_paciente={pacienteId}
             id_muestra={id_muestra}
+            estado_muestra={estado_muestra}
             onTecnicasChange={handleTecnicasChange}
           />
         </aside>

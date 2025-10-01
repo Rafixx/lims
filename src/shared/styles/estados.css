@@ -1,0 +1,259 @@
+/**
+ * Estilos para los componentes de estados
+ * Basado en la nueva API de gestión de estados
+ */
+
+/* Componente Estado Badge */
+.estado-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+  position: relative;
+}
+
+/* Tamaños */
+.estado-indicator.small {
+  padding: 2px 6px;
+  font-size: 10px;
+  min-height: 16px;
+}
+
+.estado-indicator.medium {
+  padding: 4px 8px;
+  font-size: 12px;
+  min-height: 20px;
+}
+
+.estado-indicator.large {
+  padding: 6px 12px;
+  font-size: 14px;
+  min-height: 24px;
+}
+
+/* Variantes */
+.estado-indicator.badge {
+  border: none;
+}
+
+.estado-indicator.pill {
+  border-radius: 50px;
+  border: none;
+}
+
+.estado-indicator.outline {
+  background-color: transparent !important;
+  border: 1px solid;
+  color: inherit !important;
+}
+
+/* Estado sin definir */
+.estado-indicator.sin-estado {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+/* Texto del estado */
+.estado-text {
+  font-weight: inherit;
+}
+
+/* Descripción del estado */
+.estado-description {
+  margin-left: 4px;
+  font-weight: 400;
+  opacity: 0.8;
+  font-size: 0.9em;
+}
+
+/* Indicador de estado final */
+.estado-final-indicator {
+  margin-left: 4px;
+  font-size: 8px;
+  opacity: 0.7;
+}
+
+/* Hover effects */
+.estado-indicator:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Lista de Estados */
+.lista-estados {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lista-estado-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.lista-estado-item.clickable {
+  cursor: pointer;
+}
+
+.lista-estado-item.clickable:hover {
+  background-color: #f9fafb;
+}
+
+.lista-estado-item.active {
+  background-color: #eff6ff;
+  border: 1px solid #dbeafe;
+}
+
+.lista-estados-empty {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 20px;
+}
+
+/* Badges adicionales */
+.estado-inicial-badge,
+.estado-final-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.estado-inicial-badge {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.estado-final-badge {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* Estados específicos predefinidos (pueden ser sobrescritos por los colores de la API) */
+.estado-registrada,
+.estado-pendiente {
+  background-color: #e0f2fe;
+  color: #0277bd;
+}
+
+.estado-recibida,
+.estado-en_proceso {
+  background-color: #fff3e0;
+  color: #ef6c00;
+}
+
+.estado-completada,
+.estado-completada_tec {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.estado-rechazada,
+.estado-cancelada,
+.estado-cancelada_tec {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.estado-en_procesamiento {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.estado-bloqueada {
+  background-color: #fce4ec;
+  color: #ad1457;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .estado-indicator.large {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+  
+  .estado-indicator.medium {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+  
+  .estado-indicator.small {
+    padding: 2px 4px;
+    font-size: 10px;
+  }
+  
+  .estado-description {
+    display: none; /* Ocultar descripción en móvil */
+  }
+}
+
+/* Animaciones */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.estado-indicator.loading {
+  animation: pulse 2s infinite;
+}
+
+/* Accesibilidad */
+.estado-indicator:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Estados de validación */
+.estado-indicator.error {
+  border: 1px solid #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.estado-indicator.warning {
+  border: 1px solid #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.estado-indicator.success {
+  border: 1px solid #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .estado-indicator.sin-estado {
+    background-color: #374151;
+    color: #9ca3af;
+    border-color: #4b5563;
+  }
+  
+  .lista-estado-item.clickable:hover {
+    background-color: #1f2937;
+  }
+  
+  .lista-estado-item.active {
+    background-color: #1e3a8a;
+    border-color: #3b82f6;
+  }
+  
+  .lista-estados-empty {
+    color: #9ca3af;
+  }
+}

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Muestra } from '../interfaces/muestras.types'
-import { EstadoBadge } from '@/shared/states'
+import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { Calendar, ChevronDown, ChevronUp, Edit, Trash2, User } from 'lucide-react'
 import { formatDate } from '@/shared/utils/helpers'
 import { IconButton } from '@/shared/components/molecules/IconButton'
@@ -29,7 +29,7 @@ export const MuestraCard = ({ muestra, onEdit, onDelete }: Props) => {
           <User className="inline w-4 h-4 mr-1 text-surface-400 align-text-bottom" />
           {muestra.solicitud?.cliente?.nombre || 'Sin cliente'}
         </span>
-        <EstadoBadge estado={muestra.estado_muestra || 'SIN ESTADO'} size="sm" />
+        <IndicadorEstado estado={muestra.estadoInfo} size="small" />
         <span className="text-xs text-surface-500 flex items-center gap-1 min-w-[120px]">
           <Calendar className="w-4 h-4 text-surface-300" />
           {formatDate(muestra.solicitud?.f_creacion) || 'Sin fecha'}
