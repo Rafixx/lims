@@ -5,6 +5,7 @@
 
 import React from 'react'
 import type { DimEstado } from '../../interfaces/estados.types'
+import '../../styles/estados.css'
 
 interface IndicadorEstadoProps {
   estado?: DimEstado | null
@@ -33,13 +34,13 @@ export const IndicadorEstado: React.FC<IndicadorEstadoProps> = ({
   const textColor = getContrastColor(backgroundColor)
 
   const baseClasses = `estado-indicator ${size} ${variant}`
-  const stateClasses = `estado-${estado.estado.toLowerCase()}`
+  const stateClasses = `estado-${estado.estado.toLowerCase().replace(/_/g, '-')}`
   const finalClasses = [baseClasses, stateClasses, className].filter(Boolean).join(' ')
 
   const style: React.CSSProperties = {
     backgroundColor,
     color: textColor,
-    borderColor: backgroundColor
+    borderColor: variant === 'outline' ? backgroundColor : undefined
   }
 
   return (
@@ -50,11 +51,11 @@ export const IndicadorEstado: React.FC<IndicadorEstadoProps> = ({
       data-estado={estado.estado}
       data-entidad={estado.entidad}
     >
-      <span className="estado-text">{estado.estado}</span>
+      <span className="estado-text">{estado.estado.replace(/_/g, ' ')}</span>
       {showDescription && estado.descripcion && (
-        <span className="estado-description">({estado.descripcion})</span>
+        <span className="estado-description ml-1">({estado.descripcion})</span>
       )}
-      {estado.es_final && <span className="estado-final-indicator">●</span>}
+      {estado.es_final && <span className="estado-final-indicator ml-1">●</span>}
     </span>
   )
 }
@@ -69,14 +70,17 @@ function getContrastColor(hexColor: string): string {
   }
 
   try {
-    const r = parseInt(hexColor.slice(1, 3), 16)
-    const g = parseInt(hexColor.slice(3, 5), 16)
-    const b = parseInt(hexColor.slice(5, 7), 16)
+    // Remover el # y parsear los componentes RGB
+    const hex = hexColor.replace('#', '')
+    const r = parseInt(hex.slice(0, 2), 16)
+    const g = parseInt(hex.slice(2, 4), 16)
+    const b = parseInt(hex.slice(4, 6), 16)
 
-    // Calcular luminancia
+    // Calcular luminancia relativa usando la fórmula WCAG
     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
 
-    return luminance > 0.5 ? '#000000' : '#ffffff'
+    // Si la luminancia es mayor a 0.5, usar texto oscuro, sino texto claro
+    return luminance > 0.5 ? '#1f2937' : '#ffffff'
   } catch {
     return '#000000'
   }
@@ -143,10 +147,24 @@ export const ListaEstados: React.FC<ListaEstadosProps> = ({
               isClickable ? 'clickable' : ''
             }`}
             onClick={() => onEstadoClick?.(estado)}
+            role={isClickable ? 'button' : undefined}
+            tabIndex={isClickable ? 0 : undefined}
+            onKeyDown={
+              isClickable
+                ? e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      onEstadoClick?.(estado)
+                    }
+                  }
+                : undefined
+            }
           >
             <IndicadorEstado estado={estado} size={size} variant={variant} showDescription />
-            {estado.es_inicial && <span className="estado-inicial-badge">Inicial</span>}
-            {estado.es_final && <span className="estado-final-badge">Final</span>}
+            <div className="flex gap-2">
+              {estado.es_inicial && <span className="estado-inicial-badge">Inicial</span>}
+              {estado.es_final && <span className="estado-final-badge">Final</span>}
+            </div>
           </div>
         )
       })}

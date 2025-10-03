@@ -8,8 +8,9 @@ import { Card } from '@/shared/components/molecules/Card'
 import { Button } from '@/shared/components/molecules/Button'
 import { Select } from '@/shared/components/molecules/Select'
 import { ArrowLeft, AlertTriangle, Trash2, User } from 'lucide-react'
-import { APP_STATES, type AppEstado } from '@/shared/states'
-import { EstadoBadge } from '@/shared/components/atoms/EstadoBadge'
+import { APP_STATES } from '@/shared/states'
+import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
+import { useEstados } from '@/shared/hooks/useEstados'
 import { WorkListDetailStats } from '../components/WorkListDetailStats'
 import { worklistService } from '../services/worklistService'
 
@@ -23,6 +24,7 @@ export const WorklistDetailPage = () => {
 
   // Queries
   const { worklist, isLoading: loadingWorklist, refetch: refetchWorkList } = useWorklist(worklistId)
+  const { data: estadosTecnica = [] } = useEstados('TECNICA')
   // const { data: estadisticas, isLoading: loadingEstadisticas } = useWorklistEstadisticas(worklistId)
 
   // const { data: tecnicasAgrupadas = [], isLoading: loadingTecnicas } =
@@ -249,11 +251,9 @@ export const WorklistDetailPage = () => {
                       <span className="text-gray-600">• Sin técnico asignado</span>
                     )}
                     <div className="flex items-center gap-2">
-                      <EstadoBadge
-                        estado={tecnica.estado as AppEstado}
-                        size="sm"
-                        showIcon={true}
-                        showTooltip={true}
+                      <IndicadorEstado
+                        estado={estadosTecnica.find(e => e.estado === tecnica.estado)}
+                        size="small"
                       />
                     </div>
                   </div>

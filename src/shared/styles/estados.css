@@ -1,6 +1,7 @@
 /**
  * Estilos para los componentes de estados
  * Basado en la nueva API de gestión de estados
+ * Integrado con Tailwind CSS
  */
 
 /* Componente Estado Badge */
@@ -10,30 +11,34 @@
   justify-content: center;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-radius: 6px;
+  letter-spacing: 0.025em;
+  border-radius: 0.375rem; /* 6px */
   transition: all 0.2s ease-in-out;
   white-space: nowrap;
   position: relative;
+  line-height: 1;
 }
 
-/* Tamaños */
+/* Tamaños con unidades rem para mejor escalabilidad */
 .estado-indicator.small {
-  padding: 2px 6px;
-  font-size: 10px;
-  min-height: 16px;
+  padding: 0.125rem 0.375rem; /* 2px 6px */
+  font-size: 0.625rem; /* 10px */
+  min-height: 1rem; /* 16px */
+  gap: 0.125rem;
 }
 
 .estado-indicator.medium {
-  padding: 4px 8px;
-  font-size: 12px;
-  min-height: 20px;
+  padding: 0.25rem 0.5rem; /* 4px 8px */
+  font-size: 0.75rem; /* 12px */
+  min-height: 1.25rem; /* 20px */
+  gap: 0.25rem;
 }
 
 .estado-indicator.large {
-  padding: 6px 12px;
-  font-size: 14px;
-  min-height: 24px;
+  padding: 0.375rem 0.75rem; /* 6px 12px */
+  font-size: 0.875rem; /* 14px */
+  min-height: 1.5rem; /* 24px */
+  gap: 0.375rem;
 }
 
 /* Variantes */
@@ -42,7 +47,7 @@
 }
 
 .estado-indicator.pill {
-  border-radius: 50px;
+  border-radius: 9999px; /* rounded-full */
   border: none;
 }
 
@@ -89,16 +94,17 @@
 .lista-estados {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem; /* 8px */
 }
 
 .lista-estado-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px;
-  border-radius: 6px;
+  padding: 0.5rem; /* 8px */
+  border-radius: 0.375rem; /* 6px */
   transition: background-color 0.2s ease;
+  border: 1px solid transparent;
 }
 
 .lista-estado-item.clickable {
@@ -106,19 +112,24 @@
 }
 
 .lista-estado-item.clickable:hover {
-  background-color: #f9fafb;
+  background-color: rgb(249 250 251); /* gray-50 */
+}
+
+.lista-estado-item.clickable:focus-visible {
+  outline: 2px solid rgb(59 130 246); /* blue-500 */
+  outline-offset: 2px;
 }
 
 .lista-estado-item.active {
-  background-color: #eff6ff;
-  border: 1px solid #dbeafe;
+  background-color: rgb(239 246 255); /* blue-50 */
+  border-color: rgb(219 234 254); /* blue-200 */
 }
 
 .lista-estados-empty {
   text-align: center;
-  color: #6b7280;
+  color: rgb(107 114 128); /* gray-500 */
   font-style: italic;
-  padding: 20px;
+  padding: 1.25rem; /* 20px */
 }
 
 /* Badges adicionales */
@@ -239,21 +250,52 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .estado-indicator.sin-estado {
-    background-color: #374151;
-    color: #9ca3af;
-    border-color: #4b5563;
+    background-color: rgb(55 65 81); /* gray-700 */
+    color: rgb(156 163 175); /* gray-400 */
+    border-color: rgb(75 85 99); /* gray-600 */
   }
   
   .lista-estado-item.clickable:hover {
-    background-color: #1f2937;
+    background-color: rgb(31 41 55); /* gray-800 */
   }
   
   .lista-estado-item.active {
-    background-color: #1e3a8a;
-    border-color: #3b82f6;
+    background-color: rgb(30 58 138); /* blue-900 */
+    border-color: rgb(59 130 246); /* blue-500 */
   }
   
   .lista-estados-empty {
-    color: #9ca3af;
+    color: rgb(156 163 175); /* gray-400 */
+  }
+  
+  .estado-inicial-badge {
+    background-color: rgb(30 58 138); /* blue-900 */
+    color: rgb(191 219 254); /* blue-200 */
+  }
+  
+  .estado-final-badge {
+    background-color: rgb(6 78 59); /* green-900 */
+    color: rgb(167 243 208); /* green-200 */
+  }
+}
+
+/* Print styles */
+@media print {
+  .estado-indicator {
+    border: 1px solid #000;
+    color: #000 !important;
+    background-color: #fff !important;
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+  
+  .estado-indicator::before {
+    content: attr(data-estado) ' ';
+    font-weight: bold;
+  }
+  
+  .estado-final-indicator,
+  .estado-description {
+    display: none;
   }
 }

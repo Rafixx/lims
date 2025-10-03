@@ -27,7 +27,7 @@ class WorklistService {
 
   async getPosiblesTecnicas(tecnicaProc: string): Promise<Tecnica[]> {
     const response = await apiClient.get<Tecnica[]>(
-      `${this.basePath}/posiblesTecnicas/${tecnicaProc}`
+      `${this.basePath}/posiblesTecnicas/${encodeURIComponent(tecnicaProc)}`
     )
     return response.data
   }

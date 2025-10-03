@@ -29,7 +29,7 @@ export const MuestraCard = ({ muestra, onEdit, onDelete }: Props) => {
           <User className="inline w-4 h-4 mr-1 text-surface-400 align-text-bottom" />
           {muestra.solicitud?.cliente?.nombre || 'Sin cliente'}
         </span>
-        <IndicadorEstado estado={muestra.estadoInfo} size="small" />
+        <IndicadorEstado estado={muestra.estadoInfo} size="small" variant="badge" />
         <span className="text-xs text-surface-500 flex items-center gap-1 min-w-[120px]">
           <Calendar className="w-4 h-4 text-surface-300" />
           {formatDate(muestra.solicitud?.f_creacion) || 'Sin fecha'}
