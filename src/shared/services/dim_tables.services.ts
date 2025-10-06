@@ -1,4 +1,5 @@
 import { apiClient } from './apiClient'
+import type { Centro } from '../interfaces/dim_tables.types'
 
 class DimTablesService {
   async getCentros() {
@@ -8,6 +9,21 @@ class DimTablesService {
 
   async getCentro(id: number) {
     const response = await apiClient.get(`/centros/${id}`)
+    return response.data
+  }
+
+  async createCentro(centro: Omit<Centro, 'id'>) {
+    const response = await apiClient.post('/centros', centro)
+    return response.data
+  }
+
+  async updateCentro(id: number, centro: Partial<Omit<Centro, 'id'>>) {
+    const response = await apiClient.put(`/centros/${id}`, centro)
+    return response.data
+  }
+
+  async deleteCentro(id: number) {
+    const response = await apiClient.delete(`/centros/${id}`)
     return response.data
   }
 

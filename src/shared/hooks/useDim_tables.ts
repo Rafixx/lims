@@ -1,4 +1,4 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { dimTablesService } from '../services/dim_tables.services'
 import type {
   Centro,
@@ -70,6 +70,43 @@ export const useCentro = (
     gcTime: GC_TIME,
     enabled: !!id && id > 0,
     ...options
+  })
+}
+
+// Mutaciones para centros
+export const useCreateCentro = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Omit<Centro, 'id'>) => dimTablesService.createCentro(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.centros() })
+    }
+  })
+}
+
+export const useUpdateCentro = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<Centro, 'id'>> }) =>
+      dimTablesService.updateCentro(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.centro(id) })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.centros() })
+    }
+  })
+}
+
+export const useDeleteCentro = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => dimTablesService.deleteCentro(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.centros() })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.centro(id) })
+    }
   })
 }
 

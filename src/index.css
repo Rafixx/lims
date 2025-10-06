@@ -1,7 +1,7 @@
 /* src/index.css */
+/* Importar estilos de estados */
+@import './shared/styles/estados.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Importar estilos de estados */
-@import './shared/styles/estados.css';

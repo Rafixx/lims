@@ -21,6 +21,7 @@ import { ReactivosPage } from '@/features/dim_tables/reactivos/pages/ReactivosPa
 import { MaestrosPage } from '@/features/dashboard/pages/MaestrosPage'
 import { WorklistDetailPage } from '@/features/workList/pages/WorklistDetailPage'
 import { CreateWorklistPage } from '@/features/workList/pages/CreateWorklistPage'
+import { CreateCentroPage } from '@/features/dim_tables/centros/pages/CreateCentroPage'
 import { CreateMuestraPage } from '@/features/muestras/pages/CreateMuestraPage'
 
 export const router = createBrowserRouter(
@@ -53,6 +54,8 @@ export const router = createBrowserRouter(
         { path: 'maestros', element: <MaestrosPage /> },
         { path: 'pruebas', element: <PruebasPage /> },
         { path: 'centros', element: <CentrosPage /> },
+        { path: 'centros/nuevo', element: <CreateCentroPage /> },
+        { path: 'centros/:id/editar', element: <CreateCentroPage /> },
         { path: 'pacientes', element: <PacientesPage /> },
         { path: 'clientes', element: <ClientesPage /> },
         { path: 'criterios-validacion', element: <CriteriosValidacionPage /> },
