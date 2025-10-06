@@ -92,8 +92,8 @@ function getContrastColor(hexColor: string): string {
 export const IndicadorEstadoMuestra: React.FC<
   Omit<IndicadorEstadoProps, 'estado'> & { estado?: DimEstado | null }
 > = ({ estado, ...props }) => {
-  if (estado && estado.entidad !== 'MUESTRA') {
-    console.warn('IndicadorEstadoMuestra recibió un estado que no es de MUESTRA')
+  if (import.meta.env.DEV && estado && estado.entidad !== 'MUESTRA') {
+    console.warn('IndicadorEstadoMuestra recibió un estado que no es de MUESTRA', estado)
   }
 
   return <IndicadorEstado estado={estado} {...props} />
@@ -105,8 +105,8 @@ export const IndicadorEstadoMuestra: React.FC<
 export const IndicadorEstadoTecnica: React.FC<
   Omit<IndicadorEstadoProps, 'estado'> & { estado?: DimEstado | null }
 > = ({ estado, ...props }) => {
-  if (estado && estado.entidad !== 'TECNICA') {
-    console.warn('IndicadorEstadoTecnica recibió un estado que no es de TECNICA')
+  if (import.meta.env.DEV && estado && estado.entidad !== 'TECNICA') {
+    console.warn('IndicadorEstadoTecnica recibió un estado que no es de TECNICA', estado)
   }
 
   return <IndicadorEstado estado={estado} {...props} />

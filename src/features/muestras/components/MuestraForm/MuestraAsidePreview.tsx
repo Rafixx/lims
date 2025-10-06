@@ -1,5 +1,5 @@
 // src/features/solicitudes/components/solicitudForm/SolicitudAsidePreview.tsx
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useCliente } from '@/shared/hooks/useDim_tables'
 import { useTecnicas } from '../../hooks/useTecnicas'
 import { usePaciente } from '@/shared/hooks/useDim_tables'
@@ -54,42 +54,22 @@ export const MuestraAsidePreview = ({
   const showCliente = !!clienteData
   const showPaciente = !!pacienteData
 
+  // 🔧 Memoizar el payload para evitar loop infinito
+  // Solo se recalcula cuando cambian los IDs de las técnicas, no en cada render
+  const tecnicasPayload = useMemo(() => {
+    return tecnicas.map(t => ({ id_tecnica_proc: t.id }))
+  }, [tecnicas])
+
   useEffect(() => {
     if (!onTecnicasChange) return
-    const payload = tecnicas.map(t => ({ id_tecnica_proc: t.id }))
-    onTecnicasChange(payload)
-  }, [tecnicas, onTecnicasChange])
+    onTecnicasChange(tecnicasPayload)
+  }, [tecnicasPayload, onTecnicasChange])
 
   if (!showTecnicas && !showCliente && !showPaciente) return null
 
   return (
     <>
       <aside className="pl-4 w-72 space-y-4 text-sm text-gray-700">
-        {/* Sección de estado (solo para muestras existentes) */}
-        {id_muestra && id_muestra > 0 && (
-          <Card variant="ghost">
-            <h4 className="text-xs font-semibold text-gray-500 mb-2">Estado de la muestra</h4>
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">Estado actual:</span>
-                <IndicadorEstado estado={estadoActual} size="small" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500 block mb-1">Cambiar estado:</label>
-                <CambioRapidoEstado
-                  entidad="MUESTRA"
-                  itemId={id_muestra}
-                  estadoActual={estadoActual}
-                  onEstadoCambiado={(nuevoEstado: DimEstado) => {
-                    notify(`Estado cambiado a: ${nuevoEstado.estado}`, 'success')
-                    // Aquí podrías actualizar el estado en el formulario si es necesario
-                  }}
-                />
-              </div>
-            </div>
-          </Card>
-        )}
-
         {showTecnicas && (
           <Card variant="ghost">
             <div className="flex items-center justify-between mb-2">

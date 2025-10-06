@@ -63,17 +63,7 @@ export const DEFAULT_MUESTRA: Muestra = {
     cod_prueba: '',
     prueba: ''
   },
-  estadoInfo: {
-    id: 1,
-    estado: '',
-    entidad: 'MUESTRA',
-    descripcion: '',
-    orden: 0,
-    activo: true,
-    color: 'blue',
-    es_inicial: false,
-    es_final: false
-  }
+  estadoInfo: undefined
 }
 
 // {

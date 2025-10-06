@@ -132,15 +132,18 @@ export const useCambiarEstado = (entidad: EntidadTipo, options?: UseCambiarEstad
     [entidad, cambiarEstadoMuestra, cambiarEstadoTecnica]
   )
 
+  // 🔧 Memoizar reset para evitar loop infinito en useEffect de componentes
+  const reset = useCallback(() => {
+    cambiarEstadoMuestra.reset()
+    cambiarEstadoTecnica.reset()
+  }, [cambiarEstadoMuestra, cambiarEstadoTecnica])
+
   return {
     cambiarEstado,
     isLoading: cambiarEstadoMuestra.isPending || cambiarEstadoTecnica.isPending,
     error: cambiarEstadoMuestra.error || cambiarEstadoTecnica.error,
     isSuccess: cambiarEstadoMuestra.isSuccess || cambiarEstadoTecnica.isSuccess,
-    reset: () => {
-      cambiarEstadoMuestra.reset()
-      cambiarEstadoTecnica.reset()
-    }
+    reset
   }
 }
 

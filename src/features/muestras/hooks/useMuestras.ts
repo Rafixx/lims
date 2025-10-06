@@ -25,11 +25,12 @@ export const useMuestra = (id?: number) => {
     queryKey: ['muestra', id],
     queryFn: async () => muestrasService.getMuestra(id!),
     staleTime: STALE_TIME,
-    enabled: !!id && id > 0
+    enabled: !!id && id > 0,
+    placeholderData: undefined
   })
 
   return {
-    muestra: data || null,
+    muestra: data,
     isLoading,
     error,
     refetch

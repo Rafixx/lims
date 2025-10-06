@@ -43,7 +43,7 @@ export type Muestra = {
   f_devolucion?: string
 
   estado_muestra: AppEstado
-  estadoInfo: DimEstado
+  estadoInfo?: DimEstado | null
 }
 
 export type MuestraWithTecnicas = {
@@ -66,7 +66,7 @@ export type Tecnica = {
   worklist?: Worklist
   tecnico_resp?: TecnicoLaboratorio | null
 
-  estadoInfo: DimEstado
+  estadoInfo?: DimEstado | null
 }
 
 export type MuestraStats = {

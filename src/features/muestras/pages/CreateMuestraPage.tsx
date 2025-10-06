@@ -11,7 +11,7 @@ export const CreateMuestraPage = () => {
   const isEditing = Boolean(muestraId && muestraId > 0)
 
   const { notify } = useNotification()
-  const { muestra } = useMuestra(muestraId)
+  const { muestra, isLoading, error } = useMuestra(muestraId)
 
   const handleSuccess = () => {
     notify(isEditing ? 'Muestra actualizada con éxito' : 'Muestra creada con éxito', 'success')
@@ -20,6 +20,35 @@ export const CreateMuestraPage = () => {
 
   const handleCancel = () => {
     navigate('/muestras')
+  }
+
+  // Mostrar loading mientras se cargan los datos en modo edición
+  if (isEditing && isLoading) {
+    return (
+      <div className="min-h-screen bg-surface-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-surface-600">Cargando datos de la muestra...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Mostrar error si falla la carga
+  if (isEditing && error) {
+    return (
+      <div className="min-h-screen bg-surface-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-danger-600 mb-4">Error al cargar la muestra</p>
+          <button
+            onClick={() => navigate('/muestras')}
+            className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700"
+          >
+            Volver al listado
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -45,7 +74,8 @@ export const CreateMuestraPage = () => {
         <Card className="bg-white shadow-sm">
           <div className="p-6">
             <MuestraForm
-              initialValues={isEditing && muestra ? muestra : undefined}
+              key={muestraId || 'new'}
+              initialValues={muestra}
               onSuccess={handleSuccess}
               onCancel={handleCancel}
             />

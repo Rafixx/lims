@@ -1,5 +1,5 @@
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form'
-import { useEffect, useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { MuestraAsidePreview } from './MuestraAsidePreview'
 import { DatosGeneralesSection } from './DatosGeneralesSection'
@@ -26,24 +26,13 @@ export const muestraStyle = 'border-2 border-l-accent'
 
 export const MuestraForm = ({ initialValues, onSuccess, onCancel }: Props) => {
   const methods = useForm<Muestra>({
-    defaultValues: DEFAULT_MUESTRA
+    defaultValues: initialValues || DEFAULT_MUESTRA
   })
 
-  const { watch, handleSubmit, reset } = methods
+  const { watch, handleSubmit } = methods
 
-  // Efecto para cargar datos iniciales cuando cambien los initialValues
-  useEffect(() => {
-    if (initialValues && Object.keys(initialValues).length > 0) {
-      // Hacer el reset de forma asíncrona para asegurar que se aplique
-      setTimeout(() => {
-        reset(initialValues)
-      }, 0)
-    } else if (initialValues === undefined) {
-      // Solo hacer reset con defaults cuando initialValues es undefined (modo creación)
-      reset(DEFAULT_MUESTRA)
-    }
-    // No hacer nada si initialValues es null (cargando datos)
-  }, [initialValues, reset])
+  // ✅ No usar useEffect con reset - causa loop infinito
+  // En su lugar, usar key en el componente padre para forzar re-mount
 
   const createMutation = useCreateMuestra()
   const updateMutation = useUpdateMuestra()
@@ -76,7 +65,14 @@ export const MuestraForm = ({ initialValues, onSuccess, onCancel }: Props) => {
         tecnicas: selectedTecnicas
       }
 
-      console.log('📋 Datos del formulario con técnicas:', formDataWithTecnicas)
+      if (import.meta.env.DEV) {
+        console.log('[📋 MuestraForm] Guardando muestra:', {
+          modo: isEditing ? 'EDICIÓN' : 'CREACIÓN',
+          id: formValues.id_muestra,
+          tecnicas: selectedTecnicas.length,
+          data: formDataWithTecnicas
+        })
+      }
 
       if (isEditing) {
         // Actualizar muestra existente
