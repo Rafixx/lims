@@ -1,0 +1,5 @@
+export { PruebaCard } from './components/PruebaCard'
+export { PruebaForm } from './components/PruebaForm'
+export { PruebasPage } from './pages/PruebasPage'
+export { CreatePruebaPage } from './pages/CreatePruebaPage'
+export { EditPruebaPage } from './pages/EditPruebaPage'

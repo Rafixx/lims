@@ -138,6 +138,43 @@ export const useCliente = (
   })
 }
 
+// Mutaciones para clientes
+export const useCreateCliente = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Omit<Cliente, 'id'>) => dimTablesService.createCliente(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.clientes() })
+    }
+  })
+}
+
+export const useUpdateCliente = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<Cliente, 'id'>> }) =>
+      dimTablesService.updateCliente(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.cliente(id) })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.clientes() })
+    }
+  })
+}
+
+export const useDeleteCliente = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => dimTablesService.deleteCliente(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.clientes() })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.cliente(id) })
+    }
+  })
+}
+
 // ================================
 // HOOKS PARA CRITERIOS VALIDACIÓN
 // ================================
@@ -165,6 +202,44 @@ export const useCriterioValidacion = (
     gcTime: GC_TIME,
     enabled: !!id && id > 0,
     ...options
+  })
+}
+
+// Mutaciones para criterios de validación
+export const useCreateCriterioValidacion = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Omit<CriterioValidacion, 'id'>) =>
+      dimTablesService.createCriterioValidacion(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.criteriosValidacion() })
+    }
+  })
+}
+
+export const useUpdateCriterioValidacion = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<CriterioValidacion, 'id'>> }) =>
+      dimTablesService.updateCriterioValidacion(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.criterioValidacion(id) })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.criteriosValidacion() })
+    }
+  })
+}
+
+export const useDeleteCriterioValidacion = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => dimTablesService.deleteCriterioValidacion(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.criteriosValidacion() })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.criterioValidacion(id) })
+    }
   })
 }
 
@@ -198,6 +273,43 @@ export const usePaciente = (
   })
 }
 
+// Mutaciones para pacientes
+export const useCreatePaciente = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Omit<Paciente, 'id'>) => dimTablesService.createPaciente(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.pacientes() })
+    }
+  })
+}
+
+export const useUpdatePaciente = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<Paciente, 'id'>> }) =>
+      dimTablesService.updatePaciente(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.paciente(id) })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.pacientes() })
+    }
+  })
+}
+
+export const useDeletePaciente = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => dimTablesService.deletePaciente(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.pacientes() })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.paciente(id) })
+    }
+  })
+}
+
 // ================================
 // HOOKS PARA PRUEBAS
 // ================================
@@ -223,6 +335,43 @@ export const usePrueba = (
     gcTime: GC_TIME,
     enabled: !!id && id > 0,
     ...options
+  })
+}
+
+// Mutaciones para pruebas
+export const useCreatePrueba = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Omit<Prueba, 'id'>) => dimTablesService.createPrueba(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.pruebas() })
+    }
+  })
+}
+
+export const useUpdatePrueba = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<Prueba, 'id'>> }) =>
+      dimTablesService.updatePrueba(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.prueba(id) })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.pruebas() })
+    }
+  })
+}
+
+export const useDeletePrueba = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => dimTablesService.deletePrueba(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.pruebas() })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.prueba(id) })
+    }
   })
 }
 
@@ -300,6 +449,43 @@ export const useTipoMuestra = (
   })
 }
 
+// Mutaciones para tipos de muestra
+export const useCreateTipoMuestra = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Omit<TipoMuestra, 'id'>) => dimTablesService.createTipoMuestra(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tiposMuestra() })
+    }
+  })
+}
+
+export const useUpdateTipoMuestra = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<TipoMuestra, 'id'>> }) =>
+      dimTablesService.updateTipoMuestra(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tipoMuestra(id) })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tiposMuestra() })
+    }
+  })
+}
+
+export const useDeleteTipoMuestra = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => dimTablesService.deleteTipoMuestra(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tiposMuestra() })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tipoMuestra(id) })
+    }
+  })
+}
+
 // ================================
 // HOOKS PARA UBICACIONES
 // ================================
@@ -327,6 +513,43 @@ export const useUbicacion = (
     gcTime: GC_TIME,
     enabled: !!id && id > 0,
     ...options
+  })
+}
+
+// Mutaciones para ubicaciones
+export const useCreateUbicacion = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Omit<Ubicacion, 'id'>) => dimTablesService.createUbicacion(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.ubicaciones() })
+    }
+  })
+}
+
+export const useUpdateUbicacion = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<Ubicacion, 'id'>> }) =>
+      dimTablesService.updateUbicacion(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.ubicacion(id) })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.ubicaciones() })
+    }
+  })
+}
+
+export const useDeleteUbicacion = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => dimTablesService.deleteUbicacion(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.ubicaciones() })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.ubicacion(id) })
+    }
   })
 }
 
@@ -388,6 +611,43 @@ export const useMaquina = (
   })
 }
 
+// Mutaciones para máquinas
+export const useCreateMaquina = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Omit<Maquina, 'id'>) => dimTablesService.createMaquina(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.maquinas() })
+    }
+  })
+}
+
+export const useUpdateMaquina = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<Maquina, 'id'>> }) =>
+      dimTablesService.updateMaquina(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.maquina(id) })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.maquinas() })
+    }
+  })
+}
+
+export const useDeleteMaquina = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => dimTablesService.deleteMaquina(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.maquinas() })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.maquina(id) })
+    }
+  })
+}
+
 // ================================
 // HOOKS PARA PIPETAS
 // ================================
@@ -413,6 +673,43 @@ export const usePipeta = (
     gcTime: GC_TIME,
     enabled: !!id && id > 0,
     ...options
+  })
+}
+
+// Mutaciones para pipetas
+export const useCreatePipeta = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Omit<Pipeta, 'id'>) => dimTablesService.createPipeta(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.pipetas() })
+    }
+  })
+}
+
+export const useUpdatePipeta = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<Pipeta, 'id'>> }) =>
+      dimTablesService.updatePipeta(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.pipeta(id) })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.pipetas() })
+    }
+  })
+}
+
+export const useDeletePipeta = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => dimTablesService.deletePipeta(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.pipetas() })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.pipeta(id) })
+    }
   })
 }
 
@@ -443,5 +740,42 @@ export const useReactivo = (
     gcTime: GC_TIME,
     enabled: !!id && id > 0,
     ...options
+  })
+}
+
+// Mutaciones para reactivos
+export const useCreateReactivo = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Omit<Reactivo, 'id'>) => dimTablesService.createReactivo(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.reactivos() })
+    }
+  })
+}
+
+export const useUpdateReactivo = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<Reactivo, 'id'>> }) =>
+      dimTablesService.updateReactivo(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.reactivo(id) })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.reactivos() })
+    }
+  })
+}
+
+export const useDeleteReactivo = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => dimTablesService.deleteReactivo(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.reactivos() })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.reactivo(id) })
+    }
   })
 }

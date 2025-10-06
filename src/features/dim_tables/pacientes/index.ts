@@ -1,2 +1,5 @@
 export { PacienteCard } from './components/PacienteCard'
+export { PacienteForm } from './components/PacienteForm'
 export { PacientesPage } from './pages/PacientesPage'
+export { CreatePacientePage } from './pages/CreatePacientePage'
+export { EditPacientePage } from './pages/EditPacientePage'

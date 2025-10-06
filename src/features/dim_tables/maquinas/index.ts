@@ -1,2 +1,5 @@
 export { MaquinaCard } from './components/MaquinaCard'
+export { MaquinaForm } from './components/MaquinaForm'
 export { MaquinasPage } from './pages/MaquinasPage'
+export { CreateMaquinaPage } from './pages/CreateMaquinaPage'
+export { EditMaquinaPage } from './pages/EditMaquinaPage'

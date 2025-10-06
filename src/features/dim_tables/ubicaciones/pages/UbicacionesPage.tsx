@@ -1,17 +1,22 @@
 import { SearchFilter } from '@/shared/components/organisms/Filters/FilterComponents'
 import { FilterContainer } from '@/shared/components/organisms/Filters/FilterContainer'
 import { ListPage } from '@/shared/components/organisms/ListPage'
-import { useUbicaciones } from '@/shared/hooks/useDim_tables'
+import { useUbicaciones, useDeleteUbicacion } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
 import { Ubicacion } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { UbicacionCard } from '../components/UbicacionCard'
+import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
+import { useNotification } from '@/shared/components/Notification/NotificationContext'
 
 export const UbicacionesPage = () => {
   const { data: ubicaciones, isLoading, error, refetch } = useUbicaciones()
 
+  const deleteMutation = useDeleteUbicacion()
+  const { confirm } = useConfirmation()
+  const { notify } = useNotification()
   const navigate = useNavigate()
   const filterConfig = useMemo(
     () => ({
@@ -35,8 +40,32 @@ export const UbicacionesPage = () => {
     clearFilters
   } = useListFilters<Ubicacion>(ubicaciones || [], filterConfig)
 
+  const handleDelete = async (ubicacion: Ubicacion) => {
+    const isConfirmed = await confirm({
+      title: 'Eliminar Ubicación',
+      message: `¿Está seguro de eliminar la ubicación "${ubicacion.codigo}"? Esta acción no se puede deshacer.`,
+      confirmText: 'Sí, eliminar',
+      cancelText: 'Cancelar',
+      type: 'danger'
+    })
+
+    if (!isConfirmed) {
+      return
+    }
+
+    try {
+      await deleteMutation.mutateAsync(ubicacion.id)
+      notify('Ubicación eliminada correctamente', 'success')
+      refetch()
+    } catch (error) {
+      notify(error instanceof Error ? error.message : 'Error al eliminar la ubicación', 'error')
+    }
+  }
+
   const handlers = {
-    onNew: () => navigate('/ubicaciones/nueva')
+    onNew: () => navigate('/ubicaciones/nueva'),
+    onEdit: (ubicacion: Ubicacion) => navigate(`/ubicaciones/${ubicacion.id}/editar`),
+    onDelete: handleDelete
   }
 
   const renderFilters = () => (
@@ -72,10 +101,8 @@ export const UbicacionesPage = () => {
           <UbicacionCard
             key={ubicacion.id}
             ubicacion={ubicacion}
-            onEdit={() => navigate(`/ubicaciones/${ubicacion.id}/editar`)}
-            onDelete={() => {
-              /* handle delete */
-            }}
+            onEdit={() => handlers.onEdit(ubicacion)}
+            onDelete={() => handlers.onDelete(ubicacion)}
           />
         ))}
       </div>

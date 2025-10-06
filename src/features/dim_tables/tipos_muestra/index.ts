@@ -1,2 +1,5 @@
 export { TiposMuestraPage } from './pages/TiposMuestraPage'
+export { CreateTipoMuestraPage } from './pages/CreateTipoMuestraPage'
+export { EditTipoMuestraPage } from './pages/EditTipoMuestraPage'
 export { TipoMuestraCard } from './components/TipoMuestraCard'
+export { TipoMuestraForm } from './components/TipoMuestraForm'
