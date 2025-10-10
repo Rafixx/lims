@@ -5,7 +5,20 @@ import { useNavigate } from 'react-router-dom'
 import { useWorklists } from '../hooks/useWorklists'
 import { Button } from '@/shared/components/molecules/Button'
 import { Plus, Search, BarChart3 } from 'lucide-react'
-import { WorklistCard } from '../components/WorkListCard'
+import { WorkListListHeader } from '../components/WorkListList/WorkListListHeader'
+import { WorkListListDetail } from '../components/WorkListList/WorkListListDetail'
+import { Worklist } from '@/features/muestras/interfaces/muestras.types'
+
+// Configuración de columnas para los WorkLists
+const WORKLIST_COLUMNS = [
+  { label: 'Nombre', span: 3 },
+  { label: 'Técnica/Proceso', span: 2 },
+  { label: 'Total', span: 1 },
+  { label: 'Completadas', span: 1 },
+  { label: 'Progreso', span: 2 },
+  { label: 'Fecha Creación', span: 2 },
+  { label: '', span: 1 }
+]
 
 export const WorkListsPage = () => {
   const navigate = useNavigate()
@@ -17,6 +30,9 @@ export const WorkListsPage = () => {
 
   // Mutations
   // const deleteWorklist = useDeleteWorklist()
+  const handleEditWorklist = (worklist: Worklist) => {
+    navigate(`/worklist/${worklist.id_worklist}/editar`)
+  }
 
   const handleDeleteWorklist = async (id: number, nombre: string) => {
     if (window.confirm(`¿Está seguro de eliminar el worklist "${nombre}"?`)) {
@@ -93,7 +109,7 @@ export const WorkListsPage = () => {
         </div>
       </div>
 
-      {/* Worklists Grid */}
+      {/* Worklists List */}
       {filteredWorklists.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">
@@ -110,13 +126,16 @@ export const WorkListsPage = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          <WorkListListHeader fieldList={WORKLIST_COLUMNS} />
           {filteredWorklists.map(worklist => (
-            <WorklistCard
+            <WorkListListDetail
               key={worklist.id_worklist}
               worklist={worklist}
+              onEdit={handleEditWorklist}
               onDelete={handleDeleteWorklist}
-              onView={() => navigate(`/worklist/${worklist.id_worklist}`)}
+              // onView={() => navigate(`/worklist/${worklist.id_worklist}`)}
+              fieldSpans={WORKLIST_COLUMNS.map(col => col.span)}
             />
           ))}
         </div>

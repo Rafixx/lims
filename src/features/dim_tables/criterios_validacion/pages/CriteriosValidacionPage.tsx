@@ -7,9 +7,18 @@ import { CriterioValidacion } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CriterioValidacionCard } from '../components/CriterioValidacionCard'
+import {
+  CriterioValidacionListHeader,
+  CriterioValidacionListDetail
+} from '../components/CriterioValidacionList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+
+const CRITERIO_VALIDACION_COLUMNS = [
+  { label: 'Código', span: 4 },
+  { label: 'Descripción', span: 6 },
+  { label: '', span: 2 }
+]
 
 export const CriteriosValidacionPage = () => {
   const { data: criterios, isLoading, error, refetch } = useCriteriosValidacion()
@@ -98,13 +107,15 @@ export const CriteriosValidacionPage = () => {
         emptyStateMessage: 'No hay criterios de validación disponibles'
       }}
     >
-      <div className="grid gap-1">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <CriterioValidacionListHeader fieldList={CRITERIO_VALIDACION_COLUMNS} />
         {criteriosFiltrados.map((criterio: CriterioValidacion) => (
-          <CriterioValidacionCard
+          <CriterioValidacionListDetail
             key={criterio.id}
             criterio={criterio}
             onEdit={() => handlers.onEdit(criterio)}
             onDelete={() => handlers.onDelete(criterio)}
+            fieldSpans={CRITERIO_VALIDACION_COLUMNS.map(col => col.span)}
           />
         ))}
       </div>

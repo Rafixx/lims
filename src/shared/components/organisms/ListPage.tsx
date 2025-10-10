@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { RefreshCw, Calendar, Plus, ArrowLeft } from 'lucide-react'
+import { RefreshCw, Calendar, Plus, ArrowLeft, Filter } from 'lucide-react'
 import { Button } from '@/shared/components/molecules/Button'
 import { Link } from 'react-router-dom'
 
@@ -32,6 +32,7 @@ interface ListPageProps {
   // Configuración de comportamiento
   config?: {
     showStatsToggle?: boolean
+    showFilterToggle?: boolean
     showRefreshButton?: boolean
     newButtonText?: string
     secondaryActionText?: string
@@ -55,9 +56,11 @@ export const ListPage = ({
   children
 }: ListPageProps) => {
   const [showStats, setShowStats] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
 
   const {
     showStatsToggle = true,
+    showFilterToggle = true,
     showRefreshButton = true,
     newButtonText = 'Nuevo',
     emptyStateMessage = 'No hay elementos disponibles'
@@ -127,28 +130,57 @@ export const ListPage = ({
       {/* Stats Section */}
       {renderStats && (
         <div className="space-y-4">
-          {showStatsToggle && (
-            <div className="flex justify-end">
-              <Button
-                onClick={() => setShowStats(!showStats)}
-                variant="ghost"
-                className="flex items-center gap-2"
-              >
-                <Calendar className="w-4 h-4" />
-                {showStats ? 'Ocultar estadísticas' : 'Ver estadísticas'}
-              </Button>
-            </div>
-          )}
+          <div className="flex items-start justify-between gap-4">
+            {/* Stats Content */}
+            {(showStats || !showStatsToggle) && (
+              <div className="flex-1 animate-in slide-in-from-left-2 duration-300">
+                {renderStats()}
+              </div>
+            )}
 
-          {(showStats || !showStatsToggle) && (
-            <div className="animate-in slide-in-from-top-2 duration-300">{renderStats()}</div>
-          )}
+            {/* Toggle Button */}
+            {showStatsToggle && (
+              <div className="flex-shrink-0">
+                <Button
+                  onClick={() => setShowStats(!showStats)}
+                  variant="ghost"
+                  className="flex items-center gap-2"
+                >
+                  <Calendar className="w-4 h-4" />
+                  {showStats ? 'Ocultar estadísticas' : 'Ver estadísticas'}
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* Filters Section */}
       {renderFilters && (
-        <div className="bg-white p-4 rounded-lg shadow border">{renderFilters()}</div>
+        <div className="space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            {/* Filters Content */}
+            {(showFilters || !showFilterToggle) && (
+              <div className="flex-1 animate-in slide-in-from-left-2 duration-300 bg-white p-4 rounded-lg shadow border">
+                {renderFilters()}
+              </div>
+            )}
+
+            {/* Toggle Button */}
+            {showFilterToggle && (
+              <div className="flex-shrink-0">
+                <Button
+                  onClick={() => setShowFilters(!showFilters)}
+                  variant="ghost"
+                  className="flex items-center gap-2"
+                >
+                  <Filter className="w-4 h-4" />
+                  {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Content */}

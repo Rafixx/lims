@@ -7,9 +7,15 @@ import { TipoMuestra } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { TipoMuestraCard } from '../components/TipoMuestraCard'
+import { TipoMuestraListHeader, TipoMuestraListDetail } from '../components/TipoMuestraList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+
+const TIPO_MUESTRA_COLUMNS = [
+  { label: 'Código', span: 4 },
+  { label: 'Tipo de Muestra', span: 6 },
+  { label: '', span: 2 }
+]
 
 export const TiposMuestraPage = () => {
   const { data: tiposMuestra, isLoading, error, refetch } = useTiposMuestra()
@@ -95,13 +101,15 @@ export const TiposMuestraPage = () => {
         emptyStateMessage: 'No hay tipos de muestra disponibles'
       }}
     >
-      <div className="grid gap-1">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <TipoMuestraListHeader fieldList={TIPO_MUESTRA_COLUMNS} />
         {tiposMuestraFiltrados.map((tipoMuestra: TipoMuestra) => (
-          <TipoMuestraCard
+          <TipoMuestraListDetail
             key={tipoMuestra.id}
             tipoMuestra={tipoMuestra}
             onEdit={() => navigate(`/tipos-muestra/${tipoMuestra.id}/editar`)}
             onDelete={() => handleDelete(tipoMuestra)}
+            fieldSpans={TIPO_MUESTRA_COLUMNS.map(col => col.span)}
           />
         ))}
       </div>

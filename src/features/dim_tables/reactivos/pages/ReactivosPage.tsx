@@ -7,9 +7,17 @@ import { Reactivo } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ReactivoCard } from '../components/ReactivoCard'
+import { ReactivoListHeader, ReactivoListDetail } from '../components/ReactivoList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+
+const REACTIVO_COLUMNS = [
+  { label: 'Referencia', span: 2 },
+  { label: 'Reactivo', span: 3 },
+  { label: 'Lote', span: 2 },
+  { label: 'Volumen', span: 3 },
+  { label: '', span: 2 }
+]
 
 export const ReactivosPage = () => {
   const { data: reactivos, isLoading, error, refetch } = useReactivos()
@@ -94,13 +102,15 @@ export const ReactivosPage = () => {
         emptyStateMessage: 'No hay reactivos disponibles'
       }}
     >
-      <div className="grid gap-1">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <ReactivoListHeader fieldList={REACTIVO_COLUMNS} />
         {reactivosFiltrados.map((reactivo: Reactivo) => (
-          <ReactivoCard
+          <ReactivoListDetail
             key={reactivo.id}
             reactivo={reactivo}
             onEdit={() => navigate(`/reactivos/${reactivo.id}/editar`)}
             onDelete={() => handleDelete(reactivo)}
+            fieldSpans={REACTIVO_COLUMNS.map(col => col.span)}
           />
         ))}
       </div>

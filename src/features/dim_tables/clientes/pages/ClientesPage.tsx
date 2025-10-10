@@ -7,9 +7,17 @@ import { Cliente } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ClienteCard } from '../components/ClienteCard'
+import { ClienteListHeader, ClienteListDetail } from '../components/ClienteList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+
+const CLIENTE_COLUMNS = [
+  { label: 'Nombre', span: 3 },
+  { label: 'Razón Social', span: 3 },
+  { label: 'NIF', span: 2 },
+  { label: 'Dirección', span: 2 },
+  { label: '', span: 2 }
+]
 
 export const ClientesPage = () => {
   const { data: clientes, isLoading, error, refetch } = useClientes()
@@ -96,13 +104,15 @@ export const ClientesPage = () => {
         emptyStateMessage: 'No hay clientes disponibles'
       }}
     >
-      <div className="grid gap-1">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <ClienteListHeader fieldList={CLIENTE_COLUMNS} />
         {clientesFiltrados.map((cliente: Cliente) => (
-          <ClienteCard
+          <ClienteListDetail
             key={cliente.id}
             cliente={cliente}
-            onEdit={() => handlers.onEdit(cliente)}
-            onDelete={() => handlers.onDelete(cliente)}
+            onEdit={handlers.onEdit}
+            onDelete={handlers.onDelete}
+            fieldSpans={CLIENTE_COLUMNS.map(col => col.span)}
           />
         ))}
       </div>

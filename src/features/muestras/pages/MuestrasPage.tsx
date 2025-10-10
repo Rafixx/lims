@@ -2,24 +2,31 @@ import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMuestras, useMuestrasStats } from '../hooks/useMuestras'
 import { Muestra } from '../interfaces/muestras.types'
-import { MuestraCard } from '../components/MuestraCard'
+import { MuestraFilter } from '../components/MuestraFilter'
 import { ListPage } from '../../../shared/components/organisms/ListPage'
 import { useListFilters } from '@/shared/hooks/useListFilters'
 import { MuestraStatsComponent } from '../components/MuestraStats'
-import { FilterContainer } from '@/shared/components/organisms/Filters/FilterContainer'
-import {
-  SelectFilter,
-  ToggleFilter,
-  SearchFilter
-} from '@/shared/components/organisms/Filters/FilterComponents'
-import { Calendar, PlusCircle } from 'lucide-react'
-import { APP_STATES } from '@/shared/states'
+import { PlusCircle } from 'lucide-react'
 import {
   createExactFilter,
   createTodayFilter,
   createMultiFieldSearchFilter
 } from '@/shared/utils/filterUtils'
-import { getEstadosByType } from '@/shared/utils/estadoUtils'
+import { MuestraListHeader } from '../components/MuestraList/MuestraListHeader'
+import { MuestraListDetail } from '../components/MuestraList/MuestraListDetail'
+
+// Configuración de columnas (mantener spans sincronizados)
+const COLUMN_CONFIG = [
+  { label: 'Cód EXT', span: 1 },
+  { label: 'Cód EPI', span: 1 },
+  { label: 'Cliente', span: 2 },
+  { label: 'Paciente', span: 2 },
+  { label: 'Tipo Muestra', span: 1 },
+  { label: 'Prueba', span: 2 },
+  { label: 'Recepción', span: 1 },
+  { label: 'Estado', span: 1 },
+  { label: '', span: 1 }
+]
 
 // src/features/muestras/pages/MuestrasPage.tsx
 export const MuestrasPage = () => {
@@ -72,29 +79,16 @@ export const MuestrasPage = () => {
   )
 
   const renderFilters = () => (
-    <FilterContainer onClear={clearFilters} hasActiveFilters={hasActiveFilters}>
-      <SearchFilter
-        label="Búsqueda"
-        value={filters.busqueda as string}
-        onChange={value => updateFilter('busqueda', value)}
-        placeholder="Buscar por código, cliente, paciente..."
-        className="min-w-[200px]"
-      />
-
-      <SelectFilter
-        label="Estado"
-        value={filters.estado as string}
-        onChange={value => updateFilter('estado', value)}
-        options={getEstadosByType(APP_STATES.MUESTRA)}
-      />
-
-      <ToggleFilter
-        label="Solo Hoy"
-        active={filters.soloHoy as boolean}
-        onChange={active => updateFilter('soloHoy', active)}
-        icon={<Calendar className="w-4 h-4" />}
-      />
-    </FilterContainer>
+    <MuestraFilter
+      filters={{
+        busqueda: filters.busqueda as string,
+        estado: filters.estado as string,
+        soloHoy: filters.soloHoy as boolean
+      }}
+      onFilterChange={updateFilter}
+      onClearFilters={clearFilters}
+      hasActiveFilters={hasActiveFilters}
+    />
   )
 
   return (
@@ -119,17 +113,24 @@ export const MuestrasPage = () => {
       }}
     >
       <div className="grid gap-1">
+        <MuestraListHeader fieldList={COLUMN_CONFIG} />
         {muestrasFiltradas.map((muestra: Muestra) => (
-          <MuestraCard
+          <MuestraListDetail
             key={muestra.id_muestra}
             muestra={muestra}
             onEdit={m => navigate(`/muestras/${m.id_muestra}/editar`)}
             onDelete={() => {
               /* handle delete */
             }}
+            fieldSpans={COLUMN_CONFIG.map(col => col.span)}
           />
         ))}
       </div>
     </ListPage>
   )
 }
+
+// fieldList: {
+//   label: string
+//   span: number
+// }[]

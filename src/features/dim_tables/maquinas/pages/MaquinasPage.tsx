@@ -7,9 +7,16 @@ import { Maquina } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MaquinaCard } from '../components/MaquinaCard'
+import { MaquinaListHeader, MaquinaListDetail } from '../components/MaquinaList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+
+const MAQUINA_COLUMNS = [
+  { label: 'Código', span: 3 },
+  { label: 'Máquina', span: 4 },
+  { label: 'Perfil Térmico', span: 3 },
+  { label: '', span: 2 }
+]
 
 export const MaquinasPage = () => {
   const { data: maquinas, isLoading, error, refetch } = useMaquinas()
@@ -92,13 +99,15 @@ export const MaquinasPage = () => {
         emptyStateMessage: 'No hay máquinas disponibles'
       }}
     >
-      <div className="grid gap-1">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <MaquinaListHeader fieldList={MAQUINA_COLUMNS} />
         {maquinasFiltradas.map((maquina: Maquina) => (
-          <MaquinaCard
+          <MaquinaListDetail
             key={maquina.id}
             maquina={maquina}
             onEdit={() => navigate(`/maquinas/${maquina.id}/editar`)}
             onDelete={() => handleDelete(maquina)}
+            fieldSpans={MAQUINA_COLUMNS.map(col => col.span)}
           />
         ))}
       </div>
