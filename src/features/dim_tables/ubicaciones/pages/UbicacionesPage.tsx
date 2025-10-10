@@ -7,9 +7,15 @@ import { Ubicacion } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { UbicacionCard } from '../components/UbicacionCard'
+import { UbicacionListHeader, UbicacionListDetail } from '../components/UbicacionList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+
+const UBICACION_COLUMNS = [
+  { label: 'Código', span: 3 },
+  { label: 'Ubicación', span: 7 },
+  { label: '', span: 2 }
+]
 
 export const UbicacionesPage = () => {
   const { data: ubicaciones, isLoading, error, refetch } = useUbicaciones()
@@ -96,13 +102,15 @@ export const UbicacionesPage = () => {
         emptyStateMessage: 'No hay ubicaciones disponibles'
       }}
     >
-      <div className="grid gap-1">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <UbicacionListHeader fieldList={UBICACION_COLUMNS} />
         {ubicacionesFiltradas.map((ubicacion: Ubicacion) => (
-          <UbicacionCard
+          <UbicacionListDetail
             key={ubicacion.id}
             ubicacion={ubicacion}
-            onEdit={() => handlers.onEdit(ubicacion)}
-            onDelete={() => handlers.onDelete(ubicacion)}
+            onEdit={handlers.onEdit}
+            onDelete={handlers.onDelete}
+            fieldSpans={UBICACION_COLUMNS.map(col => col.span)}
           />
         ))}
       </div>

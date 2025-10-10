@@ -8,6 +8,7 @@ import { Card } from '@/shared/components/molecules/Card'
 import { Button } from '@/shared/components/molecules/Button'
 import { Select } from '@/shared/components/molecules/Select'
 import { ArrowLeft, AlertTriangle, Trash2, User } from 'lucide-react'
+import { formatDateTime } from '@/shared/utils/helpers'
 import { APP_STATES } from '@/shared/states'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { useEstados } from '@/shared/hooks/useEstados'
@@ -88,16 +89,6 @@ export const WorklistDetailPage = () => {
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
   if (loadingWorklist) {
     return (
       <div className="flex items-center justify-center min-h-96">
@@ -151,7 +142,7 @@ export const WorklistDetailPage = () => {
 
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{worklist.nombre}</h1>
-              <p className="text-gray-600 mt-1">Creado el {formatDate(worklist.create_dt)}</p>
+              <p className="text-gray-600 mt-1">Creado el {formatDateTime(worklist.create_dt)}</p>
             </div>
           </div>
 

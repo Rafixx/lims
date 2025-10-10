@@ -1,0 +1,82 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to HOSTINGER'
+        required: true
+        default: 'HOSTINGER'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'HOSTINGER' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        env:
+          VITE_APP_BASE: /lims/
+          VITE_BASE_URL: /lims/api
+          VITE_TOKEN_KEY: LIMS_TOKEN
+          VITE_USE_MSW: false
+
+        run: npm run build
+
+      - name: Test SSH Connection
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USERNAME }}
+          password: ${{ secrets.HOSTINGER_PASSWORD }}
+          script: "ls -la /home/rafa/deploy/epidisease/lims/ || echo 'Directory does not exist, will be created on first deploy'"
+
+      - name: Copy files to the VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USERNAME }}
+          password: ${{ secrets.HOSTINGER_PASSWORD }}
+          source: 'dist'
+          target: '/home/rafa/deploy/epidisease/lims/'
+          strip_components: 0
+          rm: true
+
+      - name: Execute SSH commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USERNAME }}
+          password: ${{ secrets.HOSTINGER_PASSWORD }}
+          script: |
+            # Crear backup solo si existe el directorio actual
+            if [ -d /var/www/lims ]; then
+              DATE=$(date +%Y%m%d_%H%M%S)
+              echo "Creating backup: /var/www/lims_$DATE"
+              mv /var/www/lims /var/www/lims_$DATE
+              
+              # Mantener solo los últimos 5 backups
+              cd /var/www
+              ls -dt lims_* 2>/dev/null | tail -n +6 | xargs -r rm -rf
+            fi
+
+            # Desplegar nueva versión
+            echo "Deploying new version..."
+            mv /home/rafa/deploy/epidisease/lims/dist /var/www/lims
+            chown -R www-data:www-data /var/www/lims
+
+            echo "Deployment completed successfully!"

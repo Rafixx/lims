@@ -7,9 +7,16 @@ import { Paciente } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PacienteCard } from '../components/PacienteCard'
+import { PacienteListHeader, PacienteListDetail } from '../components/PacienteList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+
+const PACIENTE_COLUMNS = [
+  { label: 'Nombre', span: 4 },
+  { label: 'SIP', span: 2 },
+  { label: 'Dirección', span: 4 },
+  { label: '', span: 2 }
+]
 
 export const PacientesPage = () => {
   const { data: pacientes, isLoading, error, refetch } = usePacientes()
@@ -92,13 +99,15 @@ export const PacientesPage = () => {
         emptyStateMessage: 'No hay pacientes disponibles'
       }}
     >
-      <div className="grid gap-1">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <PacienteListHeader fieldList={PACIENTE_COLUMNS} />
         {pacientesFiltrados.map((paciente: Paciente) => (
-          <PacienteCard
+          <PacienteListDetail
             key={paciente.id}
             paciente={paciente}
             onEdit={() => navigate(`/pacientes/${paciente.id}/editar`)}
             onDelete={() => handleDelete(paciente)}
+            fieldSpans={PACIENTE_COLUMNS.map(col => col.span)}
           />
         ))}
       </div>

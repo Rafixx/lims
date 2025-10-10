@@ -7,9 +7,16 @@ import { Pipeta } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PipetaCard } from '../components/PipetaCard'
+import { PipetaListHeader, PipetaListDetail } from '../components/PipetaList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+
+const PIPETA_COLUMNS = [
+  { label: 'Código', span: 3 },
+  { label: 'Modelo', span: 4 },
+  { label: 'Zona', span: 3 },
+  { label: '', span: 2 }
+]
 
 export const PipetasPage = () => {
   const { data: pipetas, isLoading, error, refetch } = usePipetas()
@@ -92,13 +99,15 @@ export const PipetasPage = () => {
         emptyStateMessage: 'No hay pipetas disponibles'
       }}
     >
-      <div className="grid gap-1">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <PipetaListHeader fieldList={PIPETA_COLUMNS} />
         {pipetasFiltradas.map((pipeta: Pipeta) => (
-          <PipetaCard
+          <PipetaListDetail
             key={pipeta.id}
             pipeta={pipeta}
             onEdit={() => navigate(`/pipetas/${pipeta.id}/editar`)}
             onDelete={() => handleDelete(pipeta)}
+            fieldSpans={PIPETA_COLUMNS.map(col => col.span)}
           />
         ))}
       </div>

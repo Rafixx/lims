@@ -7,9 +7,15 @@ import { Prueba } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PruebaCard } from '../components/PruebaCard'
+import { PruebaListHeader, PruebaListDetail } from '../components/PruebaList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+
+const PRUEBA_COLUMNS = [
+  { label: 'Código', span: 4 },
+  { label: 'Prueba', span: 6 },
+  { label: '', span: 2 }
+]
 
 export const PruebasPage = () => {
   const { data: pruebas, isLoading, error, refetch } = usePruebas()
@@ -88,13 +94,15 @@ export const PruebasPage = () => {
         emptyStateMessage: 'No hay pruebas disponibles'
       }}
     >
-      <div className="grid gap-1">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <PruebaListHeader fieldList={PRUEBA_COLUMNS} />
         {pruebasFiltradas.map((prueba: Prueba) => (
-          <PruebaCard
+          <PruebaListDetail
             key={prueba.id}
             prueba={prueba}
             onEdit={() => navigate(`/pruebas/${prueba.id}/editar`)}
             onDelete={() => handleDelete(prueba)}
+            fieldSpans={PRUEBA_COLUMNS.map(col => col.span)}
           />
         ))}
       </div>

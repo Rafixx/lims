@@ -38,7 +38,7 @@ export const useWorklist = (id: number) => {
 }
 
 export const useTecnicasByWorklist = (id: number) => {
-  const { data, isLoading, error, refetch }: UseQueryResult<Tecnica[], Error> = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['worklist', id, 'tecnicas'],
     queryFn: async () => worklistService.getTecnicasByWorklist(id),
     enabled: !!id && id > 0,

@@ -7,9 +7,16 @@ import { Centro } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CentroCard } from '../components/CentroCard'
+import { CentroListHeader, CentroListDetail } from '../components/CentroList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+
+// Configuración de columnas para Centros
+const CENTRO_COLUMNS = [
+  { label: 'Código', span: 3 },
+  { label: 'Descripción', span: 7 },
+  { label: '', span: 2 }
+]
 
 export const CentrosPage = () => {
   const { data: centros, isLoading, error, refetch } = useCentros()
@@ -96,18 +103,15 @@ export const CentrosPage = () => {
         emptyStateMessage: 'No hay Centro disponibles'
       }}
     >
-      <div className="grid gap-1">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <CentroListHeader fieldList={CENTRO_COLUMNS} />
         {centrosFiltrados.map((centro: Centro) => (
-          <CentroCard
+          <CentroListDetail
             key={centro.id}
             centro={centro}
-            onEdit={centro => {
-              handlers.onEdit(centro)
-            }}
-            onDelete={() => {
-              /* handle delete */
-              handlers.onDelete(centro)
-            }}
+            onEdit={handlers.onEdit}
+            onDelete={handlers.onDelete}
+            fieldSpans={CENTRO_COLUMNS.map(col => col.span)}
           />
         ))}
       </div>
