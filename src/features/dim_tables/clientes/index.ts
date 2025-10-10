@@ -1,4 +1,3 @@
-export { ClienteCard } from './components/ClienteCard'
 export { ClienteForm } from './components/ClienteForm'
 export { ClientesPage } from './pages/ClientesPage'
 export { CreateClientePage } from './pages/CreateClientePage'

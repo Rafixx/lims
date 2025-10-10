@@ -1,4 +1,3 @@
-export { UbicacionCard } from './components/UbicacionCard'
 export { UbicacionForm } from './components/UbicacionForm'
 export { UbicacionesPage } from './pages/UbicacionesPage'
 export { CreateUbicacionPage } from './pages/CreateUbicacionPage'
