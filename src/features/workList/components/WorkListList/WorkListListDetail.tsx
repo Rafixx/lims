@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Trash2, Clock, BarChart3, CheckCircle } from 'lucide-react'
+import { Trash2, Clock, BarChart3, CheckCircle, Edit } from 'lucide-react'
 import type { Worklist } from '../../interfaces/worklist.types'
 import { ListDetail, ListDetailAction } from '@/shared/components/organisms/ListDetail'
 import { APP_STATES } from '@/shared/states'
@@ -7,8 +7,9 @@ import { formatDateShort } from '@/shared/utils/helpers'
 
 interface WorkListListDetailProps {
   worklist: Worklist
+  onEdit: (worklist: Worklist) => void
   onDelete: (id: number, nombre: string) => void
-  onView: () => void
+  // onView: () => void
   fieldSpans: number[]
 }
 
@@ -18,8 +19,9 @@ interface WorkListListDetailProps {
  */
 export const WorkListListDetail = ({
   worklist,
+  onEdit,
   onDelete,
-  onView,
+  // onView,
   fieldSpans
 }: WorkListListDetailProps) => {
   const completadas =
@@ -31,8 +33,12 @@ export const WorkListListDetail = ({
   // Definir los campos a renderizar
   const renderFields = (): ReactNode[] => [
     // Nombre del WorkList
-    <div key={worklist.id_worklist} className="cursor-pointer" onClick={onView}>
-      <span className="font-semibold text-blue-600 hover:text-blue-800">{worklist.nombre}</span>
+    <div
+      key={worklist.id_worklist}
+      className="flex items-center gap-2"
+      //  onClick={onView}
+    >
+      <span className="text-gray-700">{worklist.nombre}</span>
     </div>,
     // Técnica/Proceso
     <span key={worklist.id_worklist} className="text-gray-700">
@@ -67,6 +73,13 @@ export const WorkListListDetail = ({
 
   // Definir las acciones
   const actions: ListDetailAction[] = [
+    {
+      icon: <Edit className="w-4 h-4" />,
+      onClick: () => onEdit(worklist),
+      title: 'Editar',
+      className: 'p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors'
+    },
+
     {
       icon: <Trash2 className="w-4 h-4" />,
       onClick: () => onDelete(worklist.id_worklist, worklist.nombre),

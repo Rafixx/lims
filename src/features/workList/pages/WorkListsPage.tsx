@@ -7,6 +7,7 @@ import { Button } from '@/shared/components/molecules/Button'
 import { Plus, Search, BarChart3 } from 'lucide-react'
 import { WorkListListHeader } from '../components/WorkListList/WorkListListHeader'
 import { WorkListListDetail } from '../components/WorkListList/WorkListListDetail'
+import { Worklist } from '@/features/muestras/interfaces/muestras.types'
 
 // Configuración de columnas para los WorkLists
 const WORKLIST_COLUMNS = [
@@ -16,7 +17,7 @@ const WORKLIST_COLUMNS = [
   { label: 'Completadas', span: 1 },
   { label: 'Progreso', span: 2 },
   { label: 'Fecha Creación', span: 2 },
-  { label: 'Acciones', span: 1 }
+  { label: '', span: 1 }
 ]
 
 export const WorkListsPage = () => {
@@ -29,6 +30,9 @@ export const WorkListsPage = () => {
 
   // Mutations
   // const deleteWorklist = useDeleteWorklist()
+  const handleEditWorklist = (worklist: Worklist) => {
+    navigate(`/worklist/${worklist.id_worklist}/editar`)
+  }
 
   const handleDeleteWorklist = async (id: number, nombre: string) => {
     if (window.confirm(`¿Está seguro de eliminar el worklist "${nombre}"?`)) {
@@ -128,8 +132,9 @@ export const WorkListsPage = () => {
             <WorkListListDetail
               key={worklist.id_worklist}
               worklist={worklist}
+              onEdit={handleEditWorklist}
               onDelete={handleDeleteWorklist}
-              onView={() => navigate(`/worklist/${worklist.id_worklist}`)}
+              // onView={() => navigate(`/worklist/${worklist.id_worklist}`)}
               fieldSpans={WORKLIST_COLUMNS.map(col => col.span)}
             />
           ))}
