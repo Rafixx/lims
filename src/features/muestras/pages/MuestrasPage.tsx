@@ -71,7 +71,7 @@ export const MuestrasPage = () => {
 
   const handlers = {
     onNew: () => navigate('/muestras/nueva'),
-    onSecondaryAction: () => alert('Funcionalidad no implementada')
+    onSecondaryAction: () => navigate('/muestras/nueva?tipo=grupo')
   }
 
   const renderStats = () => (

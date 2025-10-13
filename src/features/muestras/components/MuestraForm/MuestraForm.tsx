@@ -1,5 +1,5 @@
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { MuestraAsidePreview } from './MuestraAsidePreview'
 import { DatosGeneralesSection } from './DatosGeneralesSection'
@@ -10,6 +10,7 @@ import { SendIcon } from 'lucide-react'
 import { Muestra } from '../../interfaces/muestras.types'
 import { DEFAULT_MUESTRA } from '../../interfaces/defaults'
 import { useCreateMuestra, useUpdateMuestra } from '../../hooks/useMuestras'
+import { MuestraGroupSection } from './MuestraGroupSection'
 
 // Tipo extendido para incluir técnicas en el formulario
 type MuestraFormData = Muestra & {
@@ -20,11 +21,12 @@ interface Props {
   initialValues?: Muestra
   onSuccess?: () => void
   onCancel?: () => void
+  isMuestraGroup: boolean
 }
 
 export const muestraStyle = 'border-2 border-l-accent'
 
-export const MuestraForm = ({ initialValues, onSuccess, onCancel }: Props) => {
+export const MuestraForm = ({ initialValues, onSuccess, onCancel, isMuestraGroup }: Props) => {
   const methods = useForm<Muestra>({
     defaultValues: initialValues || DEFAULT_MUESTRA
   })
@@ -48,6 +50,31 @@ export const MuestraForm = ({ initialValues, onSuccess, onCancel }: Props) => {
   const id_muestra = watch('id_muestra')
   const estado_muestra = watch('estado_muestra')
   const asideVisible = Boolean(clienteId || pruebaId || pacienteId)
+
+  const tabs = useMemo(() => {
+    const baseTabs = [
+      {
+        id: 'general',
+        label: 'Datos principales',
+        content: <DatosGeneralesSection />
+      },
+      {
+        id: 'muestra',
+        label: 'Cronología',
+        content: <DatosMuestraSection />
+      }
+    ]
+
+    if (isMuestraGroup) {
+      baseTabs.push({
+        id: 'group',
+        label: 'Placa',
+        content: <MuestraGroupSection />
+      })
+    }
+
+    return baseTabs
+  }, [isMuestraGroup])
 
   // Callback para capturar las técnicas seleccionadas
   const handleTecnicasChange = useCallback((tecnicas: { id_tecnica_proc: number }[]) => {
@@ -122,20 +149,7 @@ export const MuestraForm = ({ initialValues, onSuccess, onCancel }: Props) => {
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(handleSubmitForm)} className="relative flex flex-col h-full">
             <div className="flex-grow overflow-y-auto">
-              <Tabs
-                tabs={[
-                  {
-                    id: 'general',
-                    label: 'Datos principales',
-                    content: <DatosGeneralesSection />
-                  },
-                  {
-                    id: 'muestra',
-                    label: 'Cronología',
-                    content: <DatosMuestraSection />
-                  }
-                ]}
-              />
+              <Tabs tabs={tabs} />
             </div>
 
             <div className="sticky bottom-0 mb-4 bg-white z-10 flex justify-end gap-3 pt-4 border-t">

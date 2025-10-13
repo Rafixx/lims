@@ -34,6 +34,7 @@ export type Muestra = {
   criterio_validacion?: CriterioValidacion | null
   ubicacion?: Ubicacion | null
   prueba?: Prueba | null
+  tipo_array: boolean | null
 
   codigo_epi?: string
   codigo_externo?: string
@@ -49,6 +50,22 @@ export type Muestra = {
 export type MuestraWithTecnicas = {
   id_muestra: number
   tecnicas: Tecnica[]
+}
+
+export type MuestraWithArray = {
+  id_muestra: number
+  array: MuestraArray[]
+}
+
+export type MuestraArray = {
+  id_array: number
+  id_muestra: number
+  id_posicion: number
+  codigo_placa: string
+  posicion_placa: string
+  num_array: number
+  num_serie: string
+  pos_array: string
 }
 
 export type Worklist = {

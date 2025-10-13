@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Card } from '@/shared/components/molecules/Card'
 import { MuestraForm } from '../components/MuestraForm/MuestraForm'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
@@ -6,7 +6,13 @@ import { useMuestra } from '../hooks/useMuestras'
 
 export const CreateMuestraPage = () => {
   const { id } = useParams<{ id: string }>()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+
+  // ✅ Leer el tipo de muestra desde query params
+  const tipo = searchParams.get('tipo')
+  const isMuestraGroup = tipo === 'grupo'
+
   const muestraId = id ? parseInt(id) : undefined
   const isEditing = Boolean(muestraId && muestraId > 0)
 
@@ -74,10 +80,11 @@ export const CreateMuestraPage = () => {
         <Card className="bg-white shadow-sm">
           <div className="p-6">
             <MuestraForm
-              key={muestraId || 'new'}
+              key={`${muestraId || 'new'}-${isMuestraGroup}`}
               initialValues={muestra}
               onSuccess={handleSuccess}
               onCancel={handleCancel}
+              isMuestraGroup={isMuestraGroup}
             />
           </div>
         </Card>

@@ -137,16 +137,19 @@ export const DatosMuestraSection = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
-        <div className="mb-6">
+      {/* <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200"> */}
+      <div className="bg-gray-50 p-4 rounded-lg">
+        {/* <div className="mb-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-2">Cronología de la Muestra</h3>
           <p className="text-gray-600 text-sm">
             Haga clic en cualquier evento para editar su fecha y hora
           </p>
-        </div>
-
-        <div className="bg-white rounded-lg p-6 shadow-sm">
-          <Timeline events={timelineEvents} className="max-w-4xl" />
+        </div> */}
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Cronología de la Muestra </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 shadow-sm">
+            <Timeline events={timelineEvents} className="max-w-4xl" />
+          </div>
         </div>
       </div>
 
