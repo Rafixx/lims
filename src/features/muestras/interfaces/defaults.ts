@@ -10,6 +10,8 @@ export const DEFAULT_MUESTRA: Muestra = {
   f_destruccion: '2025-09-26T00:00:00.000Z',
   f_devolucion: '2025-09-26T00:00:00.000Z',
   estado_muestra: APP_STATES.MUESTRA.RECIBIDA,
+  tipo_array: false,
+  array_config: null,
   paciente: {
     id: 0,
     nombre: '',

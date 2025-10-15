@@ -1,7 +1,7 @@
-// src/features/muestras/components/MuestraForm/MuestraGroupSection.tsx
-// import { useFormContext } from 'react-hook-form'
-import { useState, useMemo } from 'react'
-// import type { Muestra } from '../../interfaces/muestras.types'
+// src/features/muestras/components/MuestraForm/DatosGroupSection.tsx
+import { useFormContext } from 'react-hook-form'
+import { useState, useMemo, useEffect } from 'react'
+import type { Muestra } from '../../interfaces/muestras.types'
 import { AlertCircle, CheckCircle2, Grid3x3 } from 'lucide-react'
 
 // Definición de presets comunes para placas de laboratorio
@@ -25,14 +25,25 @@ const isValidHeightLetter = (letter: string): boolean => {
 }
 
 export const MuestraGroupSection = () => {
-  // Si necesitas acceder al contexto del formulario, descomenta la siguiente línea:
-  // const { setValue } = useFormContext<Muestra>()
+  const { setValue, watch } = useFormContext<Muestra>()
 
-  // Estados locales para el formulario de la placa
-  const [plateCode, setPlateCode] = useState<string>('')
+  // Observar los valores actuales del formulario
+  const currentArrayConfig = watch('array_config')
+
+  // Estados locales para el formulario del array
+  const [arrayCode, setArrayCode] = useState<string>('')
   const [width, setWidth] = useState<string>('')
   const [heightLetter, setHeightLetter] = useState<string>('')
   const [selectedPreset, setSelectedPreset] = useState<string>('')
+
+  // ✅ Sincronizar estado local con datos del formulario al montar
+  useEffect(() => {
+    if (currentArrayConfig) {
+      setArrayCode(currentArrayConfig.code || '')
+      setWidth(currentArrayConfig.width?.toString() || '')
+      setHeightLetter(currentArrayConfig.heightLetter || '')
+    }
+  }, [currentArrayConfig])
 
   // Validaciones
   const widthError = useMemo(() => {
@@ -52,16 +63,16 @@ export const MuestraGroupSection = () => {
     return null
   }, [heightLetter])
 
-  const plateCodeError = useMemo(() => {
-    if (!plateCode) return null
-    if (plateCode.length > 25) {
+  const arrayCodeError = useMemo(() => {
+    if (!arrayCode) return null
+    if (arrayCode.length > 25) {
       return 'El código no puede exceder 25 caracteres.'
     }
-    if (!/^[A-Za-z0-9]+$/.test(plateCode)) {
+    if (!/^[A-Za-z0-9]+$/.test(arrayCode)) {
       return 'Solo se permiten caracteres alfanuméricos.'
     }
     return null
-  }, [plateCode])
+  }, [arrayCode])
 
   // Cálculos derivados
   const heightNumber = useMemo(() => {
@@ -77,14 +88,32 @@ export const MuestraGroupSection = () => {
 
   const isFormValid = useMemo(() => {
     return (
-      plateCode.length > 0 &&
-      !plateCodeError &&
+      arrayCode.length > 0 &&
+      !arrayCodeError &&
       width.length > 0 &&
       !widthError &&
       heightLetter.length > 0 &&
       !heightError
     )
-  }, [plateCode, plateCodeError, width, widthError, heightLetter, heightError])
+  }, [arrayCode, arrayCodeError, width, widthError, heightLetter, heightError])
+
+  useEffect(() => {
+    if (isFormValid) {
+      const arrayData = {
+        code: arrayCode,
+        width: parseInt(width, 10),
+        heightLetter: heightLetter.toUpperCase(),
+        height: heightNumber,
+        totalPositions
+      }
+
+      // console.log('✅ [DatosGroupSection] Guardando configuración automáticamente:', arrayData)
+      setValue('array_config', arrayData, { shouldValidate: true, shouldDirty: true })
+    } else {
+      // Si los datos no son válidos, limpiar array_config
+      setValue('array_config', null, { shouldValidate: true, shouldDirty: true })
+    }
+  }, [isFormValid, arrayCode, width, heightLetter, heightNumber, totalPositions, setValue])
 
   // Handler para selección de preset
   const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -119,36 +148,13 @@ export const MuestraGroupSection = () => {
     }
   }
 
-  // Handler para confirmar el tamaño de la placa
-  const handleConfirmSize = () => {
-    if (!isFormValid) return
-
-    // Aquí guardarías los datos en el formulario principal o enviarías al backend
-    const plateData = {
-      code: plateCode,
-      width: parseInt(width, 10),
-      heightLetter: heightLetter.toUpperCase(),
-      height: heightNumber,
-      totalPositions
-    }
-
-    console.log('Datos de la placa:', plateData)
-
-    // Podrías almacenar esto en el contexto del formulario principal
-    // setValue('plate_config', plateData)
-
-    alert(
-      `Placa configurada: ${plateData.code}\nDimensiones: ${plateData.width}×${plateData.height} (${plateData.totalPositions} posiciones)`
-    )
-  }
-
   return (
     <div className="space-y-6">
       {/* Configuración de la Placa */}
       <div className="bg-white border-2 border-blue-100 rounded-lg p-4 sm:p-6 space-y-4 sm:space-y-6">
         <div className="flex items-center gap-3 mb-2 sm:mb-4">
           <Grid3x3 className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0" />
-          <div>
+          <div className="flex-1">
             <h3 className="text-base sm:text-lg font-semibold text-gray-900">
               Configuración de la Placa
             </h3>
@@ -156,6 +162,12 @@ export const MuestraGroupSection = () => {
               Define el código y las dimensiones de la placa de muestras
             </p>
           </div>
+          {isFormValid && (
+            <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-xs font-medium">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Guardado</span>
+            </div>
+          )}
         </div>
 
         {/* Layout Responsivo: 2 columnas en lg+, 1 columna en xs/md */}
@@ -170,27 +182,27 @@ export const MuestraGroupSection = () => {
               <input
                 id="plateCode"
                 type="text"
-                value={plateCode}
-                onChange={e => setPlateCode(e.target.value.toUpperCase())}
+                value={arrayCode}
+                onChange={e => setArrayCode(e.target.value.toUpperCase())}
                 placeholder="p. ej., PLACA001ABC"
                 maxLength={25}
                 className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                  plateCodeError ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  arrayCodeError ? 'border-red-500 bg-red-50' : 'border-gray-300'
                 }`}
-                aria-invalid={!!plateCodeError}
-                aria-describedby={plateCodeError ? 'plateCode-error' : 'plateCode-help'}
+                aria-invalid={!!arrayCodeError}
+                aria-describedby={arrayCodeError ? 'arrayCode-error' : 'arrayCode-help'}
               />
-              <div className="mt-1 text-xs text-gray-500" id="plateCode-help">
+              <div className="mt-1 text-xs text-gray-500" id="arrayCode-help">
                 Código alfanumérico (max 25)
               </div>
-              {plateCodeError && (
+              {arrayCodeError && (
                 <div
                   className="mt-1 flex items-center gap-1 text-red-600 text-sm"
-                  id="plateCode-error"
+                  id="arrayCode-error"
                   role="alert"
                 >
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  <span>{plateCodeError}</span>
+                  <span>{arrayCodeError}</span>
                 </div>
               )}
             </div>
@@ -282,25 +294,6 @@ export const MuestraGroupSection = () => {
                 </div>
               )}
             </div>
-
-            {/* Botón de Confirmación */}
-            <div>
-              <button
-                type="button"
-                onClick={handleConfirmSize}
-                disabled={!isFormValid}
-                title="Confirmar tamaño de la placa"
-                className={`w-full px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5 text-sm ${
-                  isFormValid
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-                aria-disabled={!isFormValid}
-              >
-                <Grid3x3 className="w-4 h-4 flex-shrink-0" />
-                <span>Confirmar</span>
-              </button>
-            </div>
           </div>
 
           {/* COLUMNA DERECHA: Información Calculada en Tiempo Real */}
@@ -336,7 +329,7 @@ export const MuestraGroupSection = () => {
                         Vista previa de la placa
                       </h4>
                       <span className="text-xs text-gray-500 font-mono">
-                        {plateCode || 'Sin código'}
+                        {arrayCode || 'Sin código'}
                       </span>
                     </div>
                     {/* Grid de la Placa */}

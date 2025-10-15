@@ -45,6 +45,15 @@ export type Muestra = {
 
   estado_muestra: AppEstado
   estadoInfo?: DimEstado | null
+
+  // Configuración de array para muestras tipo array
+  array_config?: {
+    code: string
+    width: number
+    heightLetter: string
+    height: number
+    totalPositions: number
+  } | null
 }
 
 export type MuestraWithTecnicas = {
