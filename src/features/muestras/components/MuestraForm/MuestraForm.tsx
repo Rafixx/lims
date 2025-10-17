@@ -1,5 +1,5 @@
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { MuestraAsidePreview } from './MuestraAsidePreview'
 import { DatosGeneralesSection } from './DatosGeneralesSection'
@@ -10,6 +10,7 @@ import { SendIcon } from 'lucide-react'
 import { Muestra } from '../../interfaces/muestras.types'
 import { DEFAULT_MUESTRA } from '../../interfaces/defaults'
 import { useCreateMuestra, useUpdateMuestra } from '../../hooks/useMuestras'
+import { MuestraGroupSection } from './DatosGroupSection'
 
 // Tipo extendido para incluir técnicas en el formulario
 type MuestraFormData = Muestra & {
@@ -20,19 +21,21 @@ interface Props {
   initialValues?: Muestra
   onSuccess?: () => void
   onCancel?: () => void
+  isMuestraGroup: boolean
 }
 
 export const muestraStyle = 'border-2 border-l-accent'
 
-export const MuestraForm = ({ initialValues, onSuccess, onCancel }: Props) => {
+export const MuestraForm = ({ initialValues, onSuccess, onCancel, isMuestraGroup }: Props) => {
   const methods = useForm<Muestra>({
     defaultValues: initialValues || DEFAULT_MUESTRA
   })
 
-  const { watch, handleSubmit } = methods
-
-  // ✅ No usar useEffect con reset - causa loop infinito
-  // En su lugar, usar key en el componente padre para forzar re-mount
+  const { watch, handleSubmit, setValue } = methods
+  const [activeTab, setActiveTab] = useState<string>('general')
+  if (isMuestraGroup && !watch('tipo_array')) {
+    setValue('tipo_array', true, { shouldDirty: false })
+  }
 
   const createMutation = useCreateMuestra()
   const updateMutation = useUpdateMuestra()
@@ -49,6 +52,31 @@ export const MuestraForm = ({ initialValues, onSuccess, onCancel }: Props) => {
   const estado_muestra = watch('estado_muestra')
   const asideVisible = Boolean(clienteId || pruebaId || pacienteId)
 
+  const tabs = useMemo(() => {
+    const baseTabs = [
+      {
+        id: 'general',
+        label: 'Datos principales',
+        content: <DatosGeneralesSection />
+      },
+      {
+        id: 'cronologia',
+        label: 'Cronología',
+        content: <DatosMuestraSection />
+      }
+    ]
+
+    if (isMuestraGroup) {
+      baseTabs.push({
+        id: 'placa',
+        label: 'Placa',
+        content: <MuestraGroupSection />
+      })
+    }
+
+    return baseTabs
+  }, [isMuestraGroup])
+
   // Callback para capturar las técnicas seleccionadas
   const handleTecnicasChange = useCallback((tecnicas: { id_tecnica_proc: number }[]) => {
     setSelectedTecnicas(tecnicas)
@@ -57,6 +85,32 @@ export const MuestraForm = ({ initialValues, onSuccess, onCancel }: Props) => {
   const handleSubmitForm: SubmitHandler<Muestra> = async formValues => {
     try {
       setIsSubmitting(true)
+      if (formValues.tipo_array === true) {
+        // Validar que la configuración de placa esté completa
+        const { code, width, height, heightLetter } = formValues.array_config || {}
+        if (!code || !width || !height || !heightLetter) {
+          notify(
+            'La configuración de la placa está incompleta. Complete todos los campos requeridos en la pestaña "Placa".',
+            'warning'
+          )
+          setActiveTab('placa')
+          setIsSubmitting(false)
+          return
+        }
+
+        // console.log('✅ [MuestraForm] Configuración de placa validada:', formValues.plate_config)
+      }
+
+      // Validación de técnicas (solo si aplica)
+      if (isMuestraGroup && selectedTecnicas.length === 0) {
+        notify(
+          'Para muestras en grupo, debe seleccionar al menos una técnica en el aside lateral.',
+          'warning'
+        )
+        setIsSubmitting(false)
+        return
+      }
+
       const isEditing = Boolean(formValues.id_muestra && formValues.id_muestra > 0)
 
       // Incluir las técnicas seleccionadas en los datos del formulario
@@ -69,6 +123,8 @@ export const MuestraForm = ({ initialValues, onSuccess, onCancel }: Props) => {
         console.log('[📋 MuestraForm] Guardando muestra:', {
           modo: isEditing ? 'EDICIÓN' : 'CREACIÓN',
           id: formValues.id_muestra,
+          tipo_array: formValues.tipo_array,
+          array_config: formValues.array_config,
           tecnicas: selectedTecnicas.length,
           data: formDataWithTecnicas
         })
@@ -122,24 +178,11 @@ export const MuestraForm = ({ initialValues, onSuccess, onCancel }: Props) => {
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(handleSubmitForm)} className="relative flex flex-col h-full">
             <div className="flex-grow overflow-y-auto">
-              <Tabs
-                tabs={[
-                  {
-                    id: 'general',
-                    label: 'Datos principales',
-                    content: <DatosGeneralesSection />
-                  },
-                  {
-                    id: 'muestra',
-                    label: 'Cronología',
-                    content: <DatosMuestraSection />
-                  }
-                ]}
-              />
+              <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
             </div>
 
-            <div className="sticky bottom-0 mb-4 bg-white z-10 flex justify-end gap-3 pt-4 border-t">
-              <Button type="button" variant="danger" onClick={handleCancel} disabled={isSubmitting}>
+            <div className="sticky bottom-4 mb-4 bg-white z-10 flex justify-end gap-3 pt-4 border-t">
+              <Button type="button" variant="soft" onClick={handleCancel} disabled={isSubmitting}>
                 Cancelar
               </Button>
               <Button type="submit" variant="primary" disabled={isSubmitting}>

@@ -1,5 +1,5 @@
 // src/shared/components/molecules/Tabs.tsx
-import { ReactNode, useState } from 'react'
+import { ReactNode } from 'react'
 import { Button } from '@/shared/components/molecules/Button'
 import clsx from 'clsx'
 
@@ -12,10 +12,25 @@ interface Tab {
 interface Props {
   tabs: Tab[]
   defaultTabId?: string
+  activeTab?: string
+  setActiveTab?: (tabId: string) => void
 }
 
-export const Tabs = ({ tabs, defaultTabId }: Props) => {
-  const [activeTab, setActiveTab] = useState(defaultTabId ?? tabs[0].id)
+export const Tabs = ({
+  tabs,
+  defaultTabId,
+  activeTab: externalActiveTab,
+  setActiveTab: externalSetActiveTab
+}: Props) => {
+  // Si se pasan activeTab y setActiveTab como props, usar modo controlado
+  // Si no, usar estado interno (modo no controlado)
+  const isControlled = externalActiveTab !== undefined && externalSetActiveTab !== undefined
+
+  // En modo no controlado, usar el primer tab o el defaultTabId
+  const fallbackActiveTab = defaultTabId ?? tabs[0].id
+
+  const activeTab = isControlled ? externalActiveTab : fallbackActiveTab
+  const setActiveTab = externalSetActiveTab || (() => {})
 
   return (
     <div>
