@@ -88,9 +88,11 @@ export type Tecnica = {
   estado?: AppEstado
   fecha_estado?: string
   comentarios?: string
+  muestra: Muestra
   tecnica_proc?: TecnicaProc
   worklist?: Worklist
   tecnico_resp?: TecnicoLaboratorio | null
+  resultados: Resultado
 
   estadoInfo?: DimEstado | null
 }
@@ -103,6 +105,15 @@ export type MuestraStats = {
   vencidas: number
   creadas_hoy: number
   completadas_hoy: number
+}
+
+export type Resultado = {
+  id_resultado: number
+  tipo_res: string
+  valor: string | number | null
+  valor_texto?: string
+  valor_fecha: string | null
+  unidades?: string
 }
 
 export type EMPTY_MUESTRA_FORM = {

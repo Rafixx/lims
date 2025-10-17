@@ -3,11 +3,13 @@ import { Tecnica } from '../../interfaces/muestras.types'
 import { ListDetail } from '@/shared/components/organisms/ListDetail'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { formatDate } from '@/shared/utils/helpers'
+import { ResultadoInfo } from './ResultadoInfo'
 
 interface TecnicaListDetailProps {
   tecnica: Tecnica
   fieldSpans: number[]
   showActions?: boolean
+  hasResultados?: boolean // ✅ Nuevo prop para sincronizar con el padre
 }
 
 /**
@@ -17,44 +19,79 @@ interface TecnicaListDetailProps {
 export const TecnicaListDetail = ({
   tecnica,
   fieldSpans,
-  showActions = false
+  showActions = false,
+  hasResultados: hasResultadosProp
 }: TecnicaListDetailProps) => {
+  // Determinar si hay resultados para mostrar
+  const hasResultadosLocal = Boolean(
+    tecnica.resultados &&
+      (tecnica.resultados.valor !== null ||
+        tecnica.resultados.valor_texto ||
+        tecnica.resultados.valor_fecha ||
+        tecnica.resultados.tipo_res)
+  )
+
+  // Usar prop si se pasa, sino usar cálculo local
+  const hasResultados = hasResultadosProp !== undefined ? hasResultadosProp : hasResultadosLocal
+
   // Definir los campos a renderizar
-  const renderFields = (): ReactNode[] => [
-    // Fecha Estado
-    <span key={tecnica.id_tecnica} className="text-xs text-surface-400 font-mono">
-      #{formatDate(tecnica.fecha_estado)}
-    </span>,
-    // Técnica
-    <span key={tecnica.id_tecnica} className="font-medium text-surface-800">
-      {tecnica.tecnica_proc?.tecnica_proc || 'Sin técnica'}
-    </span>,
-    // Worklist
-    tecnica.worklist ? (
-      <span className="flex items-center gap-1">
-        <span>📋</span>
-        <span className="text-xs bg-info-100 text-info-700 rounded px-2 py-0.5 font-semibold">
-          {tecnica.worklist.nombre}
-        </span>
+  const renderFields = (): ReactNode[] => {
+    const baseFields: ReactNode[] = [
+      // Fecha Estado
+      <span key={`fecha-${tecnica.id_tecnica}`} className="text-xs text-surface-400 font-mono">
+        #{formatDate(tecnica.fecha_estado)}
+      </span>,
+      // Técnica
+      <span key={`tecnica-${tecnica.id_tecnica}`} className="font-medium text-surface-800">
+        {tecnica.tecnica_proc?.tecnica_proc || 'Sin técnica'}
+      </span>,
+      // Worklist
+      <span key={`worklist-${tecnica.id_tecnica}`}>
+        {tecnica.worklist ? (
+          <span className="flex items-center gap-1">
+            <span>📋</span>
+            <span className="text-xs bg-info-100 text-info-700 rounded px-2 py-0.5 font-semibold">
+              {tecnica.worklist.nombre}
+            </span>
+          </span>
+        ) : (
+          <span className="text-xs text-surface-400">-</span>
+        )}
+      </span>,
+      // Técnico Responsable
+      <span key={`tecnico-${tecnica.id_tecnica}`}>
+        {tecnica.tecnico_resp ? (
+          <span
+            className="text-xs text-surface-500 flex items-center gap-1"
+            title={tecnica.tecnico_resp.nombre || ''}
+          >
+            <span>👤</span>
+            <span className="truncate">{tecnica.tecnico_resp.nombre}</span>
+          </span>
+        ) : (
+          <span className="text-xs text-surface-400">-</span>
+        )}
       </span>
-    ) : (
-      <span className="text-xs text-surface-400">-</span>
-    ),
-    // Técnico Responsable
-    tecnica.tecnico_resp ? (
-      <span
-        className="text-xs text-surface-500 flex items-center gap-1"
-        title={tecnica.tecnico_resp.nombre || ''}
-      >
-        <span>👤</span>
-        <span className="truncate">{tecnica.tecnico_resp.nombre}</span>
-      </span>
-    ) : (
-      <span className="text-xs text-surface-400">-</span>
-    ),
-    // Estado
-    <IndicadorEstado key={tecnica.id_tecnica} estado={tecnica.estadoInfo} size="small" />
-  ]
+    ]
+
+    // Si hay resultados, agregar columna de resultados antes del estado
+    if (hasResultados) {
+      baseFields.push(
+        <ResultadoInfo key={`resultado-${tecnica.id_tecnica}`} resultado={tecnica.resultados} />
+      )
+    }
+
+    // Estado siempre al final
+    baseFields.push(
+      <IndicadorEstado
+        key={`estado-${tecnica.id_tecnica}`}
+        estado={tecnica.estadoInfo}
+        size="small"
+      />
+    )
+
+    return baseFields
+  }
 
   return (
     <ListDetail

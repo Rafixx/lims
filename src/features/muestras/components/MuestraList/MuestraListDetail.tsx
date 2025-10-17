@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { Edit, Trash2 } from 'lucide-react'
 import { Muestra } from '../../interfaces/muestras.types'
 import { useTecnicasByMuestra } from '../../hooks/useMuestras'
@@ -14,12 +14,22 @@ interface MuestraListDetailProps {
   fieldSpans: number[]
 }
 
-// Configuración de columnas para las técnicas
-const TECNICA_COLUMNS = [
+// Configuración de columnas para las técnicas SIN resultados
+const TECNICA_COLUMNS_WITHOUT_RESULTS = [
   { label: 'Fecha', span: 2 },
   { label: 'Técnica', span: 3 },
   { label: 'Worklist', span: 2 },
-  { label: 'Técnico', span: 3 },
+  { label: 'Técnico', span: 2 },
+  { label: 'Estado', span: 3 }
+]
+
+// Configuración de columnas para las técnicas CON resultados
+const TECNICA_COLUMNS_WITH_RESULTS = [
+  { label: 'Fecha', span: 1 },
+  { label: 'Técnica', span: 2 },
+  { label: 'Worklist', span: 1 },
+  { label: 'Técnico', span: 1 },
+  { label: 'Resultados', span: 5 },
   { label: 'Estado', span: 2 }
 ]
 
@@ -100,6 +110,23 @@ export const MuestraListDetail = ({
     }
   ]
 
+  // ✅ Determinar si alguna técnica tiene resultados
+  const hasAnyResultados = useMemo(() => {
+    return tecnicas?.some(
+      tecnica =>
+        tecnica.resultados &&
+        (tecnica.resultados.valor !== null ||
+          tecnica.resultados.valor_texto ||
+          tecnica.resultados.valor_fecha ||
+          tecnica.resultados.tipo_res)
+    )
+  }, [tecnicas])
+
+  // ✅ Usar configuración de columnas según si hay resultados
+  const TECNICA_COLUMNS = hasAnyResultados
+    ? TECNICA_COLUMNS_WITH_RESULTS
+    : TECNICA_COLUMNS_WITHOUT_RESULTS
+
   // Contenido expandido con las técnicas
   const expandedContent = (
     <div className="space-y-2">
@@ -111,6 +138,7 @@ export const MuestraListDetail = ({
               key={index}
               tecnica={tecnica}
               fieldSpans={TECNICA_COLUMNS.map(col => col.span)}
+              hasResultados={hasAnyResultados}
             />
           ))}
         </>

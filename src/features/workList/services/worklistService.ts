@@ -52,6 +52,10 @@ class WorklistService {
   async deleteWorklist(id: number): Promise<void> {
     await apiClient.delete(`${this.basePath}/${id}`)
   }
+
+  async importDataResults(id: number): Promise<void> {
+    await apiClient.post(`${this.basePath}/${id}/importDataResults`)
+  }
 }
 
 export const worklistService = new WorklistService()

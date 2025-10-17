@@ -72,7 +72,7 @@ export const Button = ({
     inline-flex items-center justify-center gap-2
     border rounded-lg
     transition-all duration-200 ease-in-out
-    focus:outline-none focus:ring-2 focus:ring-offset-1
+    focus:outline-none focus:ring-offset-1
     disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none
     ${variant !== 'link' && variant !== 'icon' ? sizes[size] : ''}
     ${fullWidth ? 'w-full' : ''}

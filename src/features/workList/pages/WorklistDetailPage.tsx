@@ -2,23 +2,26 @@
 
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useWorklist } from '../hooks/useWorklists'
+import { useDeleteWorklist, useWorklist } from '../hooks/useWorklists'
 import { useTecnicosLaboratorio } from '@/shared/hooks/useDim_tables'
 import { Card } from '@/shared/components/molecules/Card'
 import { Button } from '@/shared/components/molecules/Button'
 import { Select } from '@/shared/components/molecules/Select'
-import { ArrowLeft, AlertTriangle, Trash2, User } from 'lucide-react'
+import { ArrowLeft, AlertTriangle, Trash2, User, Import } from 'lucide-react'
 import { formatDateTime } from '@/shared/utils/helpers'
 import { APP_STATES } from '@/shared/states'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { useEstados } from '@/shared/hooks/useEstados'
 import { WorkListDetailStats } from '../components/WorkListDetailStats'
 import { worklistService } from '../services/worklistService'
+import { ResultadoInfo } from '@/features/muestras/components/MuestraList/ResultadoInfo'
+import { useNotification } from '@/shared/components/Notification/NotificationContext'
 
 export const WorklistDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const worklistId = parseInt(id || '0')
+  const { notify } = useNotification()
 
   const [selectedTecnicoId, setSelectedTecnicoId] = useState<string>('')
   const [isAssigningTecnico, setIsAssigningTecnico] = useState(false)
@@ -81,9 +84,11 @@ export const WorklistDetailPage = () => {
 
     if (window.confirm(`¿Está seguro de eliminar el worklist "${worklist.nombre}"?`)) {
       try {
-        // await deleteWorklist.mutateAsync(worklistId)
-        // navigate('/worklist')
+        await useDeleteWorklist()
+        navigate('/worklist')
+        notify('Worklist eliminada correctamente', 'success')
       } catch (error) {
+        notify('Error al eliminar la worklist', 'error')
         console.error('Error deleting worklist:', error)
       }
     }
@@ -112,6 +117,16 @@ export const WorklistDetailPage = () => {
         </div>
       </div>
     )
+  }
+  const handleImportDataResults = async () => {
+    try {
+      // Lógica para importar resultados de datos
+      await worklistService.importDataResults(worklist.id_worklist)
+      notify('Resultados importados correctamente', 'success')
+    } catch (error) {
+      notify('Error al importar resultados', 'error')
+      console.error('Error importing data results:', error)
+    }
   }
 
   // Cálculo de estadísticas
@@ -146,14 +161,24 @@ export const WorklistDetailPage = () => {
             </div>
           </div>
 
-          <Button
-            variant="primary"
-            onClick={handleDeleteWorklist}
-            className="flex items-center gap-2"
-          >
-            <Trash2 size={16} />
-            Eliminar Worklist
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="soft"
+              onClick={handleImportDataResults}
+              className="flex items-center gap-2"
+            >
+              <Import size={16} />
+              Importar resultados
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleDeleteWorklist}
+              className="flex items-center gap-2"
+            >
+              <Trash2 size={16} />
+              Eliminar Worklist
+            </Button>
+          </div>
         </div>
 
         {/* Estadísticas */}
@@ -213,43 +238,74 @@ export const WorklistDetailPage = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <div className="mb-5">
-                <span className="py-2 px-4 font-medium text-gray-900">MUESTRAS</span>
+              {/* Header de columnas */}
+              <div className="grid grid-cols-12 gap-4 px-3 py-2 bg-gray-100 rounded-lg font-semibold text-sm text-gray-700">
+                <div className="col-span-2">Códigos</div>
+                <div className="col-span-2">Técnico Lab</div>
+                <div className="col-span-6">Resultados</div>
+                <div className="col-span-2">Estado</div>
               </div>
-              {(worklist.tecnicas || []).map((tecnica, index) => (
-                <div
-                  key={index}
-                  className="border p-3 rounded bg-gray-50 hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-4">
-                      <span className="font-medium text-gray-900">
-                        Código Epidisease: {tecnica.muestra?.codigo_epi}
-                      </span>
-                      <span className="text-gray-600">
-                        • Código Externo: {tecnica.muestra?.codigo_externo || 'N/A'}
-                      </span>
-                    </div>
-                    {/* Tecnico de laboratorio, si existe */}
-                    {tecnica.tecnico_resp ? (
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-gray-500" />
-                        <span className="text-gray-600">
-                          Técnico de laboratorio: {tecnica.tecnico_resp.nombre}
-                        </span>
+
+              {/* Filas de técnicas */}
+              {(worklist.tecnicas || []).map((tecnica, index) => {
+                const hasResultados = Boolean(
+                  tecnica.resultados &&
+                    (tecnica.resultados.valor !== null ||
+                      tecnica.resultados.valor_texto ||
+                      tecnica.resultados.valor_fecha ||
+                      tecnica.resultados.tipo_res)
+                )
+
+                return (
+                  <div
+                    key={index}
+                    className="grid grid-cols-12 gap-4 border p-3 rounded bg-white hover:bg-gray-50 transition-colors items-center"
+                  >
+                    {/* Columna 1: Códigos (span 2) */}
+                    <div className="col-span-2 space-y-1">
+                      <div className="text-xs text-gray-600">
+                        <span className="font-medium">Externo:</span>{' '}
+                        {tecnica.muestra?.codigo_externo || 'N/A'}
                       </div>
-                    ) : (
-                      <span className="text-gray-600">• Sin técnico asignado</span>
-                    )}
-                    <div className="flex items-center gap-2">
+                      <div className="text-xs text-gray-600">
+                        <span className="font-medium">Epidisease:</span>{' '}
+                        {tecnica.muestra?.codigo_epi || 'N/A'}
+                      </div>
+                    </div>
+
+                    {/* Columna 2: Técnico Lab (span 2) */}
+                    <div className="col-span-2">
+                      {tecnica.tecnico_resp ? (
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          <span className="text-sm text-gray-700 truncate">
+                            {tecnica.tecnico_resp.nombre}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">Sin asignar</span>
+                      )}
+                    </div>
+
+                    {/* Columna 3: Resultados (span 6) */}
+                    <div className="col-span-6">
+                      {hasResultados && tecnica.resultados ? (
+                        <ResultadoInfo resultado={tecnica.resultados} />
+                      ) : (
+                        <span className="text-xs text-gray-400">Sin resultados</span>
+                      )}
+                    </div>
+
+                    {/* Columna 4: Estado (span 2) */}
+                    <div className="col-span-2 flex justify-end">
                       <IndicadorEstado
                         estado={estadosTecnica.find(e => e.estado === tecnica.estado)}
                         size="small"
                       />
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </Card>
         </div>

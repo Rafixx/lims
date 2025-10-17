@@ -1,3 +1,5 @@
+import { Resultado } from '@/features/muestras/interfaces/muestras.types'
+
 export interface Worklist {
   id_worklist: number
   nombre: string
@@ -28,6 +30,7 @@ export interface Tecnica {
   tecnico_resp?: {
     nombre: string
   }
+  resultados?: Resultado
 }
 
 export interface TecnicaProc {
