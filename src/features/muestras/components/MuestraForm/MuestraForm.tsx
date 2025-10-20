@@ -49,7 +49,7 @@ export const MuestraForm = ({ initialValues, onSuccess, onCancel, isMuestraGroup
   const pruebaId = watch('prueba.id')
   const pacienteId = watch('paciente.id')
   const id_muestra = watch('id_muestra')
-  const estado_muestra = watch('estado_muestra')
+  // const estado_muestra = watch('estado_muestra')
   const asideVisible = Boolean(clienteId || pruebaId || pacienteId)
 
   const tabs = useMemo(() => {
@@ -208,7 +208,7 @@ export const MuestraForm = ({ initialValues, onSuccess, onCancel, isMuestraGroup
             id_prueba={pruebaId}
             id_paciente={pacienteId}
             id_muestra={id_muestra}
-            estado_muestra={estado_muestra}
+            // estado_muestra={estado_muestra}
             onTecnicasChange={handleTecnicasChange}
           />
         </aside>

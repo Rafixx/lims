@@ -8,18 +8,18 @@ import { IconButton } from '@/shared/components/molecules/IconButton'
 import { List } from 'lucide-react'
 import { Modal } from '@/shared/components/molecules/Modal'
 import { EditableList } from '@/shared/components/organisms/EditableList'
-import { CambioRapidoEstado } from '@/shared/components/organisms/CambiarEstado'
-import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
-import { useEstados } from '@/shared/hooks/useEstados'
-import { useNotification } from '@/shared/components/Notification/NotificationContext'
-import type { DimEstado } from '@/shared/interfaces/estados.types'
+// import { CambioRapidoEstado } from '@/shared/components/organisms/CambiarEstado'
+// import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
+// import { useEstados } from '@/shared/hooks/useEstados'
+// import { useNotification } from '@/shared/components/Notification/NotificationContext'
+// import type { DimEstado } from '@/shared/interfaces/estados.types'
 
 interface Props {
   id_cliente?: number
   id_prueba?: number
   id_paciente?: number
   id_muestra?: number
-  estado_muestra?: string
+  // estado_muestra?: string
   onTecnicasChange?: (tecnicas: { id_tecnica_proc: number }[]) => void
 }
 
@@ -28,15 +28,15 @@ export const MuestraAsidePreview = ({
   id_prueba,
   id_paciente,
   id_muestra,
-  estado_muestra,
+  // estado_muestra,
   onTecnicasChange
 }: Props) => {
   const [modalOpen, setModalOpen] = useState(false)
-  const { notify } = useNotification()
+  // const { notify } = useNotification()
 
   // Obtener estados para la muestra
-  const { data: estadosMuestra = [] } = useEstados('MUESTRA')
-  const estadoActual = estadosMuestra.find(e => e.estado === estado_muestra)
+  // const { data: estadosMuestra = [] } = useEstados('MUESTRA')
+  // const estadoActual = estadosMuestra.find(e => e.estado === estado_muestra)
 
   const {
     tecnicas,
