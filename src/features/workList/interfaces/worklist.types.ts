@@ -1,4 +1,5 @@
 import { Resultado } from '@/features/muestras/interfaces/muestras.types'
+import { DimEstado } from '@/shared/interfaces/estados.types'
 
 export interface Worklist {
   id_worklist: number
@@ -22,7 +23,8 @@ export interface CreateWorklistRequest {
 
 export interface Tecnica {
   id_tecnica?: number
-  estado?: string
+  id_estado?: number
+  estadoInfo?: DimEstado
   muestra?: {
     codigo_epi: string
     codigo_externo: string

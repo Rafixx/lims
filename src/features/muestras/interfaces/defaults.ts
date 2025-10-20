@@ -1,5 +1,5 @@
 import { Muestra } from './muestras.types'
-import { APP_STATES } from '@/shared/states'
+import { ESTADO_MUESTRA } from '@/shared/interfaces/estados.types'
 
 export const DEFAULT_MUESTRA: Muestra = {
   id_muestra: 0,
@@ -9,7 +9,7 @@ export const DEFAULT_MUESTRA: Muestra = {
   f_recepcion: '2025-09-26T00:00:00.000Z',
   f_destruccion: '2025-09-26T00:00:00.000Z',
   f_devolucion: '2025-09-26T00:00:00.000Z',
-  estado_muestra: APP_STATES.MUESTRA.RECIBIDA,
+  id_estado: ESTADO_MUESTRA.REGISTRADA_MUESTRA,
   tipo_array: false,
   array_config: null,
   paciente: {

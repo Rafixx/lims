@@ -1,22 +1,18 @@
 /**
  * Componente Badge para mostrar estados de manera consistente
- * Utiliza el siste        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-surface-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-          {config.descripcion}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-surface-900"></div>
-        </div>entralizado de estados para garantizar uniformidad
+ * Ahora usa DimEstado del backend para información completa de estados
  */
 
 import React from 'react'
 import * as Icons from 'lucide-react'
-import { type AppEstado } from '../../constants/appStates'
-import { getEstadoConfig, getEstadoBadgeClasses } from '../../utils/stateHelpers'
+import { type DimEstado } from '../../interfaces/estados.types'
 
 // ================================
 // TIPOS
 // ================================
 
 interface EstadoBadgeProps {
-  estado: AppEstado
+  estado: DimEstado
   size?: 'sm' | 'md' | 'lg'
   showIcon?: boolean
   showTooltip?: boolean
@@ -36,60 +32,64 @@ export const EstadoBadge: React.FC<EstadoBadgeProps> = ({
   className = '',
   onClick
 }) => {
-  const config = getEstadoConfig(estado)
-  const classes = getEstadoBadgeClasses(estado, size)
+  // Mapeo de tamaños
+  const sizeClasses = {
+    sm: 'text-xs px-2 py-0.5',
+    md: 'text-sm px-2.5 py-1',
+    lg: 'text-base px-3 py-1.5'
+  }
 
-  // Obtener el icono dinámicamente
-  const getIconComponent = () => {
-    if (!showIcon || !config.icon) return null
+  // Generar clases basadas en el color del estado
+  const getBadgeClasses = () => {
+    const baseClasses = 'inline-flex items-center gap-1 rounded-full font-medium transition-colors'
+    const sizeClass = sizeClasses[size]
 
-    const iconMap: Record<string, React.ComponentType<{ size?: number }>> = {
-      Clock: Icons.Clock,
-      PlayCircle: Icons.PlayCircle,
-      CheckCircle: Icons.CheckCircle,
-      XCircle: Icons.XCircle,
-      AlertCircle: Icons.AlertCircle,
-      Lock: Icons.Lock,
-      Loader2: Icons.Loader2,
-      AlertTriangle: Icons.AlertTriangle,
-      Inbox: Icons.Inbox,
-      Package: Icons.Package,
-      Zap: Icons.Zap,
-      CheckSquare: Icons.CheckSquare,
-      XSquare: Icons.XSquare,
-      Calendar: Icons.Calendar,
-      UserCheck: Icons.UserCheck,
-      UserMinus: Icons.UserMinus,
-      UserX: Icons.UserX,
-      Shield: Icons.Shield,
-      Pause: Icons.Pause
+    // Si el estado tiene color, usarlo
+    if (estado.color) {
+      // Convertir color hex a clases Tailwind o usar inline style
+      return `${baseClasses} ${sizeClass}`
     }
 
-    return iconMap[config.icon] || null
+    // Fallback a colores por defecto
+    return `${baseClasses} ${sizeClass} bg-gray-100 text-gray-800`
+  }
+
+  // Obtener el icono dinámicamente basado en el estado
+  const getIconComponent = () => {
+    if (!showIcon) return null
+
+    // Usar CheckCircle para completados, Clock para pendientes, PlayCircle para en progreso
+    if (estado.es_final) return Icons.CheckCircle
+    if (estado.es_inicial) return Icons.Clock
+    return Icons.PlayCircle
   }
 
   const IconComponent = getIconComponent()
+  const iconSize = size === 'sm' ? 12 : size === 'lg' ? 16 : 14
 
   const badgeElement = (
     <span
-      className={`${classes} ${onClick ? 'cursor-pointer hover:opacity-80' : ''} ${className}`}
+      className={`${getBadgeClasses()} ${onClick ? 'cursor-pointer hover:opacity-80' : ''} ${className}`}
+      style={
+        estado.color ? { backgroundColor: `${estado.color}20`, color: estado.color } : undefined
+      }
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
-      {IconComponent && <IconComponent size={size === 'sm' ? 12 : size === 'lg' ? 16 : 14} />}
-      {config.label}
+      {IconComponent && <IconComponent size={iconSize} />}
+      {estado.estado}
     </span>
   )
 
   // Envolver en tooltip si se requiere
-  if (showTooltip && config.description) {
+  if (showTooltip && estado.descripcion) {
     return (
       <div className="relative group">
         {badgeElement}
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-surface-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
-          {config.description}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-surface-900"></div>
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+          {estado.descripcion}
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
         </div>
       </div>
     )
@@ -104,38 +104,38 @@ export const EstadoBadge: React.FC<EstadoBadgeProps> = ({
 
 /**
  * Badge específico para solicitudes
+ * @deprecated Usar EstadoBadge directamente con estadoInfo
  */
-export const SolicitudBadge: React.FC<Omit<EstadoBadgeProps, 'estado'> & { estado: string }> = ({
+export const SolicitudBadge: React.FC<Omit<EstadoBadgeProps, 'estado'> & { estado: DimEstado }> = ({
   estado,
   ...props
 }) => {
-  return <EstadoBadge estado={estado as AppEstado} {...props} />
+  return <EstadoBadge estado={estado} {...props} />
 }
 
 /**
  * Badge específico para técnicas
+ * @deprecated Usar EstadoBadge directamente con estadoInfo
  */
-export const TecnicaBadge: React.FC<Omit<EstadoBadgeProps, 'estado'> & { estado: string }> = ({
+export const TecnicaBadge: React.FC<Omit<EstadoBadgeProps, 'estado'> & { estado: DimEstado }> = ({
   estado,
   ...props
 }) => {
-  return <EstadoBadge estado={estado as AppEstado} {...props} />
+  return <EstadoBadge estado={estado} {...props} />
 }
 
 /**
- * Badge con prioridad que cambia de color según urgencia
+ * Badge con orden/prioridad
  */
-export const PriorityBadge: React.FC<EstadoBadgeProps & { showPriority?: boolean }> = ({
+export const PriorityBadge: React.FC<EstadoBadgeProps & { showOrder?: boolean }> = ({
   estado,
-  showPriority = false,
+  showOrder = false,
   ...props
 }) => {
-  const config = getEstadoConfig(estado)
-
   return (
     <div className="flex items-center gap-2">
       <EstadoBadge estado={estado} {...props} />
-      {showPriority && <span className="text-xs text-surface-500">P{config.priority}</span>}
+      {showOrder && estado.orden && <span className="text-xs text-gray-500">#{estado.orden}</span>}
     </div>
   )
 }

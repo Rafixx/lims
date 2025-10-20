@@ -1,3 +1,27 @@
+// ============ ESTADOS DE TECNICA ============
+export const ESTADO_TECNICA = {
+  PENDIENTE: 8,
+  ASIGNADA: 9,
+  EN_PROCESO: 10,
+  EN_REVISION: 11,
+  COMPLETADA_TECNICA: 12,
+  CANCELADA_TECNICA: 13,
+  PAUSADA: 14,
+  REINTENTANDO: 15
+} as const
+
+// ============ ESTADOS DE MUESTRA ============
+export const ESTADO_MUESTRA = {
+  REGISTRADA_MUESTRA: 16,
+  EN_ESPERA: 17,
+  EN_ANALISIS: 18,
+  ANALISIS_COMPLETADO: 19,
+  VALIDADA: 20,
+  RECHAZADA_MUESTRA: 21,
+  ARCHIVADA: 22,
+  DESTRUIDA: 23
+} as const
+
 /**
  * Interfaces para el sistema de gestión de estados
  * Basado en la nueva API de estados del backend
