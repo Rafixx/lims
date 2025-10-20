@@ -1,4 +1,5 @@
 import { ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Tecnica } from '../../interfaces/muestras.types'
 import { ListDetail } from '@/shared/components/organisms/ListDetail'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
@@ -22,6 +23,8 @@ export const TecnicaListDetail = ({
   showActions = false,
   hasResultados: hasResultadosProp
 }: TecnicaListDetailProps) => {
+  const navigate = useNavigate()
+
   // Determinar si hay resultados para mostrar
   const hasResultadosLocal = Boolean(
     tecnica.resultados &&
@@ -33,6 +36,11 @@ export const TecnicaListDetail = ({
 
   // Usar prop si se pasa, sino usar cálculo local
   const hasResultados = hasResultadosProp !== undefined ? hasResultadosProp : hasResultadosLocal
+
+  // Handler para navegar al worklist
+  const handleWorklistClick = (worklistId: number) => {
+    navigate(`/worklist/${worklistId}`)
+  }
 
   // Definir los campos a renderizar
   const renderFields = (): ReactNode[] => {
@@ -48,12 +56,16 @@ export const TecnicaListDetail = ({
       // Worklist
       <span key={`worklist-${tecnica.id_tecnica}`}>
         {tecnica.worklist ? (
-          <span className="flex items-center gap-1">
+          <button
+            onClick={() => handleWorklistClick(tecnica.worklist!.id_worklist)}
+            className="flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer"
+            title={`Ver worklist: ${tecnica.worklist.nombre}`}
+          >
             <span>📋</span>
-            <span className="text-xs bg-info-100 text-info-700 rounded px-2 py-0.5 font-semibold">
+            <span className="text-xs bg-info-100 text-info-700 rounded px-2 py-0.5 font-semibold hover:bg-info-200 transition-colors">
               {tecnica.worklist.nombre}
             </span>
-          </span>
+          </button>
         ) : (
           <span className="text-xs text-surface-400">-</span>
         )}
