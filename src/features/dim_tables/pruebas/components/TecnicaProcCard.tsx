@@ -1,4 +1,3 @@
-// import { AppEstado, EstadoBadge } from '@/shared/states'
 import { TecnicaProc } from '@/shared/interfaces/dim_tables.types'
 // import { formatDate } from '@/shared/utils/helpers'
 import { LayoutTemplate } from 'lucide-react'

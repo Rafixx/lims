@@ -2,8 +2,9 @@ import { ReactNode } from 'react'
 import { Trash2, Clock, BarChart3, CheckCircle, Edit } from 'lucide-react'
 import type { Worklist } from '../../interfaces/worklist.types'
 import { ListDetail, ListDetailAction } from '@/shared/components/organisms/ListDetail'
-import { APP_STATES } from '@/shared/states'
 import { formatDateShort } from '@/shared/utils/helpers'
+import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
+import { ESTADO_TECNICA } from '@/shared/interfaces/estados.types'
 
 interface WorkListListDetailProps {
   worklist: Worklist
@@ -25,8 +26,8 @@ export const WorkListListDetail = ({
   fieldSpans
 }: WorkListListDetailProps) => {
   const completadas =
-    worklist.tecnicas.filter(tecnica => tecnica.estado === APP_STATES.TECNICA.COMPLETADA).length ||
-    0
+    worklist.tecnicas.filter(tecnica => tecnica.id_estado === ESTADO_TECNICA.COMPLETADA_TECNICA)
+      .length || 0
   const total = worklist.tecnicas.length || 0
   const completionPercentage = total > 0 ? Math.round((completadas / total) * 100) : 0
 
@@ -111,19 +112,7 @@ export const WorkListListDetail = ({
                 )}
               </div>
               <div>
-                {tecnica.estado && (
-                  <span
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      tecnica.estado === APP_STATES.TECNICA.COMPLETADA
-                        ? 'bg-green-100 text-green-800'
-                        : tecnica.estado === APP_STATES.TECNICA.EN_PROGRESO
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                    }`}
-                  >
-                    {tecnica.estado}
-                  </span>
-                )}
+                {tecnica.estadoInfo && <IndicadorEstado estado={tecnica.estadoInfo} size="small" />}
               </div>
             </div>
           ))}

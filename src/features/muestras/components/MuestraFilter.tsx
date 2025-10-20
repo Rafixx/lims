@@ -5,16 +5,16 @@ import {
   SearchFilter
 } from '@/shared/components/organisms/Filters/FilterComponents'
 import { Calendar } from 'lucide-react'
-import { APP_STATES } from '@/shared/states'
-import { getEstadosByType } from '@/shared/utils/estadoUtils'
+import { useEstados } from '@/shared/hooks/useEstados'
+import { useMemo } from 'react'
 
 interface MuestraFilterProps {
   filters: {
     busqueda: string
-    estado: string
+    id_estado: number | null
     soloHoy: boolean
   }
-  onFilterChange: (key: string, value: string | boolean) => void
+  onFilterChange: (key: string, value: string | boolean | number | null) => void
   onClearFilters: () => void
   hasActiveFilters: boolean
 }
@@ -25,6 +25,21 @@ export const MuestraFilter = ({
   onClearFilters,
   hasActiveFilters
 }: MuestraFilterProps) => {
+  // Obtener estados desde el backend
+  const { data: estados, isLoading: estadosLoading } = useEstados('MUESTRA')
+
+  // Generar opciones para el selector de estados
+  const estadoOptions = useMemo(() => {
+    if (!estados) return []
+    return estados
+      .filter(e => e.activo) // Solo mostrar estados activos
+      .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0)) // Ordenar por el campo orden
+      .map(estado => ({
+        value: String(estado.id), // SelectFilter espera string
+        label: estado.estado
+      }))
+  }, [estados])
+
   return (
     <FilterContainer onClear={onClearFilters} hasActiveFilters={hasActiveFilters}>
       <SearchFilter
@@ -37,9 +52,10 @@ export const MuestraFilter = ({
 
       <SelectFilter
         label="Estado"
-        value={filters.estado}
-        onChange={value => onFilterChange('estado', value)}
-        options={getEstadosByType(APP_STATES.MUESTRA)}
+        value={filters.id_estado ? String(filters.id_estado) : ''}
+        onChange={value => onFilterChange('id_estado', value ? Number(value) : null)}
+        options={estadoOptions}
+        disabled={estadosLoading}
       />
 
       <ToggleFilter

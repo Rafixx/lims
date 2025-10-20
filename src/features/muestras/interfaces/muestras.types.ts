@@ -1,4 +1,3 @@
-import { AppEstado } from '@/shared/states'
 import {
   Paciente,
   Cliente,
@@ -43,7 +42,7 @@ export type Muestra = {
   f_destruccion?: string
   f_devolucion?: string
 
-  estado_muestra: AppEstado
+  id_estado?: number
   estadoInfo?: DimEstado | null
 
   // Configuración de array para muestras tipo array
@@ -85,13 +84,15 @@ export type Worklist = {
 export type Tecnica = {
   id_tecnica: number
   fecha_inicio_tec?: string
-  estado?: AppEstado
   fecha_estado?: string
   comentarios?: string
+  muestra: Muestra
   tecnica_proc?: TecnicaProc
   worklist?: Worklist
   tecnico_resp?: TecnicoLaboratorio | null
+  resultados: Resultado
 
+  id_estado?: number
   estadoInfo?: DimEstado | null
 }
 
@@ -103,6 +104,15 @@ export type MuestraStats = {
   vencidas: number
   creadas_hoy: number
   completadas_hoy: number
+}
+
+export type Resultado = {
+  id_resultado: number
+  tipo_res: string
+  valor: string | number | null
+  valor_texto?: string
+  valor_fecha: string | null
+  unidades?: string
 }
 
 export type EMPTY_MUESTRA_FORM = {
@@ -121,6 +131,4 @@ export type EMPTY_MUESTRA_FORM = {
   f_recepcion: ''
   f_destruccion: ''
   f_devolucion: ''
-
-  estado_muestra: 'PENDIENTE'
 }

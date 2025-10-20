@@ -42,7 +42,7 @@ export const textContains = (
 }
 
 /**
- * Función de filtro genérica para comparación exacta
+ * Función de filtro genérica para comparación exacta de strings
  */
 export const createExactFilter = <T>(getFieldValue: (item: T) => string | undefined | null) => {
   return (item: T, filterValue: unknown): boolean => {
@@ -50,6 +50,22 @@ export const createExactFilter = <T>(getFieldValue: (item: T) => string | undefi
     if (!value) return true
 
     return textEquals(getFieldValue(item), value)
+  }
+}
+
+/**
+ * Función de filtro genérica para comparación exacta de números
+ */
+export const createNumericExactFilter = <T>(
+  getFieldValue: (item: T) => number | undefined | null
+) => {
+  return (item: T, filterValue: unknown): boolean => {
+    if (filterValue === null || filterValue === undefined) return true
+
+    const value = filterValue as number
+    const itemValue = getFieldValue(item)
+
+    return itemValue === value
   }
 }
 

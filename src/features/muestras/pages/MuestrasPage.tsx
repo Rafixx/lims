@@ -8,7 +8,7 @@ import { useListFilters } from '@/shared/hooks/useListFilters'
 import { MuestraStatsComponent } from '../components/MuestraStats'
 import { PlusCircle } from 'lucide-react'
 import {
-  createExactFilter,
+  createNumericExactFilter,
   createTodayFilter,
   createMultiFieldSearchFilter
 } from '@/shared/utils/filterUtils'
@@ -47,10 +47,10 @@ export const MuestrasPage = () => {
           muestra.paciente?.nombre
         ])
       },
-      estado: {
+      id_estado: {
         type: 'select' as const,
-        defaultValue: '',
-        filterFn: createExactFilter<Muestra>(muestra => muestra.estado_muestra)
+        defaultValue: null,
+        filterFn: createNumericExactFilter<Muestra>(muestra => muestra.id_estado)
       },
       soloHoy: {
         type: 'toggle' as const,
@@ -82,7 +82,7 @@ export const MuestrasPage = () => {
     <MuestraFilter
       filters={{
         busqueda: filters.busqueda as string,
-        estado: filters.estado as string,
+        id_estado: filters.id_estado as number | null,
         soloHoy: filters.soloHoy as boolean
       }}
       onFilterChange={updateFilter}
