@@ -1,6 +1,6 @@
 // src/features/workList/pages/WorklistDetailPage.tsx
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useDeleteWorklist, useWorklist } from '../hooks/useWorklists'
 import { useTecnicosLaboratorio } from '@/shared/hooks/useDim_tables'
@@ -40,6 +40,21 @@ export const WorklistDetailPage = () => {
   // const iniciarTecnica = useIniciarTecnica()
   // const completarTecnica = useCompletarTecnica()
   // const deleteWorklist = useDeleteWorklist()
+
+  // Verificar si todas las técnicas ya tienen resultados (debe estar antes de los early returns)
+  const allTecnicasHaveResults = useMemo(() => {
+    if (!worklist?.tecnicas || worklist.tecnicas.length === 0) return false
+
+    return worklist.tecnicas.every(tecnica => {
+      return Boolean(
+        tecnica.resultados &&
+          (tecnica.resultados.valor !== null ||
+            tecnica.resultados.valor_texto ||
+            tecnica.resultados.valor_fecha ||
+            tecnica.resultados.tipo_res)
+      )
+    })
+  }, [worklist?.tecnicas])
 
   const handleTecnicoChange = async (tecnicoId: string) => {
     if (!tecnicoId || !worklist) return
@@ -122,9 +137,22 @@ export const WorklistDetailPage = () => {
     try {
       // Lógica para importar resultados de datos
       await worklistService.importDataResults(worklist.id_worklist)
+      refetchWorkList()
       notify('Resultados importados correctamente', 'success')
-    } catch (error) {
-      notify('Error al importar resultados', 'error')
+    } catch (error: unknown) {
+      // Verificar si el error es porque ya existen resultados
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data
+          ?.message ||
+        (error as { message?: string })?.message ||
+        ''
+
+      if (errorMessage.includes('ya tienen resultados')) {
+        // Mostrar como advertencia en lugar de error
+        notify('Las técnicas ya tienen resultados asociados', 'warning')
+      } else {
+        notify('Error al importar resultados', 'error')
+      }
       console.error('Error importing data results:', error)
     }
   }
@@ -166,6 +194,12 @@ export const WorklistDetailPage = () => {
               variant="soft"
               onClick={handleImportDataResults}
               className="flex items-center gap-2"
+              disabled={allTecnicasHaveResults}
+              title={
+                allTecnicasHaveResults
+                  ? 'Todas las técnicas ya tienen resultados'
+                  : 'Importar resultados desde fuente de datos'
+              }
             >
               <Import size={16} />
               Importar resultados

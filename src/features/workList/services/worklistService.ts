@@ -54,7 +54,8 @@ class WorklistService {
   }
 
   async importDataResults(id: number): Promise<void> {
-    await apiClient.post(`${this.basePath}/${id}/importDataResults`)
+    const response = await apiClient.post(`${this.basePath}/${id}/importDataResults`)
+    return response.data
   }
 }
 
