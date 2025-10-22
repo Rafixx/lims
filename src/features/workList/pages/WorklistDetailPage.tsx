@@ -26,6 +26,7 @@ export const WorklistDetailPage = () => {
     isAssigningTecnico,
     handleTecnicoChange,
     handleImportDataResults,
+    handleStartTecnicas,
     handleDeleteWorklist,
     handleBack
   } = useWorklistActions({
@@ -77,6 +78,7 @@ export const WorklistDetailPage = () => {
           allTecnicasHaveResults={stats.allTecnicasHaveResults}
           onBack={handleBack}
           onImport={handleImportDataResults}
+          onStartTecnicas={handleStartTecnicas}
           onDelete={handleDeleteWorklist}
         />
 

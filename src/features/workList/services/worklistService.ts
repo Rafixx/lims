@@ -49,6 +49,11 @@ class WorklistService {
     return response.data
   }
 
+  async startTecnicasInWorkList(id: number): Promise<Worklist> {
+    const response = await apiClient.put<Worklist>(`${this.basePath}/${id}/startTecnicas`)
+    return response.data
+  }
+
   async deleteWorklist(id: number): Promise<void> {
     await apiClient.delete(`${this.basePath}/${id}`)
   }

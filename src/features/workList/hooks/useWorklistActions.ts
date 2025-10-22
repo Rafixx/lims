@@ -62,6 +62,17 @@ export const useWorklistActions = ({
     }
   }
 
+  const handleStartTecnicas = async () => {
+    try {
+      await worklistService.startTecnicasInWorkList(worklistId)
+      refetchWorkList()
+      notify('Técnicas iniciadas correctamente', 'success')
+    } catch (error) {
+      console.error('Error starting técnicas:', error)
+      notify('Error al iniciar técnicas', 'error')
+    }
+  }
+
   const handleDeleteWorklist = async () => {
     if (window.confirm(`¿Está seguro de eliminar el worklist "${worklistName}"?`)) {
       try {
@@ -85,6 +96,7 @@ export const useWorklistActions = ({
     handleTecnicoChange,
     handleImportDataResults,
     handleDeleteWorklist,
+    handleStartTecnicas,
     handleBack
   }
 }

@@ -11,6 +11,7 @@ interface WorklistHeaderProps {
   onBack: () => void
   onImport: () => void
   onDelete: () => void
+  onStartTecnicas: () => void
 }
 
 export const WorklistHeader = ({
@@ -19,7 +20,8 @@ export const WorklistHeader = ({
   allTecnicasHaveResults,
   onBack,
   onImport,
-  onDelete
+  onDelete,
+  onStartTecnicas
 }: WorklistHeaderProps) => {
   return (
     <div className="flex items-center justify-between mb-4">
@@ -36,6 +38,15 @@ export const WorklistHeader = ({
       </div>
 
       <div className="flex items-center gap-4">
+        <Button
+          variant="soft"
+          onClick={onStartTecnicas}
+          disabled={allTecnicasHaveResults}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft size={16} />
+          Iniciar Técnicas
+        </Button>
         <Button
           variant="soft"
           onClick={onImport}
