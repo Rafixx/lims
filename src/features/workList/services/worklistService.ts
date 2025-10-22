@@ -58,8 +58,15 @@ class WorklistService {
     await apiClient.delete(`${this.basePath}/${id}`)
   }
 
-  async importDataResults(id: number): Promise<void> {
-    const response = await apiClient.post(`${this.basePath}/${id}/importDataResults`)
+  async importDataResults(id: number, file: File): Promise<void> {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await apiClient.post(`${this.basePath}/${id}/importDataResults`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
     return response.data
   }
 }

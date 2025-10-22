@@ -21,6 +21,7 @@ export const useWorklistActions = ({
   const { notify } = useNotification()
   const [selectedTecnicoId, setSelectedTecnicoId] = useState<string>('')
   const [isAssigningTecnico, setIsAssigningTecnico] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
 
   const handleTecnicoChange = async (tecnicoId: string) => {
     if (!tecnicoId) return
@@ -41,9 +42,9 @@ export const useWorklistActions = ({
     }
   }
 
-  const handleImportDataResults = async () => {
+  const handleImportDataResults = async (file: File) => {
     try {
-      await worklistService.importDataResults(worklistId)
+      await worklistService.importDataResults(worklistId, file)
       refetchWorkList()
       notify('Resultados importados correctamente', 'success')
     } catch (error: unknown) {
@@ -59,8 +60,12 @@ export const useWorklistActions = ({
         notify('Error al importar resultados', 'error')
       }
       console.error('Error importing data results:', error)
+      throw error // Re-lanzar para que el modal lo maneje
     }
   }
+
+  const openImportModal = () => setShowImportModal(true)
+  const closeImportModal = () => setShowImportModal(false)
 
   const handleStartTecnicas = async () => {
     try {
@@ -93,6 +98,9 @@ export const useWorklistActions = ({
   return {
     selectedTecnicoId,
     isAssigningTecnico,
+    showImportModal,
+    openImportModal,
+    closeImportModal,
     handleTecnicoChange,
     handleImportDataResults,
     handleDeleteWorklist,

@@ -30,6 +30,7 @@ export interface Tecnica {
     codigo_externo: string
   }
   tecnico_resp?: {
+    id_usuario: number
     nombre: string
   }
   resultados?: Resultado

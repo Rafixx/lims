@@ -10,6 +10,7 @@ interface WorklistStats {
   tecnicasCompletadas: number
   porcentajeProgreso: number
   allTecnicasHaveResults: boolean
+  allTecnicasHaveTecnicoLab: boolean
 }
 
 /**
@@ -54,12 +55,19 @@ export const useWorklistStats = (tecnicas: Tecnica[]): WorklistStats => {
         )
       })
 
+    const allTecnicasHaveTecnicoLab =
+      totalTecnicas > 0 &&
+      tecnicas.every(tecnica => {
+        return Boolean(tecnica.tecnico_resp?.id_usuario)
+      })
+
     return {
       totalTecnicas,
       tecnicasEnProgreso,
       tecnicasCompletadas,
       porcentajeProgreso,
-      allTecnicasHaveResults
+      allTecnicasHaveResults,
+      allTecnicasHaveTecnicoLab
     }
   }, [tecnicas])
 }

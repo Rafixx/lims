@@ -11,6 +11,7 @@ import { WorkListDetailStats } from '../components/WorkListDetailStats'
 import { WorklistTecnicasGrid } from '../components/WorklistTecnicasGrid'
 import { useWorklistActions } from '../hooks/useWorklistActions'
 import { useWorklistStats } from '../hooks/useWorklistStats'
+import { ImportResultsModal } from '../components/ImportResultsModal'
 
 export const WorklistDetailPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -24,6 +25,9 @@ export const WorklistDetailPage = () => {
   const {
     selectedTecnicoId,
     isAssigningTecnico,
+    showImportModal,
+    openImportModal,
+    closeImportModal,
     handleTecnicoChange,
     handleImportDataResults,
     handleStartTecnicas,
@@ -76,8 +80,9 @@ export const WorklistDetailPage = () => {
           nombre={worklist.nombre}
           createDt={worklist.create_dt}
           allTecnicasHaveResults={stats.allTecnicasHaveResults}
+          allTecnicasHaveTecnicoLab={stats.allTecnicasHaveTecnicoLab}
           onBack={handleBack}
-          onImport={handleImportDataResults}
+          onImport={openImportModal}
           onStartTecnicas={handleStartTecnicas}
           onDelete={handleDeleteWorklist}
         />
@@ -114,6 +119,14 @@ export const WorklistDetailPage = () => {
           />
         </div>
       )}
+
+      {/* Modal de importación */}
+      <ImportResultsModal
+        isOpen={showImportModal}
+        onClose={closeImportModal}
+        onImport={handleImportDataResults}
+        worklistName={worklist.nombre}
+      />
     </div>
   )
 }

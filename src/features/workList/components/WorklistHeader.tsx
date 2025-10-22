@@ -8,6 +8,7 @@ interface WorklistHeaderProps {
   nombre: string
   createDt: string
   allTecnicasHaveResults: boolean
+  allTecnicasHaveTecnicoLab: boolean
   onBack: () => void
   onImport: () => void
   onDelete: () => void
@@ -18,6 +19,7 @@ export const WorklistHeader = ({
   nombre,
   createDt,
   allTecnicasHaveResults,
+  allTecnicasHaveTecnicoLab,
   onBack,
   onImport,
   onDelete,
@@ -41,11 +43,25 @@ export const WorklistHeader = ({
         <Button
           variant="soft"
           onClick={onStartTecnicas}
-          disabled={allTecnicasHaveResults}
+          disabled={allTecnicasHaveTecnicoLab}
           className="flex items-center gap-2"
         >
           <ArrowLeft size={16} />
           Iniciar Técnicas
+        </Button>
+        <Button
+          variant="soft"
+          onClick={onImport}
+          className="flex items-center gap-2"
+          disabled={allTecnicasHaveResults}
+          title={
+            allTecnicasHaveResults
+              ? 'Todas las técnicas ya tienen resultados'
+              : 'Importar resultados desde fuente de datos'
+          }
+        >
+          <Import size={16} />
+          Importar resultados
         </Button>
         <Button
           variant="soft"
