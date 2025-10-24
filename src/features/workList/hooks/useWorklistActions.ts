@@ -91,6 +91,10 @@ export const useWorklistActions = ({
     }
   }
 
+  const handlePlantillaTecnica = () => {
+    navigate(`/worklist/${worklistId}/plantillaTecnica`)
+  }
+
   const handleBack = () => {
     navigate('/worklist')
   }
@@ -105,6 +109,7 @@ export const useWorklistActions = ({
     handleImportDataResults,
     handleDeleteWorklist,
     handleStartTecnicas,
+    handlePlantillaTecnica,
     handleBack
   }
 }

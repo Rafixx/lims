@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Card } from '@/shared/components/molecules/Card'
 import { ChevronRight, Beaker, Clock, CheckCircle, Circle } from 'lucide-react'
-import { Tecnica } from '../interfaces/worklist.types'
+import { Tecnica } from '../../interfaces/worklist.types'
 
 interface Props {
   tecnica: Tecnica

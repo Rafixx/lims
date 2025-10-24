@@ -23,6 +23,7 @@ export interface CreateWorklistRequest {
 
 export interface Tecnica {
   id_tecnica?: number
+  id_tecnica_proc?: number
   id_estado?: number
   estadoInfo?: DimEstado
   muestra?: {

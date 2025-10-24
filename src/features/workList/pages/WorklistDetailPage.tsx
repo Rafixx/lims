@@ -6,9 +6,9 @@ import { useTecnicosLaboratorio } from '@/shared/hooks/useDim_tables'
 import { Card } from '@/shared/components/molecules/Card'
 import { Button } from '@/shared/components/molecules/Button'
 import { AlertTriangle } from 'lucide-react'
-import { WorklistHeader } from '../components/WorklistHeader'
-import { WorkListDetailStats } from '../components/WorkListDetailStats'
-import { WorklistTecnicasGrid } from '../components/WorklistTecnicasGrid'
+import { WorklistHeader } from '../components/WorkListDetail/WorklistHeader'
+import { WorkListDetailStats } from '../components/WorkListDetail/WorkListDetailStats'
+import { WorklistTecnicasGrid } from '../components/WorkListDetail/WorklistTecnicasGrid'
 import { useWorklistActions } from '../hooks/useWorklistActions'
 import { useWorklistStats } from '../hooks/useWorklistStats'
 import { ImportResultsModal } from '../components/ImportResultsModal'
@@ -32,7 +32,8 @@ export const WorklistDetailPage = () => {
     handleImportDataResults,
     handleStartTecnicas,
     handleDeleteWorklist,
-    handleBack
+    handleBack,
+    handlePlantillaTecnica
   } = useWorklistActions({
     worklistId,
     worklistName: worklist?.nombre || '',
@@ -83,6 +84,7 @@ export const WorklistDetailPage = () => {
           allTecnicasHaveTecnicoLab={stats.allTecnicasHaveTecnicoLab}
           onBack={handleBack}
           onImport={openImportModal}
+          onPlantillaTecnica={handlePlantillaTecnica}
           onStartTecnicas={handleStartTecnicas}
           onDelete={handleDeleteWorklist}
         />

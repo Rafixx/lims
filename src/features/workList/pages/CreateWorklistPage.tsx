@@ -13,7 +13,7 @@ import {
 import { CreateWorklistRequest } from '../interfaces/worklist.types'
 import { Input } from '@/shared/components/molecules/Input'
 import { Label } from '@/shared/components/atoms/Label'
-import { TecnicaCard } from '../components/TecnicaCard'
+import { TecnicaCard } from '../components/WorkListCreate/TecnicaCard'
 import { useUser } from '@/shared/contexts/UserContext'
 
 export const CreateWorklistPage = () => {

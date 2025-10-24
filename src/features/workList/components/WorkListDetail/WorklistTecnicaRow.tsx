@@ -3,7 +3,7 @@
 import { User } from 'lucide-react'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { ResultadoInfo } from '@/features/muestras/components/MuestraList/ResultadoInfo'
-import { Tecnica } from '../interfaces/worklist.types'
+import { Tecnica } from '../../interfaces/worklist.types'
 
 interface TecnicaRowProps {
   tecnica: Tecnica

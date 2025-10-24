@@ -41,6 +41,7 @@ import { WorklistDetailPage } from '@/features/workList/pages/WorklistDetailPage
 import { CreateWorklistPage } from '@/features/workList/pages/CreateWorklistPage'
 import { CreateCentroPage } from '@/features/dim_tables/centros/pages/CreateCentroPage'
 import { CreateMuestraPage } from '@/features/muestras/pages/CreateMuestraPage'
+import { PlantillaTecnicaPage } from '@/features/plantillaTecnica/pages/PlantillaTecnicaPage'
 
 export const router = createBrowserRouter(
   [
@@ -64,6 +65,7 @@ export const router = createBrowserRouter(
         { path: 'worklist/nuevo', element: <CreateWorklistPage /> },
         { path: 'worklist/:id', element: <WorklistDetailPage /> },
         { path: 'worklist/:id/editar', element: <WorklistDetailPage /> },
+        { path: 'worklist/:id/plantillaTecnica', element: <PlantillaTecnicaPage /> },
 
         { path: 'muestras', element: <MuestrasPage /> },
         { path: 'muestras/nueva', element: <CreateMuestraPage /> },

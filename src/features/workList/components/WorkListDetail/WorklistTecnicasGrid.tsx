@@ -3,8 +3,8 @@
 import { Card } from '@/shared/components/molecules/Card'
 import { Select } from '@/shared/components/molecules/Select'
 import { User } from 'lucide-react'
-import { TecnicaRow } from './TecnicaRow'
-import { Tecnica } from '../interfaces/worklist.types'
+import { TecnicaRow } from './WorklistTecnicaRow'
+import { Tecnica } from '../../interfaces/worklist.types'
 import { TecnicoLaboratorio } from '@/shared/interfaces/dim_tables.types'
 
 interface WorklistTecnicasGridProps {

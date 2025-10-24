@@ -1,7 +1,7 @@
 // src/features/workList/components/WorklistHeader.tsx
 
 import { Button } from '@/shared/components/molecules/Button'
-import { ArrowLeft, Import, Trash2, FileText } from 'lucide-react'
+import { ArrowLeft, Import, LayoutTemplate, Trash2 } from 'lucide-react'
 import { formatDateTime } from '@/shared/utils/helpers'
 
 interface WorklistHeaderProps {
@@ -11,9 +11,9 @@ interface WorklistHeaderProps {
   allTecnicasHaveTecnicoLab: boolean
   onBack: () => void
   onImport: () => void
+  onPlantillaTecnica: () => void
   onDelete: () => void
   onStartTecnicas: () => void
-  onPlantillaTecnica: () => void
 }
 
 export const WorklistHeader = ({
@@ -23,9 +23,9 @@ export const WorklistHeader = ({
   allTecnicasHaveTecnicoLab,
   onBack,
   onImport,
+  onPlantillaTecnica,
   onDelete,
-  onStartTecnicas,
-  onPlantillaTecnica
+  onStartTecnicas
 }: WorklistHeaderProps) => {
   return (
     <div className="flex items-center justify-between mb-4">
@@ -43,16 +43,6 @@ export const WorklistHeader = ({
 
       <div className="flex items-center gap-4">
         <Button
-          variant="accent"
-          onClick={onPlantillaTecnica}
-          className="flex items-center gap-2"
-          title="Ver plantilla técnica del worklist"
-        >
-          <FileText size={16} />
-          Plantilla Técnica
-        </Button>
-
-        <Button
           variant="soft"
           onClick={onStartTecnicas}
           disabled={allTecnicasHaveTecnicoLab}
@@ -61,7 +51,6 @@ export const WorklistHeader = ({
           <ArrowLeft size={16} />
           Iniciar Técnicas
         </Button>
-
         <Button
           variant="soft"
           onClick={onImport}
@@ -76,7 +65,15 @@ export const WorklistHeader = ({
           <Import size={16} />
           Importar resultados
         </Button>
-
+        <Button
+          variant="soft"
+          onClick={onPlantillaTecnica}
+          className="flex items-center gap-2"
+          // disabled={!allTecnicasHaveResults}
+        >
+          <LayoutTemplate size={16} />
+          Plantilla técnica
+        </Button>
         <Button variant="primary" onClick={onDelete} className="flex items-center gap-2">
           <Trash2 size={16} />
           Eliminar Worklist
