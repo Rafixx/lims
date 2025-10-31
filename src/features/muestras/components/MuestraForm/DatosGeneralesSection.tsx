@@ -139,6 +139,17 @@ export const DatosGeneralesSection = () => {
             error={errors.codigo_externo?.message}
             className={muestraStyle}
           />
+          <FormField
+            id={`codigo_epi`}
+            label="Código EPIDISEASE"
+            inputProps={{
+              ...register(`codigo_epi`),
+              type: 'text',
+              placeholder: 'Ej: EPI2025-001'
+            }}
+            error={errors.codigo_epi?.message}
+            className={muestraStyle}
+          />
 
           <FormField
             id={`solicitud.condiciones_envio`}

@@ -12,6 +12,7 @@ import { WorklistTecnicasGrid } from '../components/WorkListDetail/WorklistTecni
 import { useWorklistActions } from '../hooks/useWorklistActions'
 import { useWorklistStats } from '../hooks/useWorklistStats'
 import { ImportResultsModal } from '../components/ImportResultsModal'
+import { MapResultsModal } from '../components/MapResultsModal'
 
 export const WorklistDetailPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -26,10 +27,16 @@ export const WorklistDetailPage = () => {
     selectedTecnicoId,
     isAssigningTecnico,
     showImportModal,
+    showMappingModal,
+    mappableRows,
+    instrumentType,
+    tecnicas,
     openImportModal,
     closeImportModal,
+    closeMappingModal,
     handleTecnicoChange,
     handleImportDataResults,
+    handleConfirmMapping,
     handleStartTecnicas,
     handleDeleteWorklist,
     handleBack,
@@ -37,6 +44,7 @@ export const WorklistDetailPage = () => {
   } = useWorklistActions({
     worklistId,
     worklistName: worklist?.nombre || '',
+    tecnicas: worklist?.tecnicas || [],
     refetchWorkList
   })
 
@@ -128,6 +136,15 @@ export const WorklistDetailPage = () => {
         onClose={closeImportModal}
         onImport={handleImportDataResults}
         worklistName={worklist.nombre}
+      />
+
+      {/* Modal de mapeo de resultados */}
+      <MapResultsModal
+        isOpen={showMappingModal}
+        onClose={closeMappingModal}
+        onConfirm={handleConfirmMapping}
+        tecnicas={tecnicas}
+        mappableRows={mappableRows}
       />
     </div>
   )
