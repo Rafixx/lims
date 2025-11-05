@@ -12,10 +12,14 @@ interface TecnicaRowProps {
 export const TecnicaRow = ({ tecnica }: TecnicaRowProps) => {
   const hasResultados = Boolean(
     tecnica.resultados &&
-      (tecnica.resultados.valor !== null ||
-        tecnica.resultados.valor_texto ||
-        tecnica.resultados.valor_fecha ||
-        tecnica.resultados.tipo_res)
+      tecnica.resultados.length > 0 &&
+      tecnica.resultados.some(
+        resultado =>
+          resultado.valor !== null ||
+          resultado.valor_texto ||
+          resultado.valor_fecha ||
+          resultado.tipo_res
+      )
   )
 
   return (
@@ -44,8 +48,12 @@ export const TecnicaRow = ({ tecnica }: TecnicaRowProps) => {
 
       {/* Columna 3: Resultados (span 6) */}
       <div className="col-span-6">
-        {hasResultados && tecnica.resultados ? (
-          <ResultadoInfo resultado={tecnica.resultados} />
+        {hasResultados && tecnica.resultados && tecnica.resultados.length > 0 ? (
+          <div className="space-y-1">
+            {tecnica.resultados.map((resultado, index) => (
+              <ResultadoInfo key={index} resultado={resultado} />
+            ))}
+          </div>
         ) : (
           <span className="text-xs text-gray-400">Sin resultados</span>
         )}

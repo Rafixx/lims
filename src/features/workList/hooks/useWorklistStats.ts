@@ -48,10 +48,14 @@ export const useWorklistStats = (tecnicas: Tecnica[]): WorklistStats => {
       tecnicas.every(tecnica => {
         return Boolean(
           tecnica.resultados &&
-            (tecnica.resultados.valor !== null ||
-              tecnica.resultados.valor_texto ||
-              tecnica.resultados.valor_fecha ||
-              tecnica.resultados.tipo_res)
+            tecnica.resultados.length > 0 &&
+            tecnica.resultados.some(
+              resultado =>
+                resultado.valor !== null ||
+                resultado.valor_texto ||
+                resultado.valor_fecha ||
+                resultado.tipo_res
+            )
         )
       })
 

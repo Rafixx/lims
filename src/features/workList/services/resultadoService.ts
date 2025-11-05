@@ -23,23 +23,18 @@ class ResultadoService {
 
   async importDataResults(
     id: number,
-    // file: File,
+    type: string,
     mapping?: Record<number, number>
   ): Promise<ImportDataResultsResponse> {
-    const formData = new FormData()
-    // formData.append('file', file)
-
-    // Si hay mapeo, enviarlo como JSON string
-    if (mapping) {
-      formData.append('mapping', JSON.stringify(mapping))
-    }
-
     const response = await apiClient.post<ImportDataResultsResponse>(
       `${this.workList_basePath}/${id}/importDataResults`,
-      formData,
+      {
+        type,
+        mapping
+      },
       {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'application/json'
         }
       }
     )

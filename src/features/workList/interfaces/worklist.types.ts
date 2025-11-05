@@ -34,7 +34,7 @@ export interface Tecnica {
     id_usuario: number
     nombre: string
   }
-  resultados?: Resultado
+  resultados?: Resultado[]
 }
 
 export interface TecnicaProc {

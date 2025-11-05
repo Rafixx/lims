@@ -1,11 +1,11 @@
 import { Calendar, Hash, Type } from 'lucide-react'
-import { Tecnica } from '../../interfaces/muestras.types'
+import { Resultado } from '../../interfaces/muestras.types'
 import { formatDate } from '@/shared/utils/helpers'
 
 /**
- * Componente para renderizar información de resultados de una técnica
+ * Componente para renderizar información de un resultado individual
  */
-export const ResultadoInfo = ({ resultado }: { resultado: Tecnica['resultados'] }) => {
+export const ResultadoInfo = ({ resultado }: { resultado: Resultado }) => {
   if (!resultado) return null
 
   const hasData =

@@ -29,7 +29,6 @@ export const useWorklistActions = ({
   const [showImportModal, setShowImportModal] = useState(false)
   const [showMappingModal, setShowMappingModal] = useState(false)
   const [mappableRows, setMappableRows] = useState<MappableRow[]>([])
-  const [currentFile, setCurrentFile] = useState<File | null>(null)
   const [instrumentType, setInstrumentType] = useState<InstrumentType | null>(null)
 
   const handleTecnicoChange = async (tecnicoId: string) => {
@@ -53,9 +52,9 @@ export const useWorklistActions = ({
 
   const handleImportDataResults = async (file: File) => {
     try {
-      // Paso 1: Llamar al servicio para cargar en tabla RAW
-      // El backend trunca la tabla y carga los nuevos datos
-      const response = await resultadoService.importDataResults(worklistId, file)
+      // Paso 1: Enviar CSV al backend para cargar en tabla RAW
+      // El backend trunca la tabla RAW correspondiente y carga los datos
+      const response = await resultadoService.setCSVtoRAW(file)
 
       if (!response.type) {
         notify('Error: no se pudo determinar el tipo de instrumento', 'error')
@@ -64,30 +63,7 @@ export const useWorklistActions = ({
 
       const type = response.type as InstrumentType
 
-      // Paso 2: Verificar si es un tipo que se importa directamente (sin mapeo)
-      if (type === 'NANODROP') {
-        // Leer datos de la tabla RAW
-        const nanodropData = await resultadoService.getRawNanodropData()
-        console.log('Datos Nanodrop importados:', nanodropData)
-
-        notify('Los datos de Nanodrop se han importado correctamente', 'success')
-        refetchWorkList()
-        setShowImportModal(false)
-        // return
-      }
-
-      if (type === 'QUBIT') {
-        // Leer datos de la tabla RAW
-        const qubitData = await resultadoService.getRawQubitData()
-        console.log('Datos Qubit importados:', qubitData)
-
-        notify('Los datos de Qubit se han importado correctamente', 'success')
-        refetchWorkList()
-        setShowImportModal(false)
-        // return
-      }
-      console.log('Instrument type requiring mapping:', type)
-      // Paso 3: Para otros tipos, cargar datos RAW y preparar modal de mapeo
+      // Paso 2: Leer datos de la tabla RAW según el tipo
       let rawData
       switch (type) {
         case 'NANODROP':
@@ -101,12 +77,11 @@ export const useWorklistActions = ({
           return
       }
 
-      // Convertir datos RAW a formato mapenable
+      // Paso 3: Convertir datos RAW a formato mapenable para el modal
       const mappableData = rawDataToMappableRows(rawData, type)
-      // console.log('mappableData:', mappableData)
-      // Guardar estado y abrir modal de mapeo
+
+      // Paso 4: Guardar estado y abrir modal de mapeo
       setMappableRows(mappableData)
-      setCurrentFile(file)
       setInstrumentType(type)
       setShowImportModal(false)
       setShowMappingModal(true)
@@ -126,18 +101,22 @@ export const useWorklistActions = ({
   }
 
   const handleConfirmMapping = async (mapping: Record<number, number>) => {
-    if (!currentFile) {
-      notify('Error: no hay archivo para importar', 'error')
-      return
-    }
-
     try {
-      const response = await resultadoService.importDataResults(worklistId, currentFile, mapping)
+      // Validar que tenemos el tipo de instrumento guardado
+      if (!instrumentType) {
+        notify('Error: tipo de instrumento no disponible', 'error')
+        return
+      }
+
+      // Paso 4 y 5: Enviar worklistId, tipo y mapping al backend
+      // El backend vuelca datos de RAW a FINAL y crea registros en resultado
+      const response = await resultadoService.importDataResults(worklistId, instrumentType, mapping)
+
       refetchWorkList()
       notify(response.message, response.success ? 'success' : 'error')
+
       setShowMappingModal(false)
       setMappableRows([])
-      setCurrentFile(null)
       setInstrumentType(null)
     } catch (error: unknown) {
       const errorMessage =
@@ -159,7 +138,6 @@ export const useWorklistActions = ({
   const closeMappingModal = () => {
     setShowMappingModal(false)
     setMappableRows([])
-    setCurrentFile(null)
     setInstrumentType(null)
     setShowImportModal(true) // Volver a abrir modal de importación
   }
@@ -192,6 +170,21 @@ export const useWorklistActions = ({
   }
 
   const handlePlantillaTecnica = () => {
+    // Validar que existan técnicas con id_tecnica_proc antes de navegar
+    const hasValidTecnicas = tecnicas && tecnicas.length > 0
+    const hasIdTecnicaProc = tecnicas?.some(tecnica => tecnica.id_tecnica_proc)
+    // const hasPlantillaTecnica = tecnicas?.some(tecnica => tecnica
+
+    if (!hasValidTecnicas) {
+      notify('El worklist no tiene técnicas asignadas', 'warning')
+      return
+    }
+
+    if (!hasIdTecnicaProc) {
+      notify('Las técnicas no tienen plantilla técnica asociada', 'warning')
+      return
+    }
+
     navigate(`/worklist/${worklistId}/plantillaTecnica`)
   }
 
