@@ -11,6 +11,7 @@ export interface PlantillaTecnica {
   dimPipetas: DimPipeta[]
   dimReactivos: DimReactivo[]
   dimMaquinas: DimMaquina[]
+  dimPlantillaPasos: DimPasos[]
 }
 
 export interface DimPipeta {
@@ -45,6 +46,13 @@ export interface DimMaquina {
   created_by: number
   update_dt: string
   id_plantilla_tecnica: number
+}
+
+export interface DimPasos {
+  id: number
+  codigo: string
+  descripcion: string
+  orden: number
 }
 
 export interface TecnicaProc {

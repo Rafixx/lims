@@ -1,10 +1,13 @@
 // src/features/workList/components/WorklistHeader.tsx
 
 import { Button } from '@/shared/components/molecules/Button'
-import { ArrowLeft, Import, LayoutTemplate, Trash2 } from 'lucide-react'
+import { Badge } from '@/shared/components/molecules/Badge'
+import { useLotesPendientes } from '@/features/tecnicasReactivos/hooks/useTecnicasReactivos'
+import { ArrowLeft, Import, LayoutTemplate, Trash2, FlaskConical } from 'lucide-react'
 import { formatDateTime } from '@/shared/utils/helpers'
 
 interface WorklistHeaderProps {
+  worklistId: number
   nombre: string
   createDt: string
   allTecnicasHaveResults: boolean
@@ -12,11 +15,13 @@ interface WorklistHeaderProps {
   onBack: () => void
   onImport: () => void
   onPlantillaTecnica: () => void
+  onLotes: () => void
   onDelete: () => void
   onStartTecnicas: () => void
 }
 
 export const WorklistHeader = ({
+  worklistId,
   nombre,
   createDt,
   allTecnicasHaveResults,
@@ -24,9 +29,14 @@ export const WorklistHeader = ({
   onBack,
   onImport,
   onPlantillaTecnica,
+  onLotes,
   onDelete,
   onStartTecnicas
 }: WorklistHeaderProps) => {
+  // Hook para obtener lotes pendientes
+  const { data: lotesData } = useLotesPendientes(worklistId)
+  const lotesPendientes = lotesData?.pendientes || 0
+
   return (
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-4">
@@ -73,6 +83,15 @@ export const WorklistHeader = ({
         >
           <LayoutTemplate size={16} />
           Plantilla técnica
+        </Button>
+        <Button variant="soft" onClick={onLotes} className="flex items-center gap-2 relative">
+          <FlaskConical size={16} />
+          Lotes
+          {lotesPendientes > 0 && (
+            <Badge variant="warning" size="sm" className="ml-1">
+              {lotesPendientes}
+            </Badge>
+          )}
         </Button>
         <Button variant="primary" onClick={onDelete} className="flex items-center gap-2">
           <Trash2 size={16} />

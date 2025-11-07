@@ -5,6 +5,8 @@ import { ListDetail, ListDetailAction } from '@/shared/components/organisms/List
 import { formatDateShort } from '@/shared/utils/helpers'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { ESTADO_TECNICA } from '@/shared/interfaces/estados.types'
+import { Badge } from '@/shared/components/molecules/Badge'
+import { useLotesPendientes } from '@/features/tecnicasReactivos/hooks/useTecnicasReactivos'
 
 interface WorkListListDetailProps {
   worklist: Worklist
@@ -31,15 +33,24 @@ export const WorkListListDetail = ({
   const total = worklist.tecnicas.length || 0
   const completionPercentage = total > 0 ? Math.round((completadas / total) * 100) : 0
 
+  // Hook para obtener lotes pendientes
+  const { data: lotesPendientesData } = useLotesPendientes(worklist.id_worklist)
+  const lotesPendientes = lotesPendientesData?.pendientes || 0
+
   // Definir los campos a renderizar
   const renderFields = (): ReactNode[] => [
-    // Nombre del WorkList
+    // Nombre del WorkList con Badge de lotes pendientes
     <div
       key={worklist.id_worklist}
       className="flex items-center gap-2"
       //  onClick={onView}
     >
       <span className="text-gray-700">{worklist.nombre}</span>
+      {lotesPendientes > 0 && (
+        <Badge variant="warning" size="sm">
+          {lotesPendientes} lote{lotesPendientes !== 1 ? 's' : ''}
+        </Badge>
+      )}
     </div>,
     // Técnica/Proceso
     <span key={worklist.id_worklist} className="text-gray-700">

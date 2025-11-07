@@ -12,7 +12,8 @@ import type {
   TecnicoLaboratorio,
   Maquina,
   Pipeta,
-  Reactivo
+  Reactivo,
+  PlantillaPasos
 } from '../interfaces/dim_tables.types'
 import { STALE_TIME, GC_TIME } from '@/shared/constants/constants'
 
@@ -42,7 +43,9 @@ export const dimTablesQueryKeys = {
   pipetas: () => [...dimTablesQueryKeys.all, 'pipetas'] as const,
   pipeta: (id: number) => [...dimTablesQueryKeys.pipetas(), id] as const,
   reactivos: () => [...dimTablesQueryKeys.all, 'reactivos'] as const,
-  reactivo: (id: number) => [...dimTablesQueryKeys.reactivos(), id] as const
+  reactivo: (id: number) => [...dimTablesQueryKeys.reactivos(), id] as const,
+  plantillasPasos: () => [...dimTablesQueryKeys.all, 'plantillas-pasos'] as const,
+  plantillaPaso: (id: number) => [...dimTablesQueryKeys.plantillasPasos(), id] as const
 }
 
 // ================================
@@ -776,6 +779,65 @@ export const useDeleteReactivo = () => {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.reactivos() })
       queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.reactivo(id) })
+    }
+  })
+}
+
+// ================================
+// HOOKS PARA PLANTILLAS_PASOS
+// ================================
+
+export const usePlantillaPasos = () => {
+  return useQuery({
+    queryKey: ['dim-tables', 'plantillas-pasos'],
+    queryFn: () => dimTablesService.getPlantillasPasos(),
+    staleTime: STALE_TIME,
+    gcTime: GC_TIME
+  })
+}
+
+export const usePlantillaPaso = (id: number) => {
+  return useQuery({
+    queryKey: ['dim-tables', 'plantillas-pasos', id],
+    queryFn: () => dimTablesService.getPlantillaPaso(id),
+    staleTime: STALE_TIME,
+    gcTime: GC_TIME,
+    enabled: !!id && id > 0
+  })
+}
+
+export const useCreatePlantillaPaso = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Omit<PlantillaPasos, 'id'>) => dimTablesService.createPlantillaPaso(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dim-tables', 'plantillas-pasos'] })
+    }
+  })
+}
+
+export const useUpdatePlantillaPaso = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<PlantillaPasos, 'id'>> }) =>
+      dimTablesService.updatePlantillaPaso(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['dim-tables', 'plantillas-pasos', id] })
+      queryClient.invalidateQueries({ queryKey: ['dim-tables', 'plantillas-pasos'] })
+    }
+  })
+}
+
+export const useDeletePlantillaPaso = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => dimTablesService.deletePlantillaPaso(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ['dim-tables', 'plantillas-pasos'] })
+      queryClient.invalidateQueries({ queryKey: ['dim-tables', 'plantillas-pasos', id] })
     }
   })
 }

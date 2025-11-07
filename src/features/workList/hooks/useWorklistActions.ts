@@ -170,7 +170,6 @@ export const useWorklistActions = ({
   }
 
   const handlePlantillaTecnica = () => {
-    // Validar que existan técnicas con id_tecnica_proc antes de navegar
     const hasValidTecnicas = tecnicas && tecnicas.length > 0
     const hasIdTecnicaProc = tecnicas?.some(tecnica => tecnica.id_tecnica_proc)
     // const hasPlantillaTecnica = tecnicas?.some(tecnica => tecnica
@@ -186,6 +185,10 @@ export const useWorklistActions = ({
     }
 
     navigate(`/worklist/${worklistId}/plantillaTecnica`)
+  }
+
+  const handleLotes = () => {
+    navigate(`/worklist/${worklistId}/lotes`)
   }
 
   const handleBack = () => {
@@ -209,6 +212,7 @@ export const useWorklistActions = ({
     handleDeleteWorklist,
     handleStartTecnicas,
     handlePlantillaTecnica,
+    handleLotes,
     handleBack
   }
 }

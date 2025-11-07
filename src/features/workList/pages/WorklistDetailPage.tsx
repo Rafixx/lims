@@ -40,7 +40,8 @@ export const WorklistDetailPage = () => {
     handleStartTecnicas,
     handleDeleteWorklist,
     handleBack,
-    handlePlantillaTecnica
+    handlePlantillaTecnica,
+    handleLotes
   } = useWorklistActions({
     worklistId,
     worklistName: worklist?.nombre || '',
@@ -86,6 +87,7 @@ export const WorklistDetailPage = () => {
       {/* Header */}
       <div className="mb-8">
         <WorklistHeader
+          worklistId={worklistId}
           nombre={worklist.nombre}
           createDt={worklist.create_dt}
           allTecnicasHaveResults={stats.allTecnicasHaveResults}
@@ -93,6 +95,7 @@ export const WorklistDetailPage = () => {
           onBack={handleBack}
           onImport={openImportModal}
           onPlantillaTecnica={handlePlantillaTecnica}
+          onLotes={handleLotes}
           onStartTecnicas={handleStartTecnicas}
           onDelete={handleDeleteWorklist}
         />

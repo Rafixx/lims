@@ -24,7 +24,6 @@ export const PlantillaTecnicaPage = () => {
   // Nota: Necesitamos el id_tecnica_proc de la primera técnica del worklist
   const idTecnicaProc = worklist?.tecnicas?.[0]?.id_tecnica_proc || 0
   const { plantillaTecnica, isLoading: isLoadingPlantilla } = usePlantillaTecnica(idTecnicaProc)
-
   const isLoading = isLoadingWorklist || isLoadingPlantilla
 
   // Mostrar loading state
@@ -37,7 +36,7 @@ export const PlantillaTecnicaPage = () => {
   }
 
   // Mostrar error state si no hay datos
-  if (!worklist || !plantillaTecnica) {
+  if (!worklist || !plantillaTecnica || !plantillaTecnica.plantillaTecnica) {
     return (
       <div className="min-h-screen bg-surface-50 flex items-center justify-center">
         <div className="text-surface-500">No se encontró información de la plantilla técnica</div>
@@ -77,7 +76,7 @@ export const PlantillaTecnicaPage = () => {
 
           {/* Sección: Pasos del Protocolo */}
           <section>
-            <PasosList worklistId={worklistId} />
+            <PasosList pasos={plantillaTecnica.plantillaTecnica.dimPlantillaPasos || []} />
           </section>
         </div>
       </div>
