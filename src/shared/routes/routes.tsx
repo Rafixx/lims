@@ -41,6 +41,11 @@ import { WorklistDetailPage } from '@/features/workList/pages/WorklistDetailPage
 import { CreateWorklistPage } from '@/features/workList/pages/CreateWorklistPage'
 import { CreateCentroPage } from '@/features/dim_tables/centros/pages/CreateCentroPage'
 import { CreateMuestraPage } from '@/features/muestras/pages/CreateMuestraPage'
+import { PlantillaTecnicaPage } from '@/features/plantillaTecnica/pages/PlantillaTecnicaPage'
+import { CreatePlantillaPasoPage } from '@/features/dim_tables/plantillas_pasos/pages/CreatePlantillaPasoPage'
+import { EditPlantillaPasoPage } from '@/features/dim_tables/plantillas_pasos/pages/EditPlantillaPasoPage'
+import { PlantillasPasosPage } from '@/features/dim_tables/plantillas_pasos/pages/PlantillasPasosPage'
+import { LotesPage } from '@/features/tecnicasReactivos'
 
 export const router = createBrowserRouter(
   [
@@ -64,6 +69,8 @@ export const router = createBrowserRouter(
         { path: 'worklist/nuevo', element: <CreateWorklistPage /> },
         { path: 'worklist/:id', element: <WorklistDetailPage /> },
         { path: 'worklist/:id/editar', element: <WorklistDetailPage /> },
+        { path: 'worklist/:id/plantillaTecnica', element: <PlantillaTecnicaPage /> },
+        { path: 'worklist/:id/lotes', element: <LotesPage /> },
 
         { path: 'muestras', element: <MuestrasPage /> },
         { path: 'muestras/nueva', element: <CreateMuestraPage /> },
@@ -99,7 +106,10 @@ export const router = createBrowserRouter(
         { path: 'reactivos/:id/editar', element: <EditReactivoPage /> },
         { path: 'tipos-muestra', element: <TiposMuestraPage /> },
         { path: 'tipos-muestra/nuevo', element: <CreateTipoMuestraPage /> },
-        { path: 'tipos-muestra/:id/editar', element: <EditTipoMuestraPage /> }
+        { path: 'tipos-muestra/:id/editar', element: <EditTipoMuestraPage /> },
+        { path: 'plantillas-pasos', element: <PlantillasPasosPage /> },
+        { path: 'plantillas-pasos/nuevo', element: <CreatePlantillaPasoPage /> },
+        { path: 'plantillas-pasos/:id/editar', element: <EditPlantillaPasoPage /> }
       ]
     }
   ],

@@ -22,13 +22,36 @@ interface Props {
   onSuccess?: () => void
   onCancel?: () => void
   isMuestraGroup: boolean
+  generatedCodigos?: {
+    codigo_epi?: string
+    codigo_externo?: string
+  }
 }
 
 export const muestraStyle = 'border-2 border-l-accent'
 
-export const MuestraForm = ({ initialValues, onSuccess, onCancel, isMuestraGroup }: Props) => {
+export const MuestraForm = ({
+  initialValues,
+  onSuccess,
+  onCancel,
+  isMuestraGroup,
+  generatedCodigos
+}: Props) => {
+  // Combinar DEFAULT_MUESTRA con códigos generados si existen
+  const defaultValues = useMemo(() => {
+    const base = initialValues || DEFAULT_MUESTRA
+    if (generatedCodigos && !initialValues) {
+      return {
+        ...base,
+        codigo_epi: generatedCodigos.codigo_epi || base.codigo_epi,
+        codigo_externo: generatedCodigos.codigo_externo || base.codigo_externo
+      }
+    }
+    return base
+  }, [initialValues, generatedCodigos])
+
   const methods = useForm<Muestra>({
-    defaultValues: initialValues || DEFAULT_MUESTRA
+    defaultValues
   })
 
   const { watch, handleSubmit, setValue } = methods

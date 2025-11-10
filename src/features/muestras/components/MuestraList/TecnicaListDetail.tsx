@@ -28,10 +28,14 @@ export const TecnicaListDetail = ({
   // Determinar si hay resultados para mostrar
   const hasResultadosLocal = Boolean(
     tecnica.resultados &&
-      (tecnica.resultados.valor !== null ||
-        tecnica.resultados.valor_texto ||
-        tecnica.resultados.valor_fecha ||
-        tecnica.resultados.tipo_res)
+      tecnica.resultados.length > 0 &&
+      tecnica.resultados.some(
+        resultado =>
+          resultado.valor !== null ||
+          resultado.valor_texto ||
+          resultado.valor_fecha ||
+          resultado.tipo_res
+      )
   )
 
   // Usar prop si se pasa, sino usar cálculo local
@@ -87,9 +91,13 @@ export const TecnicaListDetail = ({
     ]
 
     // Si hay resultados, agregar columna de resultados antes del estado
-    if (hasResultados) {
+    if (hasResultados && tecnica.resultados && tecnica.resultados.length > 0) {
       baseFields.push(
-        <ResultadoInfo key={`resultado-${tecnica.id_tecnica}`} resultado={tecnica.resultados} />
+        <div key={`resultado-${tecnica.id_tecnica}`} className="space-y-1">
+          {tecnica.resultados.map((resultado, index) => (
+            <ResultadoInfo key={`resultado-${tecnica.id_tecnica}-${index}`} resultado={resultado} />
+          ))}
+        </div>
       )
     }
 

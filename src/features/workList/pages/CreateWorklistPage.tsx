@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card } from '@/shared/components/molecules/Card'
 import { Button } from '@/shared/components/molecules/Button'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, RefreshCw } from 'lucide-react'
 import {
   usePosiblesTecnicasProc,
   usePosiblesTecnicas,
@@ -13,8 +13,9 @@ import {
 import { CreateWorklistRequest } from '../interfaces/worklist.types'
 import { Input } from '@/shared/components/molecules/Input'
 import { Label } from '@/shared/components/atoms/Label'
-import { TecnicaCard } from '../components/TecnicaCard'
+import { TecnicaCard } from '../components/WorkListCreate/TecnicaCard'
 import { useUser } from '@/shared/contexts/UserContext'
+import { generateWorklistCodigo } from '../utils/worklistCodigoGenerator'
 
 export const CreateWorklistPage = () => {
   const navigate = useNavigate()
@@ -25,6 +26,12 @@ export const CreateWorklistPage = () => {
   const [selectedTecnicas, setSelectedTecnicas] = useState<Set<number>>(new Set())
 
   const { posiblesTecnicasProc, isLoading: loadingPosiblesTecnicasProc } = usePosiblesTecnicasProc()
+
+  // 🎲 Generar nombre automáticamente cuando se selecciona un proceso
+  const handleGenerateNombre = (tecnicaProc?: string) => {
+    const generatedNombre = generateWorklistCodigo(tecnicaProc)
+    setNombre(generatedNombre)
+  }
 
   // Hook para crear worklist
   const createWorklist = useCreateWorklist()
@@ -118,48 +125,67 @@ export const CreateWorklistPage = () => {
         <Card className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Información Básica</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Nombre del Worklist */}
-            <div>
-              <Label htmlFor="nombre">Nombre del Worklist *</Label>
-              <Input
-                id="nombre"
-                type="text"
-                value={nombre}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNombre(e.target.value)}
-                placeholder="Ej: Análisis Microbiología - Lunes"
-                required
-                className="mt-1"
-              />
-            </div>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Selección de Proceso */}
+              <div>
+                <Label htmlFor="proceso">Tipo de Proceso *</Label>
+                <select
+                  id="proceso"
+                  value={selectedTecnicaProc}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    const procesoNombre = e.target.value
+                    setSelectedTecnicaProc(procesoNombre)
 
-            {/* Selección de Proceso */}
-            <div>
-              <Label htmlFor="proceso">Tipo de Proceso *</Label>
-              <select
-                id="proceso"
-                value={selectedTecnicaProc}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  const procesoNombre = e.target.value
-                  setSelectedTecnicaProc(procesoNombre)
+                    // Generar nombre automáticamente con el proceso seleccionado
+                    handleGenerateNombre(procesoNombre)
 
-                  // Limpiar técnicas seleccionadas al cambiar de proceso
-                  setSelectedTecnicas(new Set())
-                }}
-                required
-                disabled={loadingPosiblesTecnicasProc}
-                className="mt-1 block w-full border border-surface-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="">Selecciona un proceso</option>
-                {posiblesTecnicasProc?.map(proceso => (
-                  <option key={proceso.tecnica_proc} value={proceso.tecnica_proc}>
-                    {proceso.tecnica_proc}
-                  </option>
-                ))}
-              </select>
-              {loadingPosiblesTecnicasProc && (
-                <p className="text-sm text-gray-500 mt-1">Cargando procesos...</p>
-              )}
+                    // Limpiar técnicas seleccionadas al cambiar de proceso
+                    setSelectedTecnicas(new Set())
+                  }}
+                  required
+                  disabled={loadingPosiblesTecnicasProc}
+                  className="mt-1 block w-full border border-surface-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="">Selecciona un proceso</option>
+                  {posiblesTecnicasProc?.map(proceso => (
+                    <option key={proceso.tecnica_proc} value={proceso.tecnica_proc}>
+                      {proceso.tecnica_proc}
+                    </option>
+                  ))}
+                </select>
+                {loadingPosiblesTecnicasProc && (
+                  <p className="text-sm text-gray-500 mt-1">Cargando procesos...</p>
+                )}
+              </div>
+
+              {/* Nombre del Worklist (auto-generado) */}
+              <div>
+                <Label htmlFor="nombre">Nombre del Worklist *</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    id="nombre"
+                    type="text"
+                    value={nombre}
+                    disabled
+                    placeholder="Se generará automáticamente"
+                    required
+                    className="flex-1 bg-gray-50"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => handleGenerateNombre(selectedTecnicaProc)}
+                    disabled={!selectedTecnicaProc}
+                    title="Regenerar nombre"
+                  >
+                    <RefreshCw size={16} />
+                  </Button>
+                </div>
+                {nombre && (
+                  <p className="text-xs text-gray-500 mt-1">Patrón: LT/[AÑO][MES]-[TECNICA]</p>
+                )}
+              </div>
             </div>
           </div>
         </Card>

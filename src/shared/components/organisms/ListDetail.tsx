@@ -56,7 +56,7 @@ export function ListDetail<T>({
       <div className={finalRowClassName}>
         {/* Renderizar campos dinámicos */}
         {fields.map((field, index) => (
-          <div key={index} className={getColSpanClass(fieldSpans[index])}>
+          <div key={index} className={`${getColSpanClass(fieldSpans[index])} break-words`}>
             {field}
           </div>
         ))}

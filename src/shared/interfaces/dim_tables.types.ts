@@ -95,3 +95,10 @@ export interface PlantillaTecnica {
   cod_plantilla_tecnica: string
   tecnica: string
 }
+
+export interface PlantillaPasos {
+  id: number
+  codigo?: string
+  descripcion?: string
+  orden?: number
+}

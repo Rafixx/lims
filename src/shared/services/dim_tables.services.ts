@@ -6,6 +6,7 @@ import type {
   Maquina,
   Paciente,
   Pipeta,
+  PlantillaPasos,
   Prueba,
   Reactivo,
   TipoMuestra,
@@ -295,6 +296,31 @@ class DimTablesService {
 
   async deleteReactivo(id: number) {
     const response = await apiClient.delete(`/reactivos/${id}`)
+    return response.data
+  }
+
+  async getPlantillasPasos() {
+    const response = await apiClient.get('/plantillasPasos')
+    return response.data
+  }
+
+  async getPlantillaPaso(id: number) {
+    const response = await apiClient.get(`/plantillasPasos/${id}`)
+    return response.data
+  }
+
+  async createPlantillaPaso(paso: Omit<PlantillaPasos, 'id'>) {
+    const response = await apiClient.post('/plantillasPasos', paso)
+    return response.data
+  }
+
+  async updatePlantillaPaso(id: number, paso: Partial<Omit<PlantillaPasos, 'id'>>) {
+    const response = await apiClient.put(`/plantillasPasos/${id}`, paso)
+    return response.data
+  }
+
+  async deletePlantillaPaso(id: number) {
+    const response = await apiClient.delete(`/plantillasPasos/${id}`)
     return response.data
   }
 }

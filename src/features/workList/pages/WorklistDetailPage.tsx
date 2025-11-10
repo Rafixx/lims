@@ -6,11 +6,14 @@ import { useTecnicosLaboratorio } from '@/shared/hooks/useDim_tables'
 import { Card } from '@/shared/components/molecules/Card'
 import { Button } from '@/shared/components/molecules/Button'
 import { AlertTriangle } from 'lucide-react'
-import { WorklistHeader } from '../components/WorklistHeader'
-import { WorkListDetailStats } from '../components/WorkListDetailStats'
-import { WorklistTecnicasGrid } from '../components/WorklistTecnicasGrid'
+import { WorklistHeader } from '../components/WorkListDetail/WorklistHeader'
+import { WorkListDetailStats } from '../components/WorkListDetail/WorkListDetailStats'
+import { WorklistTecnicasGrid } from '../components/WorkListDetail/WorklistTecnicasGrid'
 import { useWorklistActions } from '../hooks/useWorklistActions'
 import { useWorklistStats } from '../hooks/useWorklistStats'
+import { useWorklistWorkflow } from '../hooks/useWorklistWorkflow'
+import { ImportResultsModal } from '../components/ImportResultsModal'
+import { MapResultsModal } from '../components/MapResultsModal'
 
 export const WorklistDetailPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -24,18 +27,34 @@ export const WorklistDetailPage = () => {
   const {
     selectedTecnicoId,
     isAssigningTecnico,
+    showImportModal,
+    showMappingModal,
+    mappableRows,
+    instrumentType,
+    tecnicas,
+    openImportModal,
+    closeImportModal,
+    closeMappingModal,
     handleTecnicoChange,
     handleImportDataResults,
+    handleConfirmMapping,
+    handleStartTecnicas,
     handleDeleteWorklist,
-    handleBack
+    handleBack,
+    handlePlantillaTecnica,
+    handleLotes
   } = useWorklistActions({
     worklistId,
     worklistName: worklist?.nombre || '',
+    tecnicas: worklist?.tecnicas || [],
     refetchWorkList
   })
 
   // Calcular estadísticas usando estadoInfo
   const stats = useWorklistStats(worklist?.tecnicas || [])
+
+  // Hook de workflow para controlar permisos
+  const { permissions, currentState } = useWorklistWorkflow(worklist?.tecnicas || [])
 
   // Loading state
   if (loadingWorklist) {
@@ -72,12 +91,16 @@ export const WorklistDetailPage = () => {
       {/* Header */}
       <div className="mb-8">
         <WorklistHeader
+          worklistId={worklistId}
           nombre={worklist.nombre}
           createDt={worklist.create_dt}
-          allTecnicasHaveResults={stats.allTecnicasHaveResults}
+          permissions={permissions}
+          currentState={currentState}
           onBack={handleBack}
-          onImport={handleImportDataResults}
-          onDelete={handleDeleteWorklist}
+          onImport={openImportModal}
+          onPlantillaTecnica={handlePlantillaTecnica}
+          onLotes={handleLotes}
+          onStartTecnicas={handleStartTecnicas}
         />
 
         {/* Estadísticas */}
@@ -108,10 +131,28 @@ export const WorklistDetailPage = () => {
             tecnicos={tecnicos}
             selectedTecnicoId={selectedTecnicoId}
             isAssigningTecnico={isAssigningTecnico}
+            canAssignTecnico={permissions.canAssignTecnico}
             onTecnicoChange={handleTecnicoChange}
           />
         </div>
       )}
+
+      {/* Modal de importación */}
+      <ImportResultsModal
+        isOpen={showImportModal}
+        onClose={closeImportModal}
+        onImport={handleImportDataResults}
+        worklistName={worklist.nombre}
+      />
+
+      {/* Modal de mapeo de resultados */}
+      <MapResultsModal
+        isOpen={showMappingModal}
+        onClose={closeMappingModal}
+        onConfirm={handleConfirmMapping}
+        tecnicas={tecnicas}
+        mappableRows={mappableRows}
+      />
     </div>
   )
 }

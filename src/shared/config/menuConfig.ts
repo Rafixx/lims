@@ -128,6 +128,12 @@ export const configMenuItems: MenuItemWithChildren = {
       label: 'Tipos de Muestra',
       icon: Folder,
       description: 'Clasificación de muestras'
+    },
+    {
+      path: '/plantillas-pasos',
+      label: 'Pasos del proceso (Plantillas)',
+      icon: LucideFileText,
+      description: 'Gestión de pasos del proceso (Plantillas)'
     }
   ]
 }

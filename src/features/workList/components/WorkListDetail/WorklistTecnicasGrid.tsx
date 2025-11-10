@@ -3,8 +3,8 @@
 import { Card } from '@/shared/components/molecules/Card'
 import { Select } from '@/shared/components/molecules/Select'
 import { User } from 'lucide-react'
-import { TecnicaRow } from './TecnicaRow'
-import { Tecnica } from '../interfaces/worklist.types'
+import { TecnicaRow } from './WorklistTecnicaRow'
+import { Tecnica } from '../../interfaces/worklist.types'
 import { TecnicoLaboratorio } from '@/shared/interfaces/dim_tables.types'
 
 interface WorklistTecnicasGridProps {
@@ -13,6 +13,7 @@ interface WorklistTecnicasGridProps {
   tecnicos: TecnicoLaboratorio[]
   selectedTecnicoId: string
   isAssigningTecnico: boolean
+  canAssignTecnico: boolean
   onTecnicoChange: (tecnicoId: string) => void
 }
 
@@ -22,6 +23,7 @@ export const WorklistTecnicasGrid = ({
   tecnicos,
   selectedTecnicoId,
   isAssigningTecnico,
+  canAssignTecnico,
   onTecnicoChange
 }: WorklistTecnicasGridProps) => {
   return (
@@ -42,7 +44,12 @@ export const WorklistTecnicasGrid = ({
               <Select
                 value={selectedTecnicoId}
                 onChange={e => onTecnicoChange(e.target.value)}
-                disabled={isAssigningTecnico || tecnicos.length === 0}
+                disabled={!canAssignTecnico || isAssigningTecnico || tecnicos.length === 0}
+                title={
+                  !canAssignTecnico
+                    ? 'No puedes cambiar el técnico después de iniciar las técnicas'
+                    : undefined
+                }
               >
                 <option value="">
                   {tecnicos.length === 0 ? 'No hay técnicos disponibles' : 'Seleccionar técnico'}

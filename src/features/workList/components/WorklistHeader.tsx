@@ -1,25 +1,31 @@
 // src/features/workList/components/WorklistHeader.tsx
 
 import { Button } from '@/shared/components/molecules/Button'
-import { ArrowLeft, Import, Trash2 } from 'lucide-react'
+import { ArrowLeft, Import, Trash2, FileText } from 'lucide-react'
 import { formatDateTime } from '@/shared/utils/helpers'
 
 interface WorklistHeaderProps {
   nombre: string
   createDt: string
   allTecnicasHaveResults: boolean
+  allTecnicasHaveTecnicoLab: boolean
   onBack: () => void
   onImport: () => void
   onDelete: () => void
+  onStartTecnicas: () => void
+  onPlantillaTecnica: () => void
 }
 
 export const WorklistHeader = ({
   nombre,
   createDt,
   allTecnicasHaveResults,
+  allTecnicasHaveTecnicoLab,
   onBack,
   onImport,
-  onDelete
+  onDelete,
+  onStartTecnicas,
+  onPlantillaTecnica
 }: WorklistHeaderProps) => {
   return (
     <div className="flex items-center justify-between mb-4">
@@ -37,6 +43,26 @@ export const WorklistHeader = ({
 
       <div className="flex items-center gap-4">
         <Button
+          variant="accent"
+          onClick={onPlantillaTecnica}
+          className="flex items-center gap-2"
+          title="Ver plantilla técnica del worklist"
+        >
+          <FileText size={16} />
+          Plantilla Técnica
+        </Button>
+
+        <Button
+          variant="soft"
+          onClick={onStartTecnicas}
+          disabled={allTecnicasHaveTecnicoLab}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft size={16} />
+          Iniciar Técnicas
+        </Button>
+
+        <Button
           variant="soft"
           onClick={onImport}
           className="flex items-center gap-2"
@@ -50,6 +76,7 @@ export const WorklistHeader = ({
           <Import size={16} />
           Importar resultados
         </Button>
+
         <Button variant="primary" onClick={onDelete} className="flex items-center gap-2">
           <Trash2 size={16} />
           Eliminar Worklist

@@ -90,7 +90,7 @@ export type Tecnica = {
   tecnica_proc?: TecnicaProc
   worklist?: Worklist
   tecnico_resp?: TecnicoLaboratorio | null
-  resultados: Resultado
+  resultados?: Resultado[]
 
   id_estado?: number
   estadoInfo?: DimEstado | null
