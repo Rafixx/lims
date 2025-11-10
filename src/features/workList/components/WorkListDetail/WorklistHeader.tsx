@@ -3,20 +3,24 @@
 import { Button } from '@/shared/components/molecules/Button'
 import { Badge } from '@/shared/components/molecules/Badge'
 import { useLotesPendientes } from '@/features/tecnicasReactivos/hooks/useTecnicasReactivos'
-import { ArrowLeft, Import, LayoutTemplate, Trash2, FlaskConical } from 'lucide-react'
+import {
+  WorklistWorkflowState,
+  WorkflowPermissions,
+  getDisabledTooltip
+} from '../../hooks/useWorklistWorkflow'
+import { ArrowLeft, Import, LayoutTemplate, FlaskConical, Play } from 'lucide-react'
 import { formatDateTime } from '@/shared/utils/helpers'
 
 interface WorklistHeaderProps {
   worklistId: number
   nombre: string
   createDt: string
-  allTecnicasHaveResults: boolean
-  allTecnicasHaveTecnicoLab: boolean
+  permissions: WorkflowPermissions
+  currentState: WorklistWorkflowState
   onBack: () => void
   onImport: () => void
   onPlantillaTecnica: () => void
   onLotes: () => void
-  onDelete: () => void
   onStartTecnicas: () => void
 }
 
@@ -24,13 +28,12 @@ export const WorklistHeader = ({
   worklistId,
   nombre,
   createDt,
-  allTecnicasHaveResults,
-  allTecnicasHaveTecnicoLab,
+  permissions,
+  currentState,
   onBack,
   onImport,
   onPlantillaTecnica,
   onLotes,
-  onDelete,
   onStartTecnicas
 }: WorklistHeaderProps) => {
   // Hook para obtener lotes pendientes
@@ -52,50 +55,73 @@ export const WorklistHeader = ({
       </div>
 
       <div className="flex items-center gap-4">
+        {/* Botón: Iniciar Técnicas */}
         <Button
           variant="soft"
           onClick={onStartTecnicas}
-          disabled={allTecnicasHaveTecnicoLab}
+          disabled={!permissions.canStartTecnicas}
           className="flex items-center gap-2"
+          title={
+            !permissions.canStartTecnicas
+              ? getDisabledTooltip('canStartTecnicas', currentState)
+              : 'Iniciar todas las técnicas del worklist'
+          }
         >
-          <ArrowLeft size={16} />
+          <Play size={16} />
           Iniciar Técnicas
         </Button>
+
+        {/* Botón: Importar Resultados */}
         <Button
           variant="soft"
           onClick={onImport}
           className="flex items-center gap-2"
-          disabled={allTecnicasHaveResults}
+          disabled={!permissions.canImportResults}
           title={
-            allTecnicasHaveResults
-              ? 'Todas las técnicas ya tienen resultados'
+            !permissions.canImportResults
+              ? getDisabledTooltip('canImportResults', currentState)
               : 'Importar resultados desde fuente de datos'
           }
         >
           <Import size={16} />
           Importar resultados
         </Button>
+
+        {/* Botón: Plantilla Técnica */}
         <Button
           variant="soft"
           onClick={onPlantillaTecnica}
           className="flex items-center gap-2"
-          // disabled={!allTecnicasHaveResults}
+          disabled={!permissions.canManagePlantillaTecnica}
+          title={
+            !permissions.canManagePlantillaTecnica
+              ? getDisabledTooltip('canManagePlantillaTecnica', currentState)
+              : 'Gestionar plantilla técnica'
+          }
         >
           <LayoutTemplate size={16} />
           Plantilla técnica
         </Button>
-        <Button variant="soft" onClick={onLotes} className="flex items-center gap-2 relative">
+
+        {/* Botón: Lotes */}
+        <Button
+          variant="soft"
+          onClick={onLotes}
+          className="flex items-center gap-2 relative"
+          disabled={!permissions.canManageLotes}
+          title={
+            !permissions.canManageLotes
+              ? getDisabledTooltip('canManageLotes', currentState)
+              : 'Gestionar lotes de reactivos'
+          }
+        >
           <FlaskConical size={16} />
           Lotes
-          {lotesPendientes > 0 && (
+          {lotesPendientes > 0 && permissions.canManageLotes && (
             <Badge variant="warning" size="sm" className="ml-1">
               {lotesPendientes}
             </Badge>
           )}
-        </Button>
-        <Button variant="primary" onClick={onDelete} className="flex items-center gap-2">
-          <Trash2 size={16} />
-          Eliminar Worklist
         </Button>
       </div>
     </div>

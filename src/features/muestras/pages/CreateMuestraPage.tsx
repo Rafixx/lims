@@ -1,8 +1,10 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useMemo } from 'react'
 import { Card } from '@/shared/components/molecules/Card'
 import { MuestraForm } from '../components/MuestraForm/MuestraForm'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { useMuestra } from '../hooks/useMuestras'
+import { generateMuestraCodigos } from '../utils/codigoGenerator'
 
 export const CreateMuestraPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -16,8 +18,26 @@ export const CreateMuestraPage = () => {
   const muestraId = id ? parseInt(id) : undefined
   const isEditing = Boolean(muestraId && muestraId > 0)
 
+  // 🎲 Generar códigos aleatorios por defecto para nuevas muestras
+  const defaultCodigos = useMemo(() => {
+    if (isEditing) return undefined
+    return generateMuestraCodigos()
+  }, [isEditing])
+
   const { notify } = useNotification()
   const { muestra, isLoading, error } = useMuestra(muestraId)
+
+  // 🎯 Valores iniciales del formulario
+  // - Modo edición: usa datos existentes
+  // - Modo creación: genera códigos aleatorios automáticamente
+  const initialFormValues = useMemo(() => {
+    if (isEditing && muestra) {
+      return muestra
+    }
+    // Modo creación: retornar undefined para que use DEFAULT_MUESTRA
+    // pero los códigos se inyectarán después
+    return undefined
+  }, [isEditing, muestra])
 
   const handleSuccess = () => {
     notify(isEditing ? 'Muestra actualizada con éxito' : 'Muestra creada con éxito', 'success')
@@ -81,10 +101,11 @@ export const CreateMuestraPage = () => {
           <div className="p-6">
             <MuestraForm
               key={`${muestraId || 'new'}-${isMuestraGroup}`}
-              initialValues={muestra}
+              initialValues={initialFormValues}
               onSuccess={handleSuccess}
               onCancel={handleCancel}
               isMuestraGroup={isMuestraGroup}
+              generatedCodigos={defaultCodigos}
             />
           </div>
         </Card>

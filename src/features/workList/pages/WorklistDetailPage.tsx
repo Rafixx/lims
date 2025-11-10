@@ -11,6 +11,7 @@ import { WorkListDetailStats } from '../components/WorkListDetail/WorkListDetail
 import { WorklistTecnicasGrid } from '../components/WorkListDetail/WorklistTecnicasGrid'
 import { useWorklistActions } from '../hooks/useWorklistActions'
 import { useWorklistStats } from '../hooks/useWorklistStats'
+import { useWorklistWorkflow } from '../hooks/useWorklistWorkflow'
 import { ImportResultsModal } from '../components/ImportResultsModal'
 import { MapResultsModal } from '../components/MapResultsModal'
 
@@ -52,6 +53,9 @@ export const WorklistDetailPage = () => {
   // Calcular estadísticas usando estadoInfo
   const stats = useWorklistStats(worklist?.tecnicas || [])
 
+  // Hook de workflow para controlar permisos
+  const { permissions, currentState } = useWorklistWorkflow(worklist?.tecnicas || [])
+
   // Loading state
   if (loadingWorklist) {
     return (
@@ -90,14 +94,13 @@ export const WorklistDetailPage = () => {
           worklistId={worklistId}
           nombre={worklist.nombre}
           createDt={worklist.create_dt}
-          allTecnicasHaveResults={stats.allTecnicasHaveResults}
-          allTecnicasHaveTecnicoLab={stats.allTecnicasHaveTecnicoLab}
+          permissions={permissions}
+          currentState={currentState}
           onBack={handleBack}
           onImport={openImportModal}
           onPlantillaTecnica={handlePlantillaTecnica}
           onLotes={handleLotes}
           onStartTecnicas={handleStartTecnicas}
-          onDelete={handleDeleteWorklist}
         />
 
         {/* Estadísticas */}
@@ -128,6 +131,7 @@ export const WorklistDetailPage = () => {
             tecnicos={tecnicos}
             selectedTecnicoId={selectedTecnicoId}
             isAssigningTecnico={isAssigningTecnico}
+            canAssignTecnico={permissions.canAssignTecnico}
             onTecnicoChange={handleTecnicoChange}
           />
         </div>

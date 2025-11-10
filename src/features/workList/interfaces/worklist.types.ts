@@ -16,6 +16,7 @@ export interface Worklist {
 // Estructura específica para crear un worklist
 export interface CreateWorklistRequest {
   nombre: string
+  codigo?: string
   tecnica_proc?: string
   created_by: number
   tecnicas: number[]
