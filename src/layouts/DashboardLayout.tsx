@@ -4,10 +4,12 @@ import { useUser } from '../shared/contexts/UserContext'
 import { useNavigate } from 'react-router-dom'
 import { LogOut } from 'lucide-react'
 import { Button } from '@/shared/components/molecules/Button'
+import { useState } from 'react'
 
 export const DashboardLayout = () => {
   const { user, logout } = useUser()
   const navigate = useNavigate()
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true)
 
   const handleLogout = () => {
     logout()
@@ -16,7 +18,10 @@ export const DashboardLayout = () => {
 
   return (
     <div className="flex h-screen">
-      <Sidebar />
+      <Sidebar
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      />
       <main className="flex-1 bg-gray-50 overflow-auto">
         <header className="bg-white shadow p-4 flex justify-between items-center">
           <h1 className="text-xl font-semibold">LIMS</h1>

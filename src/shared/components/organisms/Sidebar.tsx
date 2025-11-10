@@ -5,9 +5,14 @@ import {
   MenuItemBase,
   MenuItemWithChildren
 } from '@/shared/config/menuConfig'
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronLeft } from 'lucide-react'
 
-const MenuItem = ({ item }: { item: MenuItemBase }) => {
+interface SidebarProps {
+  isCollapsed: boolean
+  onToggleCollapse: () => void
+}
+
+const MenuItem = ({ item, isCollapsed }: { item: MenuItemBase; isCollapsed: boolean }) => {
   const Icon = item.icon
 
   return (
@@ -20,17 +25,34 @@ const MenuItem = ({ item }: { item: MenuItemBase }) => {
             : 'text-surface-700 hover:bg-white hover:text-surface-900'
         }`
       }
+      title={isCollapsed ? item.label : undefined}
     >
-      <Icon className="w-5 h-5" />
-      {item.label}
+      <Icon className="w-5 h-5 flex-shrink-0" />
+      {!isCollapsed && <span>{item.label}</span>}
     </NavLink>
   )
 }
 
-const CollapsibleMenuItem = ({ item }: { item: MenuItemWithChildren }) => {
+const CollapsibleMenuItem = ({
+  item,
+  isCollapsed
+}: {
+  item: MenuItemWithChildren
+  isCollapsed: boolean
+}) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const Icon = item.icon
   const ChevronIcon = isExpanded ? ChevronDown : ChevronRight
+
+  if (isCollapsed) {
+    return (
+      <div className="relative group">
+        <button className="w-full flex items-center justify-center px-3 py-2 rounded-md text-sm text-surface-700 hover:bg-white hover:text-surface-900 transition-colors">
+          <Icon className="w-5 h-5" />
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -38,7 +60,7 @@ const CollapsibleMenuItem = ({ item }: { item: MenuItemWithChildren }) => {
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm text-surface-700 hover:bg-white hover:text-surface-900 transition-colors"
       >
-        <Icon className="w-5 h-5" />
+        <Icon className="w-5 h-5 flex-shrink-0" />
         <span className="flex-1 text-left">{item.label}</span>
         <ChevronIcon className="w-4 h-4" />
       </button>
@@ -46,7 +68,7 @@ const CollapsibleMenuItem = ({ item }: { item: MenuItemWithChildren }) => {
       {isExpanded && (
         <div className="ml-4 mt-1 space-y-1 border-l border-surface-200 pl-4">
           {item.children.map(child => (
-            <MenuItem key={child.path} item={child} />
+            <MenuItem key={child.path} item={child} isCollapsed={isCollapsed} />
           ))}
         </div>
       )}
@@ -54,15 +76,27 @@ const CollapsibleMenuItem = ({ item }: { item: MenuItemWithChildren }) => {
   )
 }
 
-export const Sidebar = () => {
+export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
   return (
-    <aside className="w-64 bg-info-100 shadow-soft h-full flex flex-col p-4 border-r border-surface-200">
+    <aside
+      className={`${isCollapsed ? 'w-16' : 'w-64'} bg-info-100 shadow-soft h-full flex flex-col p-4 border-r border-surface-200 transition-all duration-300`}
+    >
+      <div className="flex items-center justify-end mb-4">
+        <button
+          onClick={onToggleCollapse}
+          className="p-1.5 rounded-md hover:bg-white/50 text-surface-600 hover:text-surface-900 transition-colors"
+          title={isCollapsed ? 'Expandir menú' : 'Colapsar menú'}
+        >
+          {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+        </button>
+      </div>
+
       <nav className="flex flex-col gap-2">
         {sidebarMenuStructure.map(item => {
           if ('isCollapsible' in item) {
-            return <CollapsibleMenuItem key={item.label} item={item} />
+            return <CollapsibleMenuItem key={item.label} item={item} isCollapsed={isCollapsed} />
           } else {
-            return <MenuItem key={item.path} item={item} />
+            return <MenuItem key={item.path} item={item} isCollapsed={isCollapsed} />
           }
         })}
       </nav>
