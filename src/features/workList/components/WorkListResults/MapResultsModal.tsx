@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/shared/components/molecules/Button'
 import { X, ArrowRight, FileText, Beaker } from 'lucide-react'
-import { Tecnica, MappableRow } from '../interfaces/worklist.types'
+import { Tecnica, MappableRow } from '../../interfaces/worklist.types'
 
 interface MapResultsModalProps {
   isOpen: boolean
@@ -29,28 +29,41 @@ export const MapResultsModal = ({
   const [autoMappedRows, setAutoMappedRows] = useState<Set<number>>(new Set())
   const [errors, setErrors] = useState<string[]>([])
 
-  // Inicializar mapeo automático inteligente basado en codigo_epi
+  // Inicializar mapeo automático inteligente basado en codigo_epi o posicion_placa
   useEffect(() => {
     if (isOpen && mappableRows.length > 0 && tecnicas.length > 0) {
       const initialMapping: Record<number, number> = {}
       const autoMapped = new Set<number>()
       const usedTecnicas = new Set<number>()
 
-      // Fase 1: Mapeo automático por coincidencia de codigo_epi con sampleIdentifier
+      // Fase 1: Mapeo automático por coincidencia
       mappableRows.forEach((row, index) => {
         const sampleId = row.sampleIdentifier?.trim()
+        const posicionPlaca = row.posicionPlaca?.trim()
 
-        if (sampleId) {
-          // Buscar técnica que coincida con el codigo_epi
-          const tecnicaMatch = tecnicas.find(
+        let tecnicaMatch: Tecnica | undefined
+
+        // Caso 1: Si hay posición de placa, buscar por muestraArray (para arrays)
+        if (posicionPlaca) {
+          tecnicaMatch = tecnicas.find(
+            t =>
+              t.muestraArray &&
+              t.muestraArray.posicion_placa === posicionPlaca &&
+              !usedTecnicas.has(t.id_tecnica || 0)
+          )
+        }
+
+        // Caso 2: Si no hay match por posición o no hay posición, buscar por codigo_epi (muestras normales)
+        if (!tecnicaMatch && sampleId) {
+          tecnicaMatch = tecnicas.find(
             t => t.muestra?.codigo_epi === sampleId && !usedTecnicas.has(t.id_tecnica || 0)
           )
+        }
 
-          if (tecnicaMatch?.id_tecnica) {
-            initialMapping[index] = tecnicaMatch.id_tecnica
-            autoMapped.add(index)
-            usedTecnicas.add(tecnicaMatch.id_tecnica)
-          }
+        if (tecnicaMatch?.id_tecnica) {
+          initialMapping[index] = tecnicaMatch.id_tecnica
+          autoMapped.add(index)
+          usedTecnicas.add(tecnicaMatch.id_tecnica)
         }
       })
 
@@ -250,16 +263,18 @@ export const MapResultsModal = ({
                             parseInt(rowIdx) !== index && tecId === tecnica.id_tecnica
                         )
 
+                        // Determinar el label según si es array o muestra normal
+                        const label = tecnica.muestraArray
+                          ? `${tecnica.muestraArray.codigo_placa} - ${tecnica.muestraArray.posicion_placa}`
+                          : tecnica.muestra?.codigo_epi || tecnica.muestra?.codigo_externo || 'N/A'
+
                         return (
                           <option
                             key={tecnica.id_tecnica}
                             value={tecnica.id_tecnica}
                             disabled={isUsedByOther}
                           >
-                            {tecnica.muestra?.codigo_epi ||
-                              tecnica.muestra?.codigo_externo ||
-                              'N/A'}{' '}
-                            - ID: {tecnica.id_tecnica}
+                            {label} - ID: {tecnica.id_tecnica}
                             {isUsedByOther ? ' (ya asignada)' : ''}
                           </option>
                         )
@@ -267,15 +282,29 @@ export const MapResultsModal = ({
                     </select>
                     {tecnicaAsignada && (
                       <div className="text-xs text-surface-600 mt-1 space-y-0.5">
-                        <div>
-                          <span className="font-semibold">Muestra:</span>{' '}
-                          {tecnicaAsignada.muestra?.codigo_epi ||
-                            tecnicaAsignada.muestra?.codigo_externo ||
-                            'N/A'}
-                        </div>
+                        {tecnicaAsignada.muestraArray ? (
+                          <>
+                            <div>
+                              <span className="font-semibold">Placa:</span>{' '}
+                              {tecnicaAsignada.muestraArray.codigo_placa}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Posición:</span>{' '}
+                              {tecnicaAsignada.muestraArray.posicion_placa}
+                            </div>
+                          </>
+                        ) : (
+                          <div>
+                            <span className="font-semibold">Muestra:</span>{' '}
+                            {tecnicaAsignada.muestra?.codigo_epi ||
+                              tecnicaAsignada.muestra?.codigo_externo ||
+                              'N/A'}
+                          </div>
+                        )}
                         {isAutoMapped && (
                           <div className="text-success-700 font-semibold">
-                            ✓ Coincidencia automática por código de muestra
+                            ✓ Coincidencia automática{' '}
+                            {row.posicionPlaca ? 'por posición de placa' : 'por código de muestra'}
                           </div>
                         )}
                       </div>

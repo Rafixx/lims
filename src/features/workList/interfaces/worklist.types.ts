@@ -27,6 +27,7 @@ export interface Tecnica {
   id_tecnica_proc?: number
   id_estado?: number
   estadoInfo?: DimEstado
+  muestraArray: MuestraArray
   muestra?: {
     codigo_epi: string
     codigo_externo: string
@@ -36,6 +37,13 @@ export interface Tecnica {
     nombre: string
   }
   resultados?: Resultado[]
+}
+
+export interface MuestraArray {
+  id_muestra: number
+  id_array: number
+  codigo_placa: string
+  posicion_placa: string
 }
 
 export interface TecnicaProc {
@@ -74,6 +82,7 @@ export interface RawNanoDrop {
   impureza3_a260: string
   impureza3_porc: string
   impureza3_mm: string
+  position: string | null // Posición en la placa para arrays
   createdAt: string
 }
 
@@ -97,6 +106,7 @@ export interface RawQubit {
   green_rfu: string | null
   far_red_rfu: string | null
   fecha: string | null
+  position: string | null // Posición en la placa para arrays
   createdAt: string
 }
 
@@ -110,5 +120,6 @@ export type InstrumentType = 'NANODROP' | 'QUBIT'
 export interface MappableRow {
   id: number
   sampleIdentifier: string // Campo identificador de muestra (sample_code para Nanodrop, test_name para Qubit)
+  posicionPlaca?: string // Posición en la placa (para arrays)
   displayData: Record<string, string | null> // Datos adicionales para mostrar en el modal
 }

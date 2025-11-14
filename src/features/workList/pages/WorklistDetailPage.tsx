@@ -12,8 +12,8 @@ import { WorklistTecnicasGrid } from '../components/WorkListDetail/WorklistTecni
 import { useWorklistActions } from '../hooks/useWorklistActions'
 import { useWorklistStats } from '../hooks/useWorklistStats'
 import { useWorklistWorkflow } from '../hooks/useWorklistWorkflow'
-import { ImportResultsModal } from '../components/ImportResultsModal'
-import { MapResultsModal } from '../components/MapResultsModal'
+import { ImportResultsModal } from '../components/WorkListResults/ImportResultsModal'
+import { MapResultsModal } from '../components/WorkListResults/MapResultsModal'
 
 export const WorklistDetailPage = () => {
   const { id } = useParams<{ id: string }>()

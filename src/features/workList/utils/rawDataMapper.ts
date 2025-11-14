@@ -9,8 +9,10 @@ export const nanodropToMappableRows = (data: RawNanoDrop[]): MappableRow[] => {
   return data.map(row => ({
     id: row.id,
     sampleIdentifier: row.sample_code,
+    posicionPlaca: row.position || undefined,
     displayData: {
       'Código Muestra': row.sample_code,
+      ...(row.position && { 'Posición Placa': row.position }),
       Fecha: row.fecha,
       'A260/280': row.a260_280,
       'A260/230': row.a260_230,
@@ -26,8 +28,10 @@ export const qubitToMappableRows = (data: RawQubit[]): MappableRow[] => {
   return data.map(row => ({
     id: row.id,
     sampleIdentifier: row.test_name || '',
+    posicionPlaca: row.position || undefined,
     displayData: {
       'Nombre Test': row.test_name || '',
+      ...(row.position && { 'Posición Placa': row.position }),
       'Fecha Test': row.test_date || '',
       Concentración: row.qubit_tube_conc || '',
       Unidades: row.qubit_units || '',
