@@ -1,6 +1,6 @@
 // src/features/workList/components/TecnicaRow.tsx
 
-import { User, Keyboard } from 'lucide-react'
+import { User } from 'lucide-react'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { ResultadoInfo } from '@/features/muestras/components/MuestraList/ResultadoInfo'
 import { Tecnica } from '../../interfaces/worklist.types'
@@ -52,24 +52,36 @@ export const TecnicaRow = ({ tecnica, onManualResult }: TecnicaRowProps) => {
       <div className="col-span-6">
         <div className="space-y-2">
           {hasResultados && tecnica.resultados && tecnica.resultados.length > 0 ? (
-            <div className="space-y-1">
-              {tecnica.resultados.map((resultado, index) => (
-                <ResultadoInfo key={index} resultado={resultado} />
-              ))}
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div className="flex-1 space-y-1">
+                {tecnica.resultados.map((resultado, index) => (
+                  <ResultadoInfo key={index} resultado={resultado} />
+                ))}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0"
+                title="Introducción manual de resultados"
+                onClick={() => onManualResult(tecnica)}
+              >
+                Manual
+              </Button>
             </div>
           ) : (
-            <span className="text-xs text-gray-400">Sin resultados</span>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-xs text-gray-400">Sin resultados</span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0"
+                title="Introducción manual de resultados"
+                onClick={() => onManualResult(tecnica)}
+              >
+                Manual
+              </Button>
+            </div>
           )}
-
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full sm:w-auto"
-            onClick={() => onManualResult(tecnica)}
-          >
-            <Keyboard className="w-4 h-4" />
-            Introducción manual de resultados
-          </Button>
         </div>
       </div>
 
