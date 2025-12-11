@@ -1,10 +1,9 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Card } from '@/shared/components/molecules/Card'
 import { MuestraForm } from '../components/MuestraForm/MuestraForm'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
-import { useMuestra } from '../hooks/useMuestras'
-import { generateMuestraCodigos } from '../utils/codigoGenerator'
+import { useMuestra, useNextCodigoEpi } from '../hooks/useMuestras'
 
 export const CreateMuestraPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -18,14 +17,33 @@ export const CreateMuestraPage = () => {
   const muestraId = id ? parseInt(id) : undefined
   const isEditing = Boolean(muestraId && muestraId > 0)
 
-  // 🎲 Generar códigos aleatorios por defecto para nuevas muestras
-  const defaultCodigos = useMemo(() => {
-    if (isEditing) return undefined
-    return generateMuestraCodigos()
-  }, [isEditing])
+  const [generatedCodigos, setGeneratedCodigos] = useState<{
+    codigo_epi?: string
+  }>()
+
+  const shouldFetchCodigoEpi = !isEditing
+  const {
+    codigoEpi,
+    isLoading: isLoadingCodigoEpi,
+    error: codigoEpiError,
+    fetchCodigo: refetchCodigoEpi
+  } = useNextCodigoEpi(shouldFetchCodigoEpi)
 
   const { notify } = useNotification()
   const { muestra, isLoading, error } = useMuestra(muestraId)
+
+  useEffect(() => {
+    if (isEditing) {
+      setGeneratedCodigos(undefined)
+      return
+    }
+
+    if (codigoEpi?.codigo_epi) {
+      setGeneratedCodigos({
+        codigo_epi: codigoEpi.codigo_epi
+      })
+    }
+  }, [codigoEpi, isEditing])
 
   // 🎯 Valores iniciales del formulario
   // - Modo edición: usa datos existentes
@@ -77,6 +95,46 @@ export const CreateMuestraPage = () => {
     )
   }
 
+  if (!isEditing && codigoEpiError) {
+    return (
+      <div className="min-h-screen bg-surface-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-danger-600 mb-4">
+            No se pudo generar el código Epidisease para la nueva muestra.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button
+              onClick={() => refetchCodigoEpi()}
+              className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700"
+            >
+              Reintentar
+            </button>
+            <button
+              onClick={() => navigate('/muestras')}
+              className="px-4 py-2 border border-surface-300 rounded hover:bg-surface-100"
+            >
+              Volver al listado
+            </button>
+          </div>
+          <p className="text-sm text-surface-500 mt-4">{codigoEpiError.message}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isEditing && (isLoadingCodigoEpi || !generatedCodigos)) {
+    return (
+      <div className="min-h-screen bg-surface-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-surface-600">Generando código Epidisease...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const formGeneratedCodigos = isEditing ? undefined : generatedCodigos
+
   return (
     <div className="min-h-screen bg-surface-50">
       <div className="container mx-auto py-8 px-4">
@@ -105,7 +163,7 @@ export const CreateMuestraPage = () => {
               onSuccess={handleSuccess}
               onCancel={handleCancel}
               isMuestraGroup={isMuestraGroup}
-              generatedCodigos={defaultCodigos}
+              generatedCodigos={formGeneratedCodigos}
             />
           </div>
         </Card>

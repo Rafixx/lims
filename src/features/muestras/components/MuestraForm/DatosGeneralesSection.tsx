@@ -133,8 +133,8 @@ export const DatosGeneralesSection = () => {
             label="Código externo"
             inputProps={{
               ...register(`codigo_externo`),
-              type: 'text',
-              placeholder: 'Ej: MUE-2024-001'
+              type: 'text'
+              // placeholder: 'Ej: MUE-2024-001'
             }}
             error={errors.codigo_externo?.message}
             className={muestraStyle}

@@ -123,3 +123,9 @@ export interface MappableRow {
   posicionPlaca?: string // Posición en la placa (para arrays)
   displayData: Record<string, string | null> // Datos adicionales para mostrar en el modal
 }
+
+export interface CodigoWorklistResponse {
+  codigo_worklist: string
+  secuencia: number
+  year: number
+}

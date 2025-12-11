@@ -24,7 +24,6 @@ interface Props {
   isMuestraGroup: boolean
   generatedCodigos?: {
     codigo_epi?: string
-    codigo_externo?: string
   }
 }
 
@@ -43,8 +42,7 @@ export const MuestraForm = ({
     if (generatedCodigos && !initialValues) {
       return {
         ...base,
-        codigo_epi: generatedCodigos.codigo_epi || base.codigo_epi,
-        codigo_externo: generatedCodigos.codigo_externo || base.codigo_externo
+        codigo_epi: generatedCodigos.codigo_epi || base.codigo_epi
       }
     }
     return base

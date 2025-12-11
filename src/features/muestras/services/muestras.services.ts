@@ -1,5 +1,11 @@
 import { apiClient } from '@/shared/services/apiClient'
-import { Muestra, MuestraWithTecnicas, Tecnica, MuestraStats } from '../interfaces/muestras.types'
+import {
+  CodigoEpiResponse,
+  Muestra,
+  MuestraWithTecnicas,
+  Tecnica,
+  MuestraStats
+} from '../interfaces/muestras.types'
 
 class MuestrasService {
   private readonly basePath = '/muestras'
@@ -36,6 +42,11 @@ class MuestrasService {
 
   async deleteMuestra(id: number): Promise<void> {
     await apiClient.delete(`${this.basePath}/${id}`)
+  }
+
+  async getNextCodigoEpi(): Promise<CodigoEpiResponse> {
+    const response = await apiClient.get<CodigoEpiResponse>(`${this.basePath}/codigo-epi`)
+    return response.data
   }
 }
 

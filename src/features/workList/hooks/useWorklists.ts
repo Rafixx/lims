@@ -1,6 +1,12 @@
+import { useCallback, useState } from 'react'
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query'
 import { worklistService } from '../services/worklistService'
-import { Worklist, Tecnica, CreateWorklistRequest } from '../interfaces/worklist.types'
+import {
+  Worklist,
+  Tecnica,
+  CreateWorklistRequest,
+  CodigoWorklistResponse
+} from '../interfaces/worklist.types'
 import { TecnicaProc } from '@/shared/interfaces/dim_tables.types'
 import { STALE_TIME } from '@/shared/constants/constants'
 
@@ -130,4 +136,34 @@ export const useDeleteWorklist = () => {
       queryClient.invalidateQueries({ queryKey: ['worklists'] })
     }
   })
+}
+
+export const useNextWorklistCodigo = () => {
+  const [codigoWorklist, setCodigoWorklist] = useState<CodigoWorklistResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
+
+  const fetchCodigo = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const response = await worklistService.getNextWorklistCode()
+      setCodigoWorklist(response)
+      return response
+    } catch (err) {
+      const errorInstance =
+        err instanceof Error ? err : new Error('No se pudo obtener el código del worklist')
+      setError(errorInstance)
+      throw errorInstance
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  return {
+    codigoWorklist,
+    isLoading,
+    error,
+    fetchCodigo
+  }
 }

@@ -1,6 +1,6 @@
 // src/features/workList/pages/CreateWorklistPage.tsx
 
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card } from '@/shared/components/molecules/Card'
 import { Button } from '@/shared/components/molecules/Button'
@@ -8,15 +8,14 @@ import { ArrowLeft, RefreshCw } from 'lucide-react'
 import {
   usePosiblesTecnicasProc,
   usePosiblesTecnicas,
-  useCreateWorklist
+  useCreateWorklist,
+  useNextWorklistCodigo
 } from '../hooks/useWorklists'
 import { CreateWorklistRequest } from '../interfaces/worklist.types'
 import { Input } from '@/shared/components/molecules/Input'
 import { Label } from '@/shared/components/atoms/Label'
 import { TecnicaCard } from '../components/WorkListCreate/TecnicaCard'
 import { useUser } from '@/shared/contexts/UserContext'
-import { generateWorklistCodigo } from '../utils/worklistCodigoGenerator'
-
 export const CreateWorklistPage = () => {
   const navigate = useNavigate()
   const { user } = useUser()
@@ -27,11 +26,30 @@ export const CreateWorklistPage = () => {
 
   const { posiblesTecnicasProc, isLoading: loadingPosiblesTecnicasProc } = usePosiblesTecnicasProc()
 
+  const {
+    fetchCodigo: fetchWorklistCodigo,
+    isLoading: isGeneratingCodigo,
+    error: worklistCodigoError
+  } = useNextWorklistCodigo()
+
   // 🎲 Generar nombre automáticamente cuando se selecciona un proceso
-  const handleGenerateNombre = (tecnicaProc?: string) => {
-    const generatedNombre = generateWorklistCodigo(tecnicaProc)
-    setNombre(generatedNombre)
-  }
+  const handleGenerateNombre = useCallback(
+    async (tecnicaProc?: string) => {
+      const proceso = tecnicaProc ?? selectedTecnicaProc
+      if (!proceso) {
+        return
+      }
+
+      try {
+        const generated = await fetchWorklistCodigo()
+        setNombre(generated.codigo_worklist)
+      } catch (err) {
+        console.error('Error al generar código de worklist:', err)
+        alert('No se pudo generar el código del worklist. Por favor, intenta de nuevo.')
+      }
+    },
+    [fetchWorklistCodigo, selectedTecnicaProc]
+  )
 
   // Hook para crear worklist
   const createWorklist = useCreateWorklist()
@@ -137,11 +155,14 @@ export const CreateWorklistPage = () => {
                     const procesoNombre = e.target.value
                     setSelectedTecnicaProc(procesoNombre)
 
-                    // Generar nombre automáticamente con el proceso seleccionado
-                    handleGenerateNombre(procesoNombre)
-
                     // Limpiar técnicas seleccionadas al cambiar de proceso
                     setSelectedTecnicas(new Set())
+
+                    if (procesoNombre) {
+                      handleGenerateNombre(procesoNombre)
+                    } else {
+                      setNombre('')
+                    }
                   }}
                   required
                   disabled={loadingPosiblesTecnicasProc}
@@ -175,15 +196,23 @@ export const CreateWorklistPage = () => {
                   <Button
                     type="button"
                     variant="ghost"
-                    onClick={() => handleGenerateNombre(selectedTecnicaProc)}
-                    disabled={!selectedTecnicaProc}
+                    onClick={() => handleGenerateNombre()}
+                    disabled={!selectedTecnicaProc || isGeneratingCodigo}
                     title="Regenerar nombre"
                   >
-                    <RefreshCw size={16} />
+                    <RefreshCw size={16} className={isGeneratingCodigo ? 'animate-spin' : ''} />
                   </Button>
                 </div>
-                {nombre && (
-                  <p className="text-xs text-gray-500 mt-1">Patrón: LT/[AÑO][MES]-[TECNICA]</p>
+                {isGeneratingCodigo && (
+                  <p className="text-xs text-gray-500 mt-1">Generando código...</p>
+                )}
+                {worklistCodigoError && (
+                  <p className="text-xs text-danger-600 mt-1">
+                    No se pudo generar el código. Inténtalo de nuevo.
+                  </p>
+                )}
+                {nombre && !isGeneratingCodigo && !worklistCodigoError && (
+                  <p className="text-xs text-gray-500 mt-1">Patrón: LYY.NNNNN</p>
                 )}
               </div>
             </div>

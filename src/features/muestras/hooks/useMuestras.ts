@@ -1,6 +1,7 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query'
 import muestrasService from '../services/muestras.services'
-import { Muestra, MuestraStats, Tecnica } from '../interfaces/muestras.types'
+import { CodigoEpiResponse, Muestra, MuestraStats, Tecnica } from '../interfaces/muestras.types'
 import { STALE_TIME } from '@/shared/constants/constants'
 
 export const useMuestras = () => {
@@ -108,4 +109,47 @@ export const useDeleteMuestra = () => {
       queryClient.invalidateQueries({ queryKey: ['muestras'] })
     }
   })
+}
+
+export const useNextCodigoEpi = (autoFetch = false) => {
+  const [codigoEpi, setCodigoEpi] = useState<CodigoEpiResponse | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
+  const hasFetchedRef = useRef(false)
+
+  const fetchCodigo = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const response = await muestrasService.getNextCodigoEpi()
+      setCodigoEpi(response)
+      return response
+    } catch (err) {
+      const errorInstance =
+        err instanceof Error
+          ? err
+          : new Error('No se pudo obtener el siguiente código epidemiológico')
+      setError(errorInstance)
+      throw errorInstance
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!autoFetch || hasFetchedRef.current) {
+      return
+    }
+    hasFetchedRef.current = true
+    fetchCodigo().catch(() => {
+      // el error se maneja en el estado local
+    })
+  }, [autoFetch, fetchCodigo])
+
+  return {
+    codigoEpi,
+    isLoading,
+    error,
+    fetchCodigo
+  }
 }

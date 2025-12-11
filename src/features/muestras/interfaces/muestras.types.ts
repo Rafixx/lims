@@ -115,6 +115,12 @@ export type Resultado = {
   unidades?: string
 }
 
+export type CodigoEpiResponse = {
+  codigo_epi: string
+  secuencia: number
+  year: number
+}
+
 export type EMPTY_MUESTRA_FORM = {
   paciente: null
   solicitud: null

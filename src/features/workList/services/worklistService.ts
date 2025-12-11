@@ -1,5 +1,10 @@
 import { apiClient } from '@/shared/services/apiClient'
-import { Tecnica, Worklist, CreateWorklistRequest } from '../interfaces/worklist.types'
+import {
+  CodigoWorklistResponse,
+  Tecnica,
+  Worklist,
+  CreateWorklistRequest
+} from '../interfaces/worklist.types'
 import { TecnicaProc } from '@/shared/interfaces/dim_tables.types'
 
 class WorklistService {
@@ -56,6 +61,11 @@ class WorklistService {
 
   async deleteWorklist(id: number): Promise<void> {
     await apiClient.delete(`${this.basePath}/${id}`)
+  }
+
+  async getNextWorklistCode(): Promise<CodigoWorklistResponse> {
+    const response = await apiClient.get<CodigoWorklistResponse>(`${this.basePath}/codigo`)
+    return response.data
   }
 }
 
