@@ -1,5 +1,12 @@
 import { apiClient } from '@/shared/services/apiClient'
-import { ImportDataResultsResponse, RawNanoDrop, RawQubit } from '../interfaces/worklist.types'
+import { Resultado } from '@/features/muestras/interfaces/muestras.types'
+import {
+  ImportDataResultsResponse,
+  RawNanoDrop,
+  RawQubit,
+  CreateResultadoPayload,
+  UpdateResultadoPayload
+} from '../interfaces/worklist.types'
 
 class ResultadoService {
   private readonly workList_basePath = '/worklists'
@@ -48,6 +55,16 @@ class ResultadoService {
 
   async getRawQubitData(): Promise<RawQubit[]> {
     const response = await apiClient.get<RawQubit[]>(`${this.resultados_basePath}/raw/qubit`)
+    return response.data
+  }
+
+  async createResultado(payload: CreateResultadoPayload): Promise<Resultado> {
+    const response = await apiClient.post<Resultado>(this.resultados_basePath, payload)
+    return response.data
+  }
+
+  async updateResultado(id: number, payload: UpdateResultadoPayload): Promise<Resultado> {
+    const response = await apiClient.put<Resultado>(`${this.resultados_basePath}/${id}`, payload)
     return response.data
   }
 }

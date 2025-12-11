@@ -3,11 +3,17 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { useUser } from '@/shared/contexts/UserContext'
 import { worklistService } from '../services/worklistService'
 import { resultadoService } from '../services/resultadoService'
 import { useDeleteWorklist } from './useWorklists'
 import { rawDataToMappableRows } from '../utils/rawDataMapper'
-import { Tecnica, MappableRow, InstrumentType } from '../interfaces/worklist.types'
+import {
+  Tecnica,
+  MappableRow,
+  InstrumentType,
+  ManualResultFormValues
+} from '../interfaces/worklist.types'
 
 interface UseWorklistActionsProps {
   worklistId: number
@@ -24,12 +30,37 @@ export const useWorklistActions = ({
 }: UseWorklistActionsProps) => {
   const navigate = useNavigate()
   const { notify } = useNotification()
+  const { user } = useUser()
   const [selectedTecnicoId, setSelectedTecnicoId] = useState<string>('')
   const [isAssigningTecnico, setIsAssigningTecnico] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
   const [showMappingModal, setShowMappingModal] = useState(false)
   const [mappableRows, setMappableRows] = useState<MappableRow[]>([])
   const [instrumentType, setInstrumentType] = useState<InstrumentType | null>(null)
+  const [showManualResultsModal, setShowManualResultsModal] = useState(false)
+  const [selectedManualTecnica, setSelectedManualTecnica] = useState<Tecnica | null>(null)
+  const [isSavingManualResult, setIsSavingManualResult] = useState(false)
+
+  const openManualResultsModal = (tecnica: Tecnica) => {
+    setSelectedManualTecnica(tecnica)
+    setShowManualResultsModal(true)
+  }
+
+  const closeManualResultsModal = () => {
+    if (isSavingManualResult) return
+    setShowManualResultsModal(false)
+    setSelectedManualTecnica(null)
+  }
+
+  const getTecnicaMuestraId = (tecnica: Tecnica | null): number | null => {
+    if (!tecnica) return null
+    return (
+      tecnica.muestra?.id_muestra ||
+      tecnica.id_muestra ||
+      tecnica.muestraArray?.id_muestra ||
+      null
+    )
+  }
 
   const handleTecnicoChange = async (tecnicoId: string) => {
     if (!tecnicoId) return
@@ -145,6 +176,62 @@ export const useWorklistActions = ({
   const openImportModal = () => setShowImportModal(true)
   const closeImportModal = () => setShowImportModal(false)
 
+  const handleSaveManualResult = async (values: ManualResultFormValues) => {
+    if (!selectedManualTecnica || !selectedManualTecnica.id_tecnica) {
+      notify('No se pudo identificar la técnica seleccionada', 'error')
+      return
+    }
+
+    const idMuestra = getTecnicaMuestraId(selectedManualTecnica)
+    if (!idMuestra) {
+      notify('No se pudo identificar la muestra asociada', 'error')
+      return
+    }
+
+    const sanitizedValues: ManualResultFormValues = {
+      tipo_res: values.tipo_res || undefined,
+      valor: values.valor || undefined,
+      valor_texto: values.valor_texto || undefined,
+      valor_fecha: values.valor_fecha || undefined,
+      unidades: values.unidades || undefined
+    }
+
+    const existingResultado = selectedManualTecnica.resultados?.[0]
+
+    setIsSavingManualResult(true)
+    try {
+      if (existingResultado?.id_resultado) {
+        await resultadoService.updateResultado(existingResultado.id_resultado, {
+          ...sanitizedValues,
+          updated_by: user?.id
+        })
+        notify('Resultado actualizado correctamente', 'success')
+      } else {
+        await resultadoService.createResultado({
+          ...sanitizedValues,
+          id_muestra: idMuestra,
+          id_tecnica: selectedManualTecnica.id_tecnica,
+          created_by: user?.id
+        })
+        notify('Resultado creado correctamente', 'success')
+      }
+
+      await refetchWorkList()
+      setShowManualResultsModal(false)
+      setSelectedManualTecnica(null)
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data
+          ?.message ||
+        (error as { message?: string })?.message ||
+        'Error al guardar resultado manual'
+      notify(errorMessage, 'error')
+      console.error('Error guardando resultado manual:', error)
+    } finally {
+      setIsSavingManualResult(false)
+    }
+  }
+
   const handleStartTecnicas = async () => {
     try {
       await worklistService.startTecnicasInWorkList(worklistId)
@@ -200,15 +287,21 @@ export const useWorklistActions = ({
     isAssigningTecnico,
     showImportModal,
     showMappingModal,
+    showManualResultsModal,
     mappableRows,
     instrumentType,
     tecnicas,
+    selectedManualTecnica,
+    isSavingManualResult,
     openImportModal,
     closeImportModal,
     closeMappingModal,
+    closeManualResultsModal,
+    openManualResultsModal,
     handleTecnicoChange,
     handleImportDataResults,
     handleConfirmMapping,
+    handleSaveManualResult,
     handleDeleteWorklist,
     handleStartTecnicas,
     handlePlantillaTecnica,

@@ -14,6 +14,7 @@ import { useWorklistStats } from '../hooks/useWorklistStats'
 import { useWorklistWorkflow } from '../hooks/useWorklistWorkflow'
 import { ImportResultsModal } from '../components/WorkListResults/ImportResultsModal'
 import { MapResultsModal } from '../components/WorkListResults/MapResultsModal'
+import { ManualResultsModal } from '../components/WorkListResults/ManualResultsModal'
 
 export const WorklistDetailPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -29,20 +30,25 @@ export const WorklistDetailPage = () => {
     isAssigningTecnico,
     showImportModal,
     showMappingModal,
+    showManualResultsModal,
     mappableRows,
-    instrumentType,
     tecnicas,
     openImportModal,
     closeImportModal,
     closeMappingModal,
+    closeManualResultsModal,
     handleTecnicoChange,
     handleImportDataResults,
     handleConfirmMapping,
+    handleSaveManualResult,
     handleStartTecnicas,
     handleDeleteWorklist,
     handleBack,
     handlePlantillaTecnica,
-    handleLotes
+    handleLotes,
+    openManualResultsModal,
+    selectedManualTecnica,
+    isSavingManualResult
   } = useWorklistActions({
     worklistId,
     worklistName: worklist?.nombre || '',
@@ -133,6 +139,7 @@ export const WorklistDetailPage = () => {
             isAssigningTecnico={isAssigningTecnico}
             canAssignTecnico={permissions.canAssignTecnico}
             onTecnicoChange={handleTecnicoChange}
+            onManualResult={openManualResultsModal}
           />
         </div>
       )}
@@ -152,6 +159,15 @@ export const WorklistDetailPage = () => {
         onConfirm={handleConfirmMapping}
         tecnicas={tecnicas}
         mappableRows={mappableRows}
+      />
+
+      {/* Modal de introducción manual */}
+      <ManualResultsModal
+        isOpen={showManualResultsModal}
+        tecnica={selectedManualTecnica}
+        isSaving={isSavingManualResult}
+        onClose={closeManualResultsModal}
+        onSubmit={handleSaveManualResult}
       />
     </div>
   )

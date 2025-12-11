@@ -15,6 +15,7 @@ interface WorklistTecnicasGridProps {
   isAssigningTecnico: boolean
   canAssignTecnico: boolean
   onTecnicoChange: (tecnicoId: string) => void
+  onManualResult: (tecnica: Tecnica) => void
 }
 
 export const WorklistTecnicasGrid = ({
@@ -24,7 +25,8 @@ export const WorklistTecnicasGrid = ({
   selectedTecnicoId,
   isAssigningTecnico,
   canAssignTecnico,
-  onTecnicoChange
+  onTecnicoChange,
+  onManualResult
 }: WorklistTecnicasGridProps) => {
   return (
     <Card className="p-6">
@@ -80,7 +82,11 @@ export const WorklistTecnicasGrid = ({
 
         {/* Filas de técnicas */}
         {tecnicas.map((tecnica, index) => (
-          <TecnicaRow key={tecnica.id_tecnica || index} tecnica={tecnica} />
+          <TecnicaRow
+            key={tecnica.id_tecnica || index}
+            tecnica={tecnica}
+            onManualResult={onManualResult}
+          />
         ))}
       </div>
     </Card>

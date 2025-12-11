@@ -24,11 +24,17 @@ export interface CreateWorklistRequest {
 
 export interface Tecnica {
   id_tecnica?: number
+  id_muestra?: number
   id_tecnica_proc?: number
+  tecnica_proc?: {
+    id?: number
+    tecnica_proc?: string
+  }
   id_estado?: number
   estadoInfo?: DimEstado
-  muestraArray: MuestraArray
+  muestraArray?: MuestraArray
   muestra?: {
+    id_muestra?: number
     codigo_epi: string
     codigo_externo: string
   }
@@ -44,6 +50,24 @@ export interface MuestraArray {
   id_array: number
   codigo_placa: string
   posicion_placa: string
+}
+
+export interface ManualResultFormValues {
+  tipo_res?: string
+  valor?: string
+  valor_texto?: string
+  valor_fecha?: string
+  unidades?: string
+}
+
+export interface CreateResultadoPayload extends ManualResultFormValues {
+  id_muestra: number
+  id_tecnica: number
+  created_by?: number
+}
+
+export interface UpdateResultadoPayload extends ManualResultFormValues {
+  updated_by?: number
 }
 
 export interface TecnicaProc {
