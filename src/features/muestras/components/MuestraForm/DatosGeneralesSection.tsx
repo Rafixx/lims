@@ -150,6 +150,17 @@ export const DatosGeneralesSection = () => {
             error={errors.codigo_epi?.message}
             className={muestraStyle}
           />
+          <FormField
+            id={`estudio`}
+            label="Número de estudio"
+            inputProps={{
+              ...register(`estudio`),
+              type: 'text',
+              placeholder: 'Ej: estudio-12345'
+            }}
+            error={errors.estudio?.message}
+            className={muestraStyle}
+          />
 
           <FormField
             id={`solicitud.condiciones_envio`}
@@ -175,6 +186,18 @@ export const DatosGeneralesSection = () => {
             className={muestraStyle}
           />
         </div>
+
+        <FormField
+          id={`observaciones`}
+          label="Observaciones"
+          inputProps={{
+            ...register(`observaciones`),
+            type: 'text',
+            placeholder: 'Incidencias u observaciones adicionales sobre la muestra...'
+          }}
+          error={errors.observaciones?.message}
+          className={muestraStyle}
+        />
       </div>
     </div>
   )

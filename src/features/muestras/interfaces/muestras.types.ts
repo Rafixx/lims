@@ -37,13 +37,16 @@ export type Muestra = {
 
   codigo_epi?: string
   codigo_externo?: string
+  estudio?: string
   f_toma?: string
   f_recepcion?: string
+  id_tecnico_recepcion?: number
   f_destruccion?: string
   f_devolucion?: string
 
   id_estado?: number
   estadoInfo?: DimEstado | null
+  observaciones?: string
 
   // Configuración de array para muestras tipo array
   array_config?: {

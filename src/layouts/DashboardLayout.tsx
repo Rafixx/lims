@@ -24,7 +24,10 @@ export const DashboardLayout = () => {
       />
       <main className="flex-1 bg-gray-50 overflow-auto">
         <header className="bg-white shadow p-4 flex justify-between items-center">
-          <h1 className="text-xl font-semibold">LIMS</h1>
+          <span className="flex items-center gap-5">
+            <img src="/icons/icon.svg" alt="LIMS Icon" className="h-8 w-8" />
+            <h1 className="text-xl font-semibold">LIMS</h1>
+          </span>
           {user && (
             <div className="flex items-center gap-4 bg-gray-100 rounded-lg">
               <div

@@ -22,6 +22,7 @@ export interface TimelineEvent {
   status: 'completed' | 'active' | 'pending' | 'warning'
   onClick?: () => void
   editable?: boolean
+  additionalInfo?: React.ReactNode // Para mostrar información extra como técnico asignado
 }
 
 interface TimelineProps {
@@ -36,7 +37,7 @@ const getStatusColor = (status: TimelineEvent['status']) => {
     case 'active':
       return 'bg-blue-500 border-blue-600'
     case 'pending':
-      return 'bg-gray-300 border-gray-400'
+      return 'bg-primary-500 border-primary-200'
     case 'warning':
       return 'bg-orange-500 border-orange-600'
     default:
@@ -119,8 +120,12 @@ export const Timeline: React.FC<TimelineProps> = ({ events, className = '' }) =>
                 ) : (
                   <div className="flex items-center text-sm text-gray-400 italic">
                     <AlertCircle className="w-4 h-4 mr-2" />
-                    Fecha no establecida
+                    Falta introducir la fecha de {event.title.toLowerCase()}
                   </div>
+                )}
+
+                {event.additionalInfo && (
+                  <div className="mt-2 pt-2 border-t border-gray-100">{event.additionalInfo}</div>
                 )}
               </div>
             </div>
