@@ -18,7 +18,9 @@ export const DatosMuestraSection = () => {
     f_recepcion: watch('f_recepcion'),
     f_destruccion: watch('f_destruccion'),
     f_devolucion: watch('f_devolucion'),
+    f_agotada: watch('f_agotada'),
     id_tecnico_recepcion: watch('id_tecnico_recepcion'),
+    id_tecnico_verifica: watch('id_tecnico_verifica'),
     'solicitud.f_creacion': watch('solicitud.f_creacion'),
     'solicitud.f_entrada': watch('solicitud.f_entrada'),
     'solicitud.f_compromiso': watch('solicitud.f_compromiso'),
@@ -105,25 +107,51 @@ export const DatosMuestraSection = () => {
       date: isValidDate(watchedValues.f_recepcion) ? (watchedValues.f_recepcion ?? null) : null,
       icon: MuestraIcons.recepcion,
       status: getEventStatus('f_recepcion'),
-      additionalInfo: watchedValues.id_tecnico_recepcion ? (
-        <div className="flex items-center text-sm text-gray-600">
-          <User className="w-4 h-4 mr-2" />
-          <span className="font-medium">Recepcionado por: </span>
-          <span className="ml-1">
-            {(() => {
-              const tecnicoValue = watchedValues.id_tecnico_recepcion
-              const tecnicoId =
-                typeof tecnicoValue === 'object' && tecnicoValue !== null
-                  ? (tecnicoValue as { id_usuario: number }).id_usuario
-                  : Number(tecnicoValue)
+      additionalInfo:
+        watchedValues.id_tecnico_recepcion || watchedValues.id_tecnico_verifica ? (
+          <div className="space-y-2">
+            {watchedValues.id_tecnico_recepcion && (
+              <div className="flex items-center text-sm text-gray-600">
+                <User className="w-4 h-4 mr-2" />
+                <span className="font-medium">Recepcionado por: </span>
+                <span className="ml-1">
+                  {(() => {
+                    const tecnicoValue = watchedValues.id_tecnico_recepcion
+                    const tecnicoId =
+                      typeof tecnicoValue === 'object' && tecnicoValue !== null
+                        ? (tecnicoValue as { id_usuario: number }).id_usuario
+                        : Number(tecnicoValue)
 
-              return (
-                tecnicos.find(t => t.id_usuario === tecnicoId)?.nombre || 'Técnico no encontrado'
-              )
-            })()}
-          </span>
-        </div>
-      ) : null,
+                    return (
+                      tecnicos.find(t => t.id_usuario === tecnicoId)?.nombre ||
+                      'Técnico no encontrado'
+                    )
+                  })()}
+                </span>
+              </div>
+            )}
+            {watchedValues.id_tecnico_verifica && (
+              <div className="flex items-center text-sm text-gray-600">
+                <User className="w-4 h-4 mr-2" />
+                <span className="font-medium">Verificado por: </span>
+                <span className="ml-1">
+                  {(() => {
+                    const tecnicoValue = watchedValues.id_tecnico_verifica
+                    const tecnicoId =
+                      typeof tecnicoValue === 'object' && tecnicoValue !== null
+                        ? (tecnicoValue as { id_usuario: number }).id_usuario
+                        : Number(tecnicoValue)
+
+                    return (
+                      tecnicos.find(t => t.id_usuario === tecnicoId)?.nombre ||
+                      'Técnico no encontrado'
+                    )
+                  })()}
+                </span>
+              </div>
+            )}
+          </div>
+        ) : undefined,
       editable: true,
       onClick: () => setEditingField('f_recepcion')
     },
@@ -150,6 +178,16 @@ export const DatosMuestraSection = () => {
       status: getEventStatus('solicitud.f_resultado'),
       editable: true,
       onClick: () => setEditingField('solicitud.f_resultado')
+    },
+    {
+      id: 'f_agotada',
+      title: 'Muestra Agotada',
+      description: 'Fecha en que la muestra se considera agotada',
+      date: isValidDate(watchedValues.f_agotada) ? (watchedValues.f_agotada ?? null) : null,
+      icon: MuestraIcons.agotada,
+      status: getEventStatus('f_agotada'),
+      editable: true,
+      onClick: () => setEditingField('f_agotada')
     },
     {
       id: 'solicitud.f_entrega',
@@ -233,6 +271,19 @@ export const DatosMuestraSection = () => {
                   name="id_tecnico_recepcion"
                   control={control}
                   label="Técnico de Recepción"
+                  options={tecnicos}
+                  isLoading={loadingTecnicos}
+                  getValue={tec => tec.id_usuario}
+                  getLabel={tec => tec.nombre || ''}
+                />
+              )}
+
+              {/* Campo adicional de técnico para evento de recepción */}
+              {editingField === 'f_recepcion' && (
+                <EntitySelect
+                  name="id_tecnico_verifica"
+                  control={control}
+                  label="Técnico de Verificación"
                   options={tecnicos}
                   isLoading={loadingTecnicos}
                   getValue={tec => tec.id_usuario}

@@ -41,8 +41,10 @@ export type Muestra = {
   f_toma?: string
   f_recepcion?: string
   id_tecnico_recepcion?: number
+  id_tecnico_verifica?: number
   f_destruccion?: string
   f_devolucion?: string
+  f_agotada?: string
 
   id_estado?: number
   estadoInfo?: DimEstado | null

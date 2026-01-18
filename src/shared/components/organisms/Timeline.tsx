@@ -8,7 +8,9 @@ import {
   Trash2,
   Clock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  ClipboardCheck,
+  FlaskConicalOff
 } from 'lucide-react'
 import { format, parseISO, isValid } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -141,9 +143,11 @@ export const MuestraIcons = {
   entrada: <Package className="w-5 h-5" />,
   toma: <FlaskConical className="w-5 h-5" />,
   recepcion: <CheckCircle2 className="w-5 h-5" />,
+  verificacion: <ClipboardCheck className="w-5 h-5" />,
   compromiso: <CalendarCheck2 className="w-5 h-5" />,
   entrega: <RotateCcw className="w-5 h-5" />,
   resultado: <CheckCircle2 className="w-5 h-5" />,
+  agotada: <FlaskConicalOff className="w-5 h-5" />,
   destruccion: <Trash2 className="w-5 h-5" />,
   devolucion: <RotateCcw className="w-5 h-5" />
 }

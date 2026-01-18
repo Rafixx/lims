@@ -17,6 +17,7 @@ interface FormFieldProps {
   options?: Array<{ label: string; value: string | number }> // para <select>
   className?: string // clase para el campo (input, textarea, select)
   containerClassName?: string // clase para el wrapper
+  required?: boolean
 }
 
 export const FormField = ({
@@ -29,20 +30,30 @@ export const FormField = ({
   selectProps,
   options = [],
   className,
-  containerClassName
+  containerClassName,
+  required = false
 }: FormFieldProps) => {
   return (
     <div className={clsx('mb-4 px-2', containerClassName)}>
-      <Label htmlFor={id}>{label}</Label>
+      <Label htmlFor={id}>
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </Label>
 
       {type === 'input' && (
-        <Input id={id} {...inputProps} className={clsx(inputProps?.className, className)} />
+        <Input
+          id={id}
+          {...inputProps}
+          required={required}
+          className={clsx(inputProps?.className, className)}
+        />
       )}
 
       {type === 'textarea' && (
         <textarea
           id={id}
           {...textareaProps}
+          required={required}
           className={clsx('form-textarea', textareaProps?.className, className)}
         />
       )}
@@ -51,6 +62,7 @@ export const FormField = ({
         <Select
           id={id}
           {...selectProps}
+          required={required}
           className={clsx('form-select', selectProps?.className, className)}
         >
           <option value="">Selecciona una opción</option>

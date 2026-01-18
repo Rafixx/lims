@@ -14,7 +14,7 @@ import {
 import { CreateWorklistRequest } from '../interfaces/worklist.types'
 import { Input } from '@/shared/components/molecules/Input'
 import { Label } from '@/shared/components/atoms/Label'
-import { TecnicaCard } from '../components/WorkListCreate/TecnicaCard'
+import { TecnicasTable } from '../components/WorkListCreate/TecnicasTable'
 import { useUser } from '@/shared/contexts/UserContext'
 export const CreateWorklistPage = () => {
   const navigate = useNavigate()
@@ -102,15 +102,12 @@ export const CreateWorklistPage = () => {
     })
   }
 
-  const handleSelectAll = () => {
-    if (selectedTecnicas.size === posiblesTecnicas.length) {
-      // Si todas están seleccionadas, deseleccionar todas
-      setSelectedTecnicas(new Set())
-    } else {
-      // Seleccionar todas
-      const allIds = new Set(posiblesTecnicas.map(t => t.id_tecnica).filter(Boolean) as number[])
-      setSelectedTecnicas(allIds)
-    }
+  const handleSelectAll = (tecnicaIds: number[]) => {
+    setSelectedTecnicas(prev => {
+      const newSet = new Set(prev)
+      tecnicaIds.forEach(id => newSet.add(id))
+      return newSet
+    })
   }
 
   const clearSelection = () => {
@@ -222,25 +219,7 @@ export const CreateWorklistPage = () => {
         {/* Listar las Tecnicas asociadas al proceso seleccionado */}
         {selectedTecnicaProc && (
           <div className="mt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Técnicas Disponibles ({selectedTecnicas.size} seleccionadas)
-              </h2>
-              {posiblesTecnicas.length > 0 && (
-                <div className="flex gap-2">
-                  <Button type="button" variant="ghost" size="sm" onClick={handleSelectAll}>
-                    {selectedTecnicas.size === posiblesTecnicas.length
-                      ? 'Deseleccionar Todas'
-                      : 'Seleccionar Todas'}
-                  </Button>
-                  {selectedTecnicas.size > 0 && (
-                    <Button type="button" variant="ghost" size="sm" onClick={clearSelection}>
-                      Limpiar Selección
-                    </Button>
-                  )}
-                </div>
-              )}
-            </div>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Técnicas Disponibles</h2>
 
             {loadingTecnicas ? (
               <div className="flex items-center justify-center py-8">
@@ -258,16 +237,13 @@ export const CreateWorklistPage = () => {
                 No hay técnicas disponibles para el proceso seleccionado.
               </p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {posiblesTecnicas.map(tecnica => (
-                  <TecnicaCard
-                    tecnica={tecnica}
-                    key={tecnica.id_tecnica}
-                    onToggle={() => handleTecnicaToggle(tecnica.id_tecnica!)}
-                    isSelected={selectedTecnicas.has(tecnica.id_tecnica!)}
-                  />
-                ))}
-              </div>
+              <TecnicasTable
+                tecnicas={posiblesTecnicas}
+                selectedTecnicas={selectedTecnicas}
+                onToggle={handleTecnicaToggle}
+                onSelectAll={handleSelectAll}
+                onClearSelection={clearSelection}
+              />
             )}
           </div>
         )}

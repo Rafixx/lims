@@ -43,7 +43,7 @@ export const DatosGeneralesSection = () => {
           <EntitySelect
             name={`solicitud.cliente.id`}
             control={control}
-            label="Cliente *"
+            label="Cliente"
             options={clientes}
             isLoading={loadingClientes}
             getValue={cliente => cliente.id}
@@ -55,7 +55,7 @@ export const DatosGeneralesSection = () => {
           <EntitySelect
             name={`paciente.id`}
             control={control}
-            label="Paciente *"
+            label="Paciente"
             options={pacientes}
             isLoading={loadingPacientes}
             getValue={paciente => paciente.id}
@@ -68,7 +68,7 @@ export const DatosGeneralesSection = () => {
           <EntitySelect
             name={`prueba.id`}
             control={control}
-            label="Prueba *"
+            label="Prueba"
             options={pruebas}
             isLoading={loadingPruebas}
             getValue={prueba => prueba.id}
@@ -82,7 +82,7 @@ export const DatosGeneralesSection = () => {
           <EntitySelect
             name={`tipo_muestra.id`}
             control={control}
-            label="Tipo de Muestra *"
+            label="Tipo de Muestra"
             options={tiposMuestra}
             isLoading={loadingTipos}
             getValue={tipo => tipo.id}
@@ -95,7 +95,7 @@ export const DatosGeneralesSection = () => {
           <EntitySelect
             name={`centro.id`}
             control={control}
-            label="Centro *"
+            label="Centro"
             options={centros}
             isLoading={loadingCentros}
             getValue={centro => centro.id}
@@ -107,7 +107,7 @@ export const DatosGeneralesSection = () => {
           <EntitySelect
             name={`tecnico_resp.id_usuario`}
             control={control}
-            label="Técnico Responsable *"
+            label="Técnico Responsable"
             options={tec_resp}
             isLoading={loadingTecResp}
             getValue={tec => tec.id_usuario}
@@ -119,7 +119,7 @@ export const DatosGeneralesSection = () => {
           <EntitySelect
             name={`criterio_validacion.id`}
             control={control}
-            label="Criterio de Validación *"
+            label="Criterio de Validación"
             options={criterios}
             isLoading={loadingCriterios}
             getValue={cval => cval.id}
@@ -137,6 +137,7 @@ export const DatosGeneralesSection = () => {
               // placeholder: 'Ej: MUE-2024-001'
             }}
             error={errors.codigo_externo?.message}
+            required
             className={muestraStyle}
           />
           <FormField

@@ -37,6 +37,7 @@ export const EntitySelect = <T, F extends FieldValues>({
     <div className="mb-4 px-2">
       <label htmlFor={name} className="block text-sm font-medium text-surface-700 mb-1">
         {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
       </label>
       <div className={icon && onIconClick ? 'flex items-center' : ''}>
         <Controller

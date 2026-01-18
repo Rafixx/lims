@@ -6,6 +6,8 @@ import { LogOut } from 'lucide-react'
 import { Button } from '@/shared/components/molecules/Button'
 import { useState } from 'react'
 
+const iconUrl = `${import.meta.env.BASE_URL}icons/icon.svg`
+
 export const DashboardLayout = () => {
   const { user, logout } = useUser()
   const navigate = useNavigate()
@@ -25,7 +27,7 @@ export const DashboardLayout = () => {
       <main className="flex-1 bg-gray-50 overflow-auto">
         <header className="bg-white shadow p-4 flex justify-between items-center">
           <span className="flex items-center gap-5">
-            <img src="/icons/icon.svg" alt="LIMS Icon" className="h-8 w-8" />
+            <img src={iconUrl} alt="LIMS Icon" className="h-8 w-8" />
             <h1 className="text-xl font-semibold">LIMS</h1>
           </span>
           {user && (
