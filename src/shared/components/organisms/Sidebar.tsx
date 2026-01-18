@@ -47,8 +47,11 @@ const CollapsibleMenuItem = ({
   if (isCollapsed) {
     return (
       <div className="relative group">
-        <button className="w-full flex items-center justify-center px-3 py-2 rounded-md text-sm text-surface-700 hover:bg-white hover:text-surface-900 transition-colors">
-          <Icon className="w-5 h-5" />
+        <button
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm text-surface-700 hover:bg-white hover:text-surface-900 transition-colors"
+          title={item.label}
+        >
+          <Icon className="w-5 h-5 flex-shrink-0" />
         </button>
       </div>
     )

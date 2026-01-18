@@ -65,6 +65,10 @@ export const MuestraListDetail = ({
     <span key={muestra.id_muestra} className="font-medium text-blue-600">
       {muestra.codigo_epi || '-'}
     </span>,
+    // Estudio
+    <span key={`estudio-${muestra.id_muestra}`} className="text-gray-700">
+      {muestra.estudio || '-'}
+    </span>,
     // Cliente
     <span key={muestra.solicitud?.cliente?.id} className="text-gray-700">
       {muestra.solicitud?.cliente?.nombre || '-'}

@@ -219,7 +219,7 @@ export const CreateWorklistPage = () => {
         {/* Listar las Tecnicas asociadas al proceso seleccionado */}
         {selectedTecnicaProc && (
           <div className="mt-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Técnicas Disponibles</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Muestras Disponibles</h2>
 
             {loadingTecnicas ? (
               <div className="flex items-center justify-center py-8">

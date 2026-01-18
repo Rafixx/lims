@@ -107,9 +107,9 @@ export const configMenuItems: MenuItemWithChildren = {
     },
     {
       path: '/maquinas',
-      label: 'Máquinas',
+      label: 'Equipos de Laboratorio',
       icon: Cpu,
-      description: 'Equipos y máquinas de laboratorio'
+      description: 'Equipos y aparatos de laboratorio'
     },
     {
       path: '/pipetas',

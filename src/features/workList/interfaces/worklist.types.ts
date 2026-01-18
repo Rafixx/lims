@@ -37,6 +37,7 @@ export interface Tecnica {
     id_muestra?: number
     codigo_epi: string
     codigo_externo: string
+    estudio?: string
   }
   tecnico_resp?: {
     id_usuario: number

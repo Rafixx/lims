@@ -6,7 +6,7 @@ import { Input } from '@/shared/components/molecules/Input'
 import { Button } from '@/shared/components/molecules/Button'
 import { Tecnica } from '../../interfaces/worklist.types'
 
-type SortField = 'codigo_epi' | 'codigo_externo' | 'id_muestra' | 'id_tecnica'
+type SortField = 'codigo_epi' | 'codigo_externo' | 'estudio'
 type SortDirection = 'asc' | 'desc'
 
 interface Props {
@@ -40,12 +40,12 @@ export const TecnicasTable = ({
     return tecnicas.filter(tecnica => {
       const codigoEpi = tecnica.muestra?.codigo_epi?.toLowerCase() || ''
       const codigoExterno = tecnica.muestra?.codigo_externo?.toLowerCase() || ''
-      const idMuestra = tecnica.id_muestra?.toString() || ''
+      const estudio = tecnica.muestra?.estudio?.toLowerCase() || ''
 
       return (
         codigoEpi.includes(searchTerm) ||
         codigoExterno.includes(searchTerm) ||
-        idMuestra.includes(searchTerm)
+        estudio.includes(searchTerm)
       )
     })
   }, [tecnicas, filterMuestra])
@@ -65,13 +65,9 @@ export const TecnicasTable = ({
           valueA = a.muestra?.codigo_externo || ''
           valueB = b.muestra?.codigo_externo || ''
           break
-        case 'id_muestra':
-          valueA = a.id_muestra || 0
-          valueB = b.id_muestra || 0
-          break
-        case 'id_tecnica':
-          valueA = a.id_tecnica || 0
-          valueB = b.id_tecnica || 0
+        case 'estudio':
+          valueA = a.muestra?.estudio || ''
+          valueB = b.muestra?.estudio || ''
           break
       }
 
@@ -186,12 +182,7 @@ export const TecnicasTable = ({
 
         {/* Acciones de selección */}
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleSelectAllFiltered}
-          >
+          <Button type="button" variant="ghost" size="sm" onClick={handleSelectAllFiltered}>
             {allFilteredSelected ? 'Deseleccionar' : 'Seleccionar'}{' '}
             {filterMuestra ? 'filtradas' : 'todas'}
             {filterMuestra && ` (${filteredTecnicas.length})`}
@@ -230,15 +221,6 @@ export const TecnicasTable = ({
               </th>
               <th
                 className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort('id_muestra')}
-              >
-                <div className="flex items-center gap-1">
-                  Muestra
-                  <SortIcon field="id_muestra" />
-                </div>
-              </th>
-              <th
-                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                 onClick={() => handleSort('codigo_externo')}
               >
                 <div className="flex items-center gap-1">
@@ -257,11 +239,11 @@ export const TecnicasTable = ({
               </th>
               <th
                 className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort('id_tecnica')}
+                onClick={() => handleSort('estudio')}
               >
                 <div className="flex items-center gap-1">
-                  Nº Estudio
-                  <SortIcon field="id_tecnica" />
+                  Estudio
+                  <SortIcon field="estudio" />
                 </div>
               </th>
             </tr>
@@ -269,7 +251,7 @@ export const TecnicasTable = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedTecnicas.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
                   {filterMuestra
                     ? 'No se encontraron técnicas con el filtro aplicado'
                     : 'No hay técnicas disponibles'}
@@ -285,9 +267,7 @@ export const TecnicasTable = ({
                   <tr
                     key={tecnica.id_tecnica}
                     className={`cursor-pointer transition-colors ${
-                      isSelected
-                        ? 'bg-primary-50 hover:bg-primary-100'
-                        : 'hover:bg-gray-50'
+                      isSelected ? 'bg-primary-50 hover:bg-primary-100' : 'hover:bg-gray-50'
                     }`}
                     onClick={() => tecnica.id_tecnica && onToggle(tecnica.id_tecnica)}
                   >
@@ -301,16 +281,13 @@ export const TecnicasTable = ({
                       />
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
-                      {tecnica.id_muestra || '-'}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-900">
                       {tecnica.muestra?.codigo_externo || '-'}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900 font-medium">
                       {tecnica.muestra?.codigo_epi || '-'}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
-                      {tecnica.id_tecnica || '-'}
+                      {tecnica.muestra?.estudio || '-'}
                     </td>
                   </tr>
                 )

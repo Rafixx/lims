@@ -19,6 +19,7 @@ import { MuestraListDetail } from '../components/MuestraList/MuestraListDetail'
 const COLUMN_CONFIG = [
   { label: 'Cód EXT', span: 1 },
   { label: 'Cód EPI', span: 1 },
+  { label: 'Estudio', span: 1 },
   { label: 'Cliente', span: 2 },
   { label: 'Paciente', span: 2 },
   { label: 'Tipo Muestra', span: 1 },
