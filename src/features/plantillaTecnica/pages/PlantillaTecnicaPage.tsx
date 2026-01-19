@@ -51,6 +51,8 @@ export const PlantillaTecnicaPage = () => {
         worklistId={worklistId}
         codigoPlantilla={plantillaTecnica.plantillaTecnica.cod_plantilla_tecnica}
         tecnicaProc={plantillaTecnica.tecnica_proc}
+        tecnicas={worklist.tecnicas}
+        plantillaTecnica={plantillaTecnica}
       />
 
       {/* Contenido Principal */}

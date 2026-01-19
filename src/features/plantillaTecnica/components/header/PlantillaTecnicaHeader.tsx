@@ -1,13 +1,19 @@
 // src/features/plantillaTecnica/components/header/PlantillaTecnicaHeader.tsx
 
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/molecules/Button'
-import { ArrowLeft, FileText, Download, Printer } from 'lucide-react'
+import { ArrowLeft, FileText, Download, Printer, Loader2 } from 'lucide-react'
+import { Tecnica } from '@/features/workList/interfaces/worklist.types'
+import { TecnicaProc } from '../../interfaces/plantillaTecnica.types'
+import { downloadPlantillaTecnicaPDF } from '../PDF'
 
 interface PlantillaTecnicaHeaderProps {
   worklistId: number
   codigoPlantilla?: string
   tecnicaProc?: string
+  tecnicas: Tecnica[]
+  plantillaTecnica: TecnicaProc | null
 }
 
 /**
@@ -17,9 +23,12 @@ interface PlantillaTecnicaHeaderProps {
 export const PlantillaTecnicaHeader = ({
   worklistId,
   codigoPlantilla,
-  tecnicaProc
+  tecnicaProc,
+  tecnicas,
+  plantillaTecnica
 }: PlantillaTecnicaHeaderProps) => {
   const navigate = useNavigate()
+  const [isDownloading, setIsDownloading] = useState(false)
 
   // Obtener fecha y hora actual en formato DD/MM/YYYY y HH:MM
   const now = new Date()
@@ -38,17 +47,29 @@ export const PlantillaTecnicaHeader = ({
   }
 
   const handlePrint = () => {
-    // TODO: Implementar lógica de impresión
     window.print()
   }
 
-  const handleDownload = () => {
-    // TODO: Implementar lógica de descarga PDF
-    console.log('Descargar PDF')
+  const handleDownload = async () => {
+    if (!plantillaTecnica) return
+
+    setIsDownloading(true)
+    try {
+      await downloadPlantillaTecnicaPDF({
+        tecnicas,
+        plantillaTecnica,
+        fecha,
+        hora
+      })
+    } catch (error) {
+      console.error('Error al generar el PDF:', error)
+    } finally {
+      setIsDownloading(false)
+    }
   }
 
   return (
-    <div className="bg-white border-b border-surface-200 shadow-sm">
+    <div className="bg-white border-b border-surface-200 shadow-sm print:hidden">
       <div className="max-w-7xl mx-auto px-6 py-6">
         <div className="flex items-center justify-between">
           {/* Sección izquierda: Navegación y título */}
@@ -70,12 +91,6 @@ export const PlantillaTecnicaHeader = ({
                     <span className="text-surface-900">{codigoPlantilla}</span>
                   </div>
                 )}
-                {/* {tecnicaProc && (
-                  <div>
-                    <span className="font-semibold">Técnica:</span>{' '}
-                    <span className="text-surface-900">{tecnicaProc}</span>
-                  </div>
-                )} */}
                 <div>
                   <span className="font-semibold">Fecha:</span>{' '}
                   <span className="text-surface-900">{fecha}</span>
@@ -105,9 +120,19 @@ export const PlantillaTecnicaHeader = ({
               onClick={handleDownload}
               className="flex items-center gap-2"
               title="Descargar como PDF"
+              disabled={isDownloading || !plantillaTecnica}
             >
-              <Download size={16} />
-              Descargar PDF
+              {isDownloading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Generando...
+                </>
+              ) : (
+                <>
+                  <Download size={16} />
+                  Descargar PDF
+                </>
+              )}
             </Button>
           </div>
         </div>

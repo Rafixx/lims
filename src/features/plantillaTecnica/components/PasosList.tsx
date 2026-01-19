@@ -31,47 +31,29 @@ export const PasosList = ({ pasos = [] }: PasosListProps) => {
         </div>
       </div>
 
-      {/* Timeline de pasos */}
+      {/* Lista de pasos */}
       {pasosOrdenados.length > 0 ? (
-        <div className="relative">
-          {/* Línea vertical */}
-          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-surface-200" />
-
-          {/* Lista de pasos */}
-          <div className="space-y-6">
-            {pasosOrdenados.map((paso, index) => (
-              <div key={paso.id} className="relative pl-12">
-                {/* Número del paso */}
-                <div className="absolute left-0 top-0 w-8 h-8 bg-primary-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
-                  {paso.orden}
-                </div>
-
-                {/* Contenido del paso */}
-                <div className="bg-white border border-surface-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
-                  {/* Código y descripción */}
-                  <div className="mb-3">
-                    {paso.codigo && (
-                      <h3 className="text-lg font-bold text-surface-900 mb-2">{paso.codigo}</h3>
-                    )}
-                    <p className="text-sm text-surface-700 leading-relaxed whitespace-pre-wrap">
-                      {paso.descripcion}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Conector para el siguiente paso */}
-                {index < pasosOrdenados.length - 1 && (
-                  <div className="absolute left-4 -bottom-3 w-0.5 h-3 bg-surface-200" />
-                )}
-              </div>
-            ))}
-          </div>
+        <div className="space-y-1">
+          {pasosOrdenados.map(paso => (
+            <div
+              key={paso.id}
+              className="flex items-center gap-3 py-1.5 px-2 bg-surface-50 border border-surface-200 rounded"
+            >
+              <span className="w-5 h-5 bg-primary-500 text-white rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0">
+                {paso.orden}
+              </span>
+              {paso.codigo && (
+                <span className="text-xs font-semibold text-surface-900">{paso.codigo}</span>
+              )}
+              <span className="text-xs text-surface-700">{paso.descripcion}</span>
+            </div>
+          ))}
         </div>
       ) : (
         /* Estado vacío */
-        <div className="text-center py-12">
-          <ListOrdered className="w-12 h-12 text-surface-300 mx-auto mb-3" />
-          <p className="text-surface-500 text-sm">No hay pasos definidos para este protocolo</p>
+        <div className="text-center py-4">
+          <ListOrdered className="w-8 h-8 text-surface-300 mx-auto mb-1" />
+          <p className="text-surface-500 text-xs">No hay pasos definidos para este protocolo</p>
         </div>
       )}
     </Card>

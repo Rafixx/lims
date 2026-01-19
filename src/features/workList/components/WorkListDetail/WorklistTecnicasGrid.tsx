@@ -1,8 +1,9 @@
 // src/features/workList/components/WorklistTecnicasGrid.tsx
 
+import { useState, useMemo } from 'react'
 import { Card } from '@/shared/components/molecules/Card'
 import { Select } from '@/shared/components/molecules/Select'
-import { User } from 'lucide-react'
+import { User, Filter, FilterX } from 'lucide-react'
 import { TecnicaRow } from './WorklistTecnicaRow'
 import { Tecnica } from '../../interfaces/worklist.types'
 import { TecnicoLaboratorio } from '@/shared/interfaces/dim_tables.types'
@@ -18,6 +19,10 @@ interface WorklistTecnicasGridProps {
   onManualResult: (tecnica: Tecnica) => void
 }
 
+const tecnicaTieneResultado = (tecnica: Tecnica): boolean => {
+  return Boolean(tecnica.resultados && tecnica.resultados.length > 0)
+}
+
 export const WorklistTecnicasGrid = ({
   tecnicaProc,
   tecnicas,
@@ -28,6 +33,23 @@ export const WorklistTecnicasGrid = ({
   onTecnicoChange,
   onManualResult
 }: WorklistTecnicasGridProps) => {
+  const [filterSinResultado, setFilterSinResultado] = useState(false)
+
+  const hayAlgunaTecnicaConResultado = useMemo(
+    () => tecnicas.some(tecnicaTieneResultado),
+    [tecnicas]
+  )
+
+  const tecnicasFiltradas = useMemo(() => {
+    if (!filterSinResultado) return tecnicas
+    return tecnicas.filter(tecnica => !tecnicaTieneResultado(tecnica))
+  }, [tecnicas, filterSinResultado])
+
+  const tecnicasSinResultadoCount = useMemo(
+    () => tecnicas.filter(tecnica => !tecnicaTieneResultado(tecnica)).length,
+    [tecnicas]
+  )
+
   return (
     <Card className="p-6">
       {/* Header con selector de técnico */}
@@ -38,6 +60,27 @@ export const WorklistTecnicasGrid = ({
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Filtro por técnicas sin resultado */}
+            {hayAlgunaTecnicaConResultado && (
+              <button
+                onClick={() => setFilterSinResultado(!filterSinResultado)}
+                className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors ${
+                  filterSinResultado
+                    ? 'bg-primary-100 text-primary-700 hover:bg-primary-200'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {filterSinResultado ? (
+                  <FilterX className="h-4 w-4" />
+                ) : (
+                  <Filter className="h-4 w-4" />
+                )}
+                {filterSinResultado
+                  ? `Mostrando sin resultado (${tecnicasSinResultadoCount})`
+                  : 'Filtrar sin resultado'}
+              </button>
+            )}
+
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-gray-500" />
               <span className="text-sm text-gray-600 min-w-max">Cambiar técnico asignado:</span>
@@ -81,7 +124,7 @@ export const WorklistTecnicasGrid = ({
         </div>
 
         {/* Filas de técnicas */}
-        {tecnicas.map((tecnica, index) => (
+        {tecnicasFiltradas.map((tecnica, index) => (
           <TecnicaRow
             key={tecnica.id_tecnica || index}
             tecnica={tecnica}

@@ -55,10 +55,7 @@ export const useWorklistActions = ({
   const getTecnicaMuestraId = (tecnica: Tecnica | null): number | null => {
     if (!tecnica) return null
     return (
-      tecnica.muestra?.id_muestra ||
-      tecnica.id_muestra ||
-      tecnica.muestraArray?.id_muestra ||
-      null
+      tecnica.muestra?.id_muestra || tecnica.id_muestra || tecnica.muestraArray?.id_muestra || null
     )
   }
 

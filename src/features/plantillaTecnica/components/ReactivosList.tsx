@@ -29,45 +29,36 @@ export const ReactivosList = ({ reactivos }: ReactivosListProps) => {
 
       {/* Lista de reactivos */}
       {reactivos.length > 0 ? (
-        <div className="space-y-2">
+        <div className="space-y-1">
           {reactivos.map(reactivo => (
             <div
               key={reactivo.id}
-              className="flex flex-col gap-2 p-3 bg-surface-50 border border-surface-200 rounded-lg"
+              className="flex items-center gap-3 py-1.5 px-2 bg-surface-50 border border-surface-200 rounded"
             >
-              <div className="flex items-center gap-2">
-                <Droplet className="w-4 h-4 text-success-600" />
-                <h3 className="text-sm font-semibold text-surface-900">{reactivo.reactivo}</h3>
-              </div>
-
-              <div className="flex items-center gap-3 text-xs text-surface-600 ml-6">
-                <div>
-                  <span className="font-semibold">Ref:</span> {reactivo.num_referencia}
-                </div>
-                {reactivo.lote && (
-                  <>
-                    <span className="text-surface-400">•</span>
-                    <div>
-                      <span className="font-semibold">Lote:</span> {reactivo.lote}
-                    </div>
-                  </>
-                )}
-                {reactivo.volumen_formula && (
-                  <>
-                    <span className="text-surface-400">•</span>
-                    <div>
-                      <span className="font-semibold">Vol:</span> {reactivo.volumen_formula}
-                    </div>
-                  </>
-                )}
-              </div>
+              <Droplet className="w-3 h-3 text-success-600 flex-shrink-0" />
+              <span className="text-xs font-semibold text-surface-900 truncate">
+                {reactivo.reactivo}
+              </span>
+              <span className="text-xs text-surface-500">Ref: {reactivo.num_referencia}</span>
+              {reactivo.lote && (
+                <>
+                  <span className="text-surface-300">•</span>
+                  <span className="text-xs text-surface-500">Lote: {reactivo.lote}</span>
+                </>
+              )}
+              {reactivo.volumen_formula && (
+                <>
+                  <span className="text-surface-300">•</span>
+                  <span className="text-xs text-surface-500">Vol: {reactivo.volumen_formula}</span>
+                </>
+              )}
             </div>
           ))}
         </div>
       ) : (
         /* Estado vacío */
-        <div className="text-center py-8">
-          <Droplet className="w-10 h-10 text-surface-300 mx-auto mb-2" />
+        <div className="text-center py-4">
+          <Droplet className="w-8 h-8 text-surface-300 mx-auto mb-1" />
           <p className="text-surface-500 text-xs">No hay reactivos definidos</p>
         </div>
       )}

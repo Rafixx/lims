@@ -169,7 +169,7 @@ function getPermissionsForState(state: WorklistWorkflowState): WorkflowPermissio
         canAssignTecnico: false,
         canStartTecnicas: false,
         canImportResults: true,
-        canManagePlantillaTecnica: false,
+        canManagePlantillaTecnica: true,
         canManageLotes: true
       }
 
