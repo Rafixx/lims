@@ -3,9 +3,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useUser } from '@/shared/contexts/UserContext'
 import { worklistService } from '../services/worklistService'
 import { resultadoService } from '../services/resultadoService'
+import { tecnicaService } from '@/shared/services/tecnicaService'
 import { useDeleteWorklist } from './useWorklists'
 import { rawDataToMappableRows } from '../utils/rawDataMapper'
 import {
@@ -30,6 +32,7 @@ export const useWorklistActions = ({
 }: UseWorklistActionsProps) => {
   const navigate = useNavigate()
   const { notify } = useNotification()
+  const { confirm } = useConfirmation()
   const { user } = useUser()
   const [selectedTecnicoId, setSelectedTecnicoId] = useState<string>('')
   const [isAssigningTecnico, setIsAssigningTecnico] = useState(false)
@@ -241,15 +244,23 @@ export const useWorklistActions = ({
   }
 
   const handleDeleteWorklist = async () => {
-    if (window.confirm(`¿Está seguro de eliminar el worklist "${worklistName}"?`)) {
-      try {
-        await useDeleteWorklist()
-        navigate('/worklist')
-        notify('Worklist eliminada correctamente', 'success')
-      } catch (error) {
-        notify('Error al eliminar la worklist', 'error')
-        console.error('Error deleting worklist:', error)
-      }
+    const confirmed = await confirm({
+      title: 'Eliminar Worklist',
+      message: `¿Está seguro de eliminar el worklist "${worklistName}"?\n\nEsta acción no se puede deshacer.`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    })
+
+    if (!confirmed) return
+
+    try {
+      const deleteMutation = useDeleteWorklist()
+      await deleteMutation.mutateAsync(worklistId)
+      navigate('/worklist')
+      notify('Worklist eliminado correctamente', 'success')
+    } catch (error) {
+      notify('Error al eliminar el worklist', 'error')
+      console.error('Error deleting worklist:', error)
     }
   }
 
@@ -279,6 +290,50 @@ export const useWorklistActions = ({
     navigate('/worklist')
   }
 
+  const handleMarcarResultadoErroneo = async (idsTecnicas: number[]) => {
+    if (!idsTecnicas || idsTecnicas.length === 0) {
+      notify('No hay técnicas seleccionadas', 'warning')
+      return
+    }
+
+    const confirmed = await confirm({
+      title: 'Marcar como resultado erróneo',
+      message: `¿Está seguro que desea marcar ${idsTecnicas.length} técnica${idsTecnicas.length > 1 ? 's' : ''} como resultado erróneo?\n\nEsto eliminará el técnico asignado y permitirá su reasignación.`,
+      confirmText: 'Marcar como erróneo',
+      cancelText: 'Cancelar'
+    })
+
+    if (!confirmed) return
+
+    try {
+      const response = await tecnicaService.marcarResultadoErroneo(idsTecnicas, worklistId)
+
+      if (response.data.errors && response.data.errors.length > 0) {
+        // Caso 207 Multi-Status: éxito parcial
+        notify(
+          `${response.data.updated} técnica(s) marcada(s) como erróneas. ${response.data.errors.length} fallaron.`,
+          'warning'
+        )
+      } else {
+        // Caso 200 OK: éxito total
+        notify(
+          `${response.data.updated} técnica(s) marcada(s) como erróneas y listas para reasignación`,
+          'success'
+        )
+      }
+
+      await refetchWorkList()
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data
+          ?.message ||
+        (error as { message?: string })?.message ||
+        'No se pudo completar la operación'
+      notify(errorMessage, 'error')
+      console.error('Error marking técnicas as erroneous:', error)
+    }
+  }
+
   return {
     selectedTecnicoId,
     isAssigningTecnico,
@@ -303,6 +358,7 @@ export const useWorklistActions = ({
     handleStartTecnicas,
     handlePlantillaTecnica,
     handleLotes,
-    handleBack
+    handleBack,
+    handleMarcarResultadoErroneo
   }
 }

@@ -45,7 +45,7 @@ export const WorklistHeader = ({
       <div className="flex items-center gap-4">
         <Button variant="accent" onClick={onBack} className="flex items-center gap-2">
           <ArrowLeft size={20} />
-          Volver
+          {/* Volver */}
         </Button>
 
         <div>

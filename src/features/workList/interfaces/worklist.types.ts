@@ -5,6 +5,11 @@ export interface Worklist {
   id_worklist: number
   nombre: string
   tecnica_proc?: string
+  id_tecnico_resp?: number
+  tecnico_resp?: {
+    id_usuario: number
+    nombre: string
+  }
   create_dt: string
   delete_dt?: string
   update_dt: string

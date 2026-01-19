@@ -48,7 +48,8 @@ export const WorklistDetailPage = () => {
     handleLotes,
     openManualResultsModal,
     selectedManualTecnica,
-    isSavingManualResult
+    isSavingManualResult,
+    handleMarcarResultadoErroneo
   } = useWorklistActions({
     worklistId,
     worklistName: worklist?.nombre || '',
@@ -133,6 +134,8 @@ export const WorklistDetailPage = () => {
         <div className="space-y-6">
           <WorklistTecnicasGrid
             tecnicaProc={worklist.tecnica_proc || 'Técnicas'}
+            idTecnicoResp={worklist.id_tecnico_resp}
+            tecnicoResp={worklist.tecnico_resp}
             tecnicas={worklist.tecnicas}
             tecnicos={tecnicos}
             selectedTecnicoId={selectedTecnicoId}
@@ -140,6 +143,7 @@ export const WorklistDetailPage = () => {
             canAssignTecnico={permissions.canAssignTecnico}
             onTecnicoChange={handleTecnicoChange}
             onManualResult={openManualResultsModal}
+            onMarcarResultadoErroneo={handleMarcarResultadoErroneo}
           />
         </div>
       )}

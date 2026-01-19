@@ -1,6 +1,6 @@
 // src/features/workList/components/TecnicaRow.tsx
 
-import { User } from 'lucide-react'
+import { AlertTriangle, Edit } from 'lucide-react'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { ResultadoInfo } from '@/features/muestras/components/MuestraList/ResultadoInfo'
 import { Tecnica } from '../../interfaces/worklist.types'
@@ -9,9 +9,14 @@ import { Button } from '@/shared/components/molecules/Button'
 interface TecnicaRowProps {
   tecnica: Tecnica
   onManualResult: (tecnica: Tecnica) => void
+  onMarcarResultadoErroneo: (idsTecnicas: number[]) => void
 }
 
-export const TecnicaRow = ({ tecnica, onManualResult }: TecnicaRowProps) => {
+export const TecnicaRow = ({
+  tecnica,
+  onManualResult,
+  onMarcarResultadoErroneo
+}: TecnicaRowProps) => {
   const hasResultados = Boolean(
     tecnica.resultados &&
       tecnica.resultados.length > 0 &&
@@ -24,68 +29,70 @@ export const TecnicaRow = ({ tecnica, onManualResult }: TecnicaRowProps) => {
       )
   )
 
+  const handleMarcarErroneoIndividual = () => {
+    if (tecnica.id_tecnica) {
+      onMarcarResultadoErroneo([tecnica.id_tecnica])
+    }
+  }
+
   return (
-    <div className="grid grid-cols-12 gap-4 border p-3 rounded bg-white hover:bg-gray-50 transition-colors items-center">
-      {/* Columna 1: Códigos (span 2) */}
-      <div className="col-span-2 space-y-1">
-        <div className="text-xs text-gray-600">
-          <span className="font-medium">Externo:</span> {tecnica.muestra?.codigo_externo || 'N/A'}
-        </div>
-        <div className="text-xs text-gray-600">
-          <span className="font-medium">Epidisease:</span> {tecnica.muestra?.codigo_epi || 'N/A'}
-        </div>
+    <div className="grid grid-cols-12 gap-4 border p-2 rounded bg-white hover:bg-gray-50 transition-colors items-center">
+      {/* Columna 1: Códigos inline (span 3) */}
+      <div className="col-span-3 text-xs text-gray-700">
+        <span className="font-medium text-gray-500">Ext:</span>{' '}
+        {tecnica.muestra?.codigo_externo || 'N/A'}
+        <span className="mx-2 text-gray-300">|</span>
+        <span className="font-medium text-gray-500">Epi:</span>{' '}
+        {tecnica.muestra?.codigo_epi || 'N/A'}
       </div>
 
-      {/* Columna 2: Técnico Lab (span 2) */}
-      <div className="col-span-2">
-        {tecnica.tecnico_resp ? (
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-gray-400 flex-shrink-0" />
-            <span className="text-sm text-gray-700 truncate">{tecnica.tecnico_resp.nombre}</span>
+      {/* Columna 2: Resultados + Botones inline (span 7) */}
+      <div className="col-span-7">
+        {hasResultados && tecnica.resultados && tecnica.resultados.length > 0 ? (
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-1 flex items-center gap-3 flex-wrap">
+              {tecnica.resultados.map((resultado, index) => (
+                <ResultadoInfo key={index} resultado={resultado} />
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0 flex items-center gap-1.5 h-7"
+              title="Introducción manual de resultados"
+              onClick={() => onManualResult(tecnica)}
+            >
+              <Edit className="h-3.5 w-3.5" />
+            </Button>
           </div>
         ) : (
-          <span className="text-xs text-gray-400">Sin asignar</span>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs text-gray-400">Sin resultados</span>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0 flex items-center gap-1.5 h-7"
+                title="Introducción manual de resultados"
+                onClick={() => onManualResult(tecnica)}
+              >
+                <Edit className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0 flex items-center gap-1.5 h-7 text-red-600 border-red-300 hover:bg-red-50 hover:text-red-800"
+                title="Marcar como resultado erróneo"
+                onClick={handleMarcarErroneoIndividual}
+              >
+                <AlertTriangle className="h-3.5 w-3.5 text-red-600" />
+              </Button>
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Columna 3: Resultados (span 6) */}
-      <div className="col-span-6">
-        <div className="space-y-2">
-          {hasResultados && tecnica.resultados && tecnica.resultados.length > 0 ? (
-            <div className="flex items-start justify-between gap-4 flex-wrap">
-              <div className="flex-1 space-y-1">
-                {tecnica.resultados.map((resultado, index) => (
-                  <ResultadoInfo key={index} resultado={resultado} />
-                ))}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                className="shrink-0"
-                title="Introducción manual de resultados"
-                onClick={() => onManualResult(tecnica)}
-              >
-                Manual
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-xs text-gray-400">Sin resultados</span>
-              <Button
-                variant="outline"
-                size="sm"
-                className="shrink-0"
-                title="Introducción manual de resultados"
-                onClick={() => onManualResult(tecnica)}
-              >
-                Manual
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Columna 4: Estado (span 2) */}
+      {/* Columna 3: Estado (span 2) */}
       <div className="col-span-2 flex justify-end">
         {tecnica.estadoInfo ? (
           <IndicadorEstado estado={tecnica.estadoInfo} size="small" />

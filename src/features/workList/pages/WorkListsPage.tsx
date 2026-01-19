@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useWorklists } from '../hooks/useWorklists'
+import { useWorklists, useDeleteWorklist } from '../hooks/useWorklists'
+import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
+import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { Button } from '@/shared/components/molecules/Button'
 import { Plus, Search, BarChart3 } from 'lucide-react'
 import { WorkListListHeader } from '../components/WorkListList/WorkListListHeader'
@@ -11,37 +13,61 @@ import { Worklist } from '@/features/muestras/interfaces/muestras.types'
 
 // Configuración de columnas para los WorkLists
 const WORKLIST_COLUMNS = [
-  { label: 'Nombre', span: 3 },
-  { label: 'Técnica/Proceso', span: 2 },
-  { label: 'Total', span: 1 },
-  { label: 'Completadas', span: 1 },
-  { label: 'Progreso', span: 2 },
-  { label: 'Fecha Creación', span: 2 },
+  { label: 'Nombre', span: 3, sortKey: 'nombre' },
+  { label: 'Técnica/Proceso', span: 2, sortKey: 'tecnica_proc' },
+  { label: 'Total', span: 1, sortKey: 'total' },
+  { label: 'Completadas', span: 1, sortKey: 'completadas' },
+  { label: 'Progreso', span: 2, sortKey: 'progreso' },
+  { label: 'Fecha Creación', span: 2, sortKey: 'create_dt' },
   { label: '', span: 1 }
 ]
 
 export const WorkListsPage = () => {
   const navigate = useNavigate()
-  // const { notify } = useNotification()
+  const { confirm } = useConfirmation()
+  const { notify } = useNotification()
   const [searchTerm, setSearchTerm] = useState('')
+  const [sortKey, setSortKey] = useState<string>('create_dt')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
   // Queries
   const { worklists, isLoading, error, refetch } = useWorklists()
 
   // Mutations
-  // const deleteWorklist = useDeleteWorklist()
+  const deleteWorklist = useDeleteWorklist()
+  
   const handleEditWorklist = (worklist: Worklist) => {
     navigate(`/worklist/${worklist.id_worklist}/editar`)
   }
 
   const handleDeleteWorklist = async (id: number, nombre: string) => {
-    if (window.confirm(`¿Está seguro de eliminar el worklist "${nombre}"?`)) {
-      try {
-        // await deleteWorklist.mutateAsync(id)
-        refetch()
-      } catch (error) {
-        console.error('Error deleting worklist:', error)
-      }
+    const confirmed = await confirm({
+      title: 'Eliminar Worklist',
+      message: `¿Está seguro de eliminar el worklist "${nombre}"?\n\nEsta acción no se puede deshacer y eliminará todas las asignaciones asociadas.`,
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar'
+    })
+
+    if (!confirmed) return
+
+    try {
+      await deleteWorklist.mutateAsync(id)
+      notify('Worklist eliminado correctamente', 'success')
+      refetch()
+    } catch (error) {
+      notify('Error al eliminar el worklist', 'error')
+      console.error('Error deleting worklist:', error)
+    }
+  }
+
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      // Cambiar dirección si es la misma columna
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      // Nueva columna, ordenar ascendente por defecto
+      setSortKey(key)
+      setSortDirection('asc')
     }
   }
 
@@ -51,6 +77,52 @@ export const WorkListsPage = () => {
         worklist.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
         worklist.tecnica_proc?.toLowerCase().includes(searchTerm.toLowerCase())
     ) || []
+
+  // Ordenar worklists
+  const sortedWorklists = [...filteredWorklists].sort((a, b) => {
+    let compareValue = 0
+
+    switch (sortKey) {
+      case 'nombre':
+        compareValue = a.nombre.localeCompare(b.nombre)
+        break
+      case 'tecnica_proc':
+        compareValue = (a.tecnica_proc || '').localeCompare(b.tecnica_proc || '')
+        break
+      case 'total':
+        compareValue = (a.tecnicas?.length || 0) - (b.tecnicas?.length || 0)
+        break
+      case 'completadas': {
+        const completadasA =
+          a.tecnicas?.filter(t => t.id_estado === 10 /* COMPLETADA_TECNICA */).length || 0
+        const completadasB =
+          b.tecnicas?.filter(t => t.id_estado === 10 /* COMPLETADA_TECNICA */).length || 0
+        compareValue = completadasA - completadasB
+        break
+      }
+      case 'progreso': {
+        const totalA = a.tecnicas?.length || 0
+        const completadasA =
+          a.tecnicas?.filter(t => t.id_estado === 10 /* COMPLETADA_TECNICA */).length || 0
+        const progresoA = totalA > 0 ? (completadasA / totalA) * 100 : 0
+
+        const totalB = b.tecnicas?.length || 0
+        const completadasB =
+          b.tecnicas?.filter(t => t.id_estado === 10 /* COMPLETADA_TECNICA */).length || 0
+        const progresoB = totalB > 0 ? (completadasB / totalB) * 100 : 0
+
+        compareValue = progresoA - progresoB
+        break
+      }
+      case 'create_dt':
+        compareValue = new Date(a.create_dt).getTime() - new Date(b.create_dt).getTime()
+        break
+      default:
+        compareValue = 0
+    }
+
+    return sortDirection === 'asc' ? compareValue : -compareValue
+  })
 
   if (isLoading) {
     return (
@@ -110,7 +182,7 @@ export const WorkListsPage = () => {
       </div>
 
       {/* Worklists List */}
-      {filteredWorklists.length === 0 ? (
+      {sortedWorklists.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">
             <BarChart3 size={64} className="mx-auto" />
@@ -127,8 +199,13 @@ export const WorkListsPage = () => {
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <WorkListListHeader fieldList={WORKLIST_COLUMNS} />
-          {filteredWorklists.map(worklist => (
+          <WorkListListHeader
+            fieldList={WORKLIST_COLUMNS}
+            sortKey={sortKey}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+          />
+          {sortedWorklists.map(worklist => (
             <WorkListListDetail
               key={worklist.id_worklist}
               worklist={worklist}
