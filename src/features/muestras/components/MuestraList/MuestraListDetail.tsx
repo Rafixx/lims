@@ -1,6 +1,7 @@
 import { ReactNode, useMemo } from 'react'
-import { Edit, Trash2 } from 'lucide-react'
+import { Edit, Trash2, Plus } from 'lucide-react'
 import { Muestra } from '../../interfaces/muestras.types'
+import { useNavigate } from 'react-router-dom'
 import { useTecnicasByMuestra } from '../../hooks/useMuestras'
 import { TecnicaListHeader } from './TecnicaListHeader'
 import { TecnicaListDetail } from './TecnicaListDetail'
@@ -17,10 +18,11 @@ interface MuestraListDetailProps {
 // Configuración de columnas para las técnicas SIN resultados
 const TECNICA_COLUMNS_WITHOUT_RESULTS = [
   { label: 'Fecha', span: 2 },
-  { label: 'Técnica', span: 3 },
+  { label: 'Técnica', span: 2 },
   { label: 'Worklist', span: 2 },
   { label: 'Técnico', span: 2 },
-  { label: 'Estado', span: 3 }
+  { label: 'Estado', span: 3 },
+  { label: 'Acciones', span: 1 }
 ]
 
 // Configuración de columnas para las técnicas CON resultados
@@ -29,8 +31,9 @@ const TECNICA_COLUMNS_WITH_RESULTS = [
   { label: 'Técnica', span: 2 },
   { label: 'Worklist', span: 1 },
   { label: 'Técnico', span: 1 },
-  { label: 'Resultados', span: 5 },
-  { label: 'Estado', span: 2 }
+  { label: 'Resultados', span: 4 },
+  { label: 'Estado', span: 2 },
+  { label: 'Acciones', span: 1 }
 ]
 
 // const getEstadoBadgeColor = (estado: string): string => {
@@ -53,6 +56,7 @@ export const MuestraListDetail = ({
   onDelete,
   fieldSpans
 }: MuestraListDetailProps) => {
+  const navigate = useNavigate()
   const { tecnicas } = useTecnicasByMuestra(muestra.id_muestra)
 
   // Definir los campos a renderizar
@@ -98,8 +102,19 @@ export const MuestraListDetail = ({
     // </span>
   ]
 
+  // Handler para duplicar muestra
+  const handleDuplicate = () => {
+    navigate(`/muestras/nueva?duplicar=${muestra.id_muestra}`)
+  }
+
   // Definir las acciones
   const actions: ListDetailAction[] = [
+    {
+      icon: <Plus className="w-4 h-4" />,
+      onClick: handleDuplicate,
+      title: 'Nueva prueba para esta muestra',
+      className: 'p-1 text-green-600 hover:bg-green-50 rounded transition-colors'
+    },
     {
       icon: <Edit className="w-4 h-4" />,
       onClick: () => onEdit(muestra),

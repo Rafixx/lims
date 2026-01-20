@@ -153,3 +153,27 @@ export const useNextCodigoEpi = (autoFetch = false) => {
     fetchCodigo
   }
 }
+
+// Hook para eliminar/cancelar una técnica
+export const useDeleteTecnica = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      tecnicaId,
+      muestraId
+    }: {
+      tecnicaId: number
+      muestraId: number
+    }) => {
+      const tecnicaService = await import('../services/tecnica.service').then(m => m.default)
+
+      // Ejecutar la eliminación (el backend debe cambiar el estado a CANCELADA internamente)
+      await tecnicaService.deleteTecnica(tecnicaId)
+    },
+    onSuccess: (_, { muestraId }) => {
+      // Invalidar las técnicas de la muestra
+      queryClient.invalidateQueries({ queryKey: ['muestra', muestraId, 'tecnicas'] })
+    }
+  })
+}

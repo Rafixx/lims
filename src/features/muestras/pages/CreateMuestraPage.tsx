@@ -4,6 +4,7 @@ import { Card } from '@/shared/components/molecules/Card'
 import { MuestraForm } from '../components/MuestraForm/MuestraForm'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { useMuestra, useNextCodigoEpi } from '../hooks/useMuestras'
+import type { Muestra } from '../interfaces/muestras.types'
 
 export const CreateMuestraPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -13,6 +14,11 @@ export const CreateMuestraPage = () => {
   // ✅ Leer el tipo de muestra desde query params
   const tipo = searchParams.get('tipo')
   const isMuestraGroup = tipo === 'grupo'
+
+  // ✅ Leer si se está duplicando desde query params
+  const duplicarId = searchParams.get('duplicar')
+  const isDuplicating = Boolean(duplicarId)
+  const duplicarMuestraId = duplicarId ? parseInt(duplicarId) : undefined
 
   const muestraId = id ? parseInt(id) : undefined
   const isEditing = Boolean(muestraId && muestraId > 0)
@@ -32,6 +38,13 @@ export const CreateMuestraPage = () => {
   const { notify } = useNotification()
   const { muestra, isLoading, error } = useMuestra(muestraId)
 
+  // ✅ Cargar muestra original si estamos duplicando
+  const {
+    muestra: muestraOriginal,
+    isLoading: isLoadingOriginal,
+    error: errorOriginal
+  } = useMuestra(duplicarMuestraId)
+
   useEffect(() => {
     if (isEditing) {
       setGeneratedCodigos(undefined)
@@ -47,15 +60,28 @@ export const CreateMuestraPage = () => {
 
   // 🎯 Valores iniciales del formulario
   // - Modo edición: usa datos existentes
+  // - Modo duplicación: usa datos de la muestra original pero sin id_muestra y sin prueba
   // - Modo creación: genera códigos aleatorios automáticamente
   const initialFormValues = useMemo(() => {
     if (isEditing && muestra) {
       return muestra
     }
+
+    // Modo duplicación: cargar datos de la muestra original
+    if (isDuplicating && muestraOriginal) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id_muestra, prueba, ...restMuestra } = muestraOriginal
+      return {
+        ...restMuestra,
+        // No incluir prueba para que el usuario la seleccione
+        f_recepcion: new Date().toISOString() // Nueva fecha de recepción
+      } as Partial<Muestra> as Muestra
+    }
+
     // Modo creación: retornar undefined para que use DEFAULT_MUESTRA
     // pero los códigos se inyectarán después
     return undefined
-  }, [isEditing, muestra])
+  }, [isEditing, muestra, isDuplicating, muestraOriginal])
 
   const handleSuccess = () => {
     notify(isEditing ? 'Muestra actualizada con éxito' : 'Muestra creada con éxito', 'success')
@@ -66,8 +92,8 @@ export const CreateMuestraPage = () => {
     navigate('/muestras')
   }
 
-  // Mostrar loading mientras se cargan los datos en modo edición
-  if (isEditing && isLoading) {
+  // Mostrar loading mientras se cargan los datos en modo edición o duplicación
+  if ((isEditing && isLoading) || (isDuplicating && isLoadingOriginal)) {
     return (
       <div className="min-h-screen bg-surface-50 flex items-center justify-center">
         <div className="text-center">
@@ -78,8 +104,8 @@ export const CreateMuestraPage = () => {
     )
   }
 
-  // Mostrar error si falla la carga
-  if (isEditing && error) {
+  // Mostrar error si falla la carga en edición o duplicación
+  if ((isEditing && error) || (isDuplicating && errorOriginal)) {
     return (
       <div className="min-h-screen bg-surface-50 flex items-center justify-center">
         <div className="text-center">
@@ -143,12 +169,18 @@ export const CreateMuestraPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-surface-900">
-                {isEditing ? 'Editar Muestra' : 'Nueva Muestra'}
+                {isEditing
+                  ? 'Editar Muestra'
+                  : isDuplicating
+                    ? 'Nueva Prueba para Muestra Existente'
+                    : 'Nueva Muestra'}
               </h1>
               <p className="text-surface-600 mt-1">
                 {isEditing
                   ? 'Modificar los datos de la muestra existente'
-                  : 'Crear una nueva muestra en el sistema'}
+                  : isDuplicating
+                    ? 'Crear una nueva prueba utilizando los datos de la muestra seleccionada'
+                    : 'Crear una nueva muestra en el sistema'}
               </p>
             </div>
           </div>
@@ -158,12 +190,13 @@ export const CreateMuestraPage = () => {
         <Card className="bg-white shadow-sm">
           <div className="p-6">
             <MuestraForm
-              key={`${muestraId || 'new'}-${isMuestraGroup}`}
+              key={`${muestraId || 'new'}-${isMuestraGroup}-${isDuplicating}`}
               initialValues={initialFormValues}
               onSuccess={handleSuccess}
               onCancel={handleCancel}
               isMuestraGroup={isMuestraGroup}
               generatedCodigos={formGeneratedCodigos}
+              isDuplicating={isDuplicating}
             />
           </div>
         </Card>

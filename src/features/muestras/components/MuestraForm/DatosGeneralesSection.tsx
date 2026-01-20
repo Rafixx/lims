@@ -14,7 +14,11 @@ import {
   useCriteriosValidacion
 } from '@/shared/hooks/useDim_tables'
 
-export const DatosGeneralesSection = () => {
+interface DatosGeneralesSectionProps {
+  isDuplicating?: boolean
+}
+
+export const DatosGeneralesSection = ({ isDuplicating = false }: DatosGeneralesSectionProps) => {
   const {
     control,
     register,
@@ -50,6 +54,7 @@ export const DatosGeneralesSection = () => {
             getLabel={cliente => cliente.nombre}
             required
             className={muestraStyle}
+            disabled={isDuplicating}
             // error={errors.muestras?.[index]?.id_paciente?.message}
           />
           <EntitySelect
@@ -62,6 +67,7 @@ export const DatosGeneralesSection = () => {
             getLabel={paciente => paciente.nombre}
             required
             className={muestraStyle}
+            disabled={isDuplicating}
             // error={errors.muestras?.[index]?.id_paciente?.message}
           />
 
@@ -102,6 +108,7 @@ export const DatosGeneralesSection = () => {
             getLabel={centro => centro.descripcion || ''}
             required
             className={muestraStyle}
+            disabled={isDuplicating}
           />
 
           <EntitySelect
@@ -133,7 +140,8 @@ export const DatosGeneralesSection = () => {
             label="Código externo"
             inputProps={{
               ...register(`codigo_externo`),
-              type: 'text'
+              type: 'text',
+              disabled: isDuplicating
               // placeholder: 'Ej: MUE-2024-001'
             }}
             error={errors.codigo_externo?.message}
@@ -146,7 +154,8 @@ export const DatosGeneralesSection = () => {
             inputProps={{
               ...register(`codigo_epi`),
               type: 'text',
-              placeholder: 'Ej: EPI2025-001'
+              placeholder: 'Ej: EPI2025-001',
+              disabled: isDuplicating
             }}
             error={errors.codigo_epi?.message}
             className={muestraStyle}

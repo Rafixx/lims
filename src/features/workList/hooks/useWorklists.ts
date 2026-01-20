@@ -66,7 +66,7 @@ export const usePosiblesTecnicasProc = () => {
     staleTime: STALE_TIME
   })
   return {
-    posiblesTecnicasProc: data || [],
+    posiblesTecnicasProc: data?.sort((a, b) => a.tecnica_proc.localeCompare(b.tecnica_proc)) || [],
     isLoading,
     error,
     refetch

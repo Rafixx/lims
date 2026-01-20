@@ -91,6 +91,15 @@ export const formatDateShort = (dateString?: string | null): string => {
   }
 }
 
+/**
+ * Verifica si una técnica está asociada a una worklist
+ * @param tecnica - La técnica a verificar
+ * @returns true si la técnica tiene worklist asociada, false en caso contrario
+ */
+export const isTecnicaInWorklist = (tecnica: { worklist?: { id_worklist: number } | null }): boolean => {
+  return Boolean(tecnica.worklist?.id_worklist)
+}
+
 // export const formatDate = (dateString?: string | null, hourMinute: boolean = false): string => {
 //   if (!dateString) return 'N/A'
 

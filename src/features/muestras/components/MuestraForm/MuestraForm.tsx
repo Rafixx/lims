@@ -25,6 +25,7 @@ interface Props {
   generatedCodigos?: {
     codigo_epi?: string
   }
+  isDuplicating?: boolean
 }
 
 export const muestraStyle = 'border-2 border-l-accent'
@@ -34,7 +35,8 @@ export const MuestraForm = ({
   onSuccess,
   onCancel,
   isMuestraGroup,
-  generatedCodigos
+  generatedCodigos,
+  isDuplicating = false
 }: Props) => {
   // Combinar DEFAULT_MUESTRA con códigos generados si existen
   const defaultValues = useMemo(() => {
@@ -71,14 +73,15 @@ export const MuestraForm = ({
   const pacienteId = watch('paciente.id')
   const id_muestra = watch('id_muestra')
   // const estado_muestra = watch('estado_muestra')
-  const asideVisible = Boolean(clienteId || pruebaId || pacienteId)
+  // ✅ El aside solo se muestra si hay una prueba seleccionada (requerido para cargar técnicas)
+  const asideVisible = Boolean(pruebaId && (clienteId || pacienteId))
 
   const tabs = useMemo(() => {
     const baseTabs = [
       {
         id: 'general',
         label: 'Datos principales',
-        content: <DatosGeneralesSection />
+        content: <DatosGeneralesSection isDuplicating={isDuplicating} />
       },
       {
         id: 'cronologia',
@@ -96,7 +99,7 @@ export const MuestraForm = ({
     }
 
     return baseTabs
-  }, [isMuestraGroup])
+  }, [isMuestraGroup, isDuplicating])
 
   // Callback para capturar las técnicas seleccionadas
   const handleTecnicasChange = useCallback((tecnicas: { id_tecnica_proc: number }[]) => {
