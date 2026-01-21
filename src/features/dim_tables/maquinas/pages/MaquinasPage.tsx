@@ -13,7 +13,7 @@ import { useNotification } from '@/shared/components/Notification/NotificationCo
 
 const MAQUINA_COLUMNS = [
   { label: 'Código', span: 3 },
-  { label: 'Máquina', span: 4 },
+  { label: 'Equipo', span: 4 },
   { label: 'Perfil Térmico', span: 3 },
   { label: '', span: 2 }
 ]
@@ -51,8 +51,8 @@ export const MaquinasPage = () => {
   const handleDelete = async (maquina: Maquina) => {
     try {
       const confirmed = await confirm({
-        title: '¿Eliminar máquina?',
-        message: `¿Estás seguro de que deseas eliminar la máquina "${maquina.codigo}"? Esta acción no se puede deshacer.`,
+        title: '¿Eliminar equipo?',
+        message: `¿Estás seguro de que deseas eliminar el equipo "${maquina.codigo}"? Esta acción no se puede deshacer.`,
         type: 'danger',
         confirmText: 'Eliminar',
         cancelText: 'Cancelar'
@@ -60,10 +60,10 @@ export const MaquinasPage = () => {
 
       if (confirmed) {
         await deleteMutation.mutateAsync(maquina.id)
-        notify('Máquina eliminada correctamente', 'success')
+        notify('Equipo eliminado correctamente', 'success')
       }
     } catch (error) {
-      notify(error instanceof Error ? error.message : 'Error al eliminar la máquina', 'error')
+      notify(error instanceof Error ? error.message : 'Error al eliminar el equipo', 'error')
     }
   }
 
@@ -85,7 +85,7 @@ export const MaquinasPage = () => {
 
   return (
     <ListPage
-      title="Gestión de Máquinas"
+      title="Gestión de Equipos"
       data={{
         items: maquinasFiltradas,
         isLoading,
@@ -95,8 +95,8 @@ export const MaquinasPage = () => {
       handlers={handlers}
       renderFilters={renderFilters}
       config={{
-        newButtonText: 'Nueva máquina',
-        emptyStateMessage: 'No hay máquinas disponibles'
+        newButtonText: 'Nuevo equipo',
+        emptyStateMessage: 'No hay equipos disponibles'
       }}
     >
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">

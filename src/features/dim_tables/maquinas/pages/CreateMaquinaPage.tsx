@@ -10,9 +10,9 @@ export const CreateMaquinaPage = () => {
           <ArrowLeft size={20} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-foreground-primary">Nueva Máquina</h1>
+          <h1 className="text-2xl font-bold text-foreground-primary">Nuevo Equipo</h1>
           <p className="text-sm text-foreground-secondary mt-1">
-            Completa el formulario para crear una nueva máquina
+            Completa el formulario para crear una nuevo equipo
           </p>
         </div>
       </div>

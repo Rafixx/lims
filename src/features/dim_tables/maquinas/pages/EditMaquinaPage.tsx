@@ -25,11 +25,11 @@ export const EditMaquinaPage = () => {
           >
             <ArrowLeft size={20} />
           </Link>
-          <h1 className="text-2xl font-bold text-foreground-primary">Editar Máquina</h1>
+          <h1 className="text-2xl font-bold text-foreground-primary">Editar Equipo</h1>
         </div>
         <div className="bg-estado-error/10 border border-estado-error rounded-lg p-4">
           <p className="text-estado-error">
-            {error instanceof Error ? error.message : 'No se pudo cargar la máquina'}
+            {error instanceof Error ? error.message : 'No se pudo cargar el equipo'}
           </p>
         </div>
       </div>
@@ -43,7 +43,7 @@ export const EditMaquinaPage = () => {
           <ArrowLeft size={20} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-foreground-primary">Editar Máquina</h1>
+          <h1 className="text-2xl font-bold text-foreground-primary">Editar Equipo</h1>
           <p className="text-sm text-foreground-secondary mt-1">
             Modificando: <span className="font-medium">{maquina.codigo}</span>
           </p>

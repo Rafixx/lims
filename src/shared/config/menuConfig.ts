@@ -15,7 +15,8 @@ import {
   Cpu,
   Pipette,
   FlaskConical,
-  LucideIcon
+  LucideIcon,
+  Share2
 } from 'lucide-react'
 
 // Tipos para la nueva estructura de menú
@@ -60,6 +61,12 @@ export const mainMenuItems: MenuItemBase[] = [
     label: 'Listas de trabajo',
     icon: LucideListCheck,
     description: 'Gestión de listas de trabajo'
+  },
+  {
+    path: '/externalizaciones',
+    label: 'Externalizaciones',
+    icon: Share2,
+    description: 'Gestión de externalizaciones de técnicas'
   }
 ]
 
@@ -160,6 +167,12 @@ export const homePageMainCards: MenuItemBase[] = [
     label: 'Listas de trabajo',
     icon: LucideListCheck,
     description: 'Gestión de listas de trabajo'
+  },
+  {
+    path: '/externalizaciones',
+    label: 'Externalizaciones',
+    icon: Share2,
+    description: 'Gestión de externalizaciones de técnicas'
   }
 ]
 
