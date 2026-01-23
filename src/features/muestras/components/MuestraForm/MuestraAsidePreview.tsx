@@ -1,5 +1,5 @@
 // src/features/solicitudes/components/solicitudForm/SolicitudAsidePreview.tsx
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { useCliente } from '@/shared/hooks/useDim_tables'
 import { useTecnicas } from '../../hooks/useTecnicas'
 import { usePaciente } from '@/shared/hooks/useDim_tables'
@@ -61,8 +61,17 @@ export const MuestraAsidePreview = ({
     return tecnicas.map(t => ({ id_tecnica_proc: t.id }))
   }, [tecnicas])
 
+  // Ref para comparar y evitar llamadas innecesarias
+  const prevTecnicasRef = useRef<string>('')
+
   useEffect(() => {
     if (!onTecnicasChange) return
+
+    // Serializar para comparar y prevenir actualizaciones innecesarias
+    const currentTecnicas = JSON.stringify(tecnicasPayload)
+    if (prevTecnicasRef.current === currentTecnicas) return
+
+    prevTecnicasRef.current = currentTecnicas
     onTecnicasChange(tecnicasPayload)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tecnicasPayload])
