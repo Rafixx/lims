@@ -49,8 +49,24 @@ export const WorklistTecnicasGrid = ({
     tecnicoResp || (idTecnicoResp ? tecnicos.find(t => t.id_usuario === idTecnicoResp) : undefined)
 
   const tecnicasFiltradas = useMemo(() => {
-    if (!filterSinResultado) return tecnicas
-    return tecnicas.filter(tecnica => !tecnicaTieneResultado(tecnica))
+    const filtradas = filterSinResultado
+      ? tecnicas.filter(tecnica => !tecnicaTieneResultado(tecnica))
+      : tecnicas
+
+    // Ordenar por código de muestra y luego por posición de placa
+    return [...filtradas].sort((a, b) => {
+      // Primero ordenar por código externo de muestra
+      const codigoA = a.muestra?.codigo_externo || ''
+      const codigoB = b.muestra?.codigo_externo || ''
+      const codigoComparison = codigoA.localeCompare(codigoB)
+
+      if (codigoComparison !== 0) return codigoComparison
+
+      // Si los códigos son iguales, ordenar por posición de placa
+      const posicionA = a.muestraArray?.posicion_placa || ''
+      const posicionB = b.muestraArray?.posicion_placa || ''
+      return posicionA.localeCompare(posicionB)
+    })
   }, [tecnicas, filterSinResultado])
 
   const handleMarcarErroneas = () => {
@@ -97,7 +113,8 @@ export const WorklistTecnicasGrid = ({
       <div className="space-y-2">
         {/* Header de columnas */}
         <div className="grid grid-cols-12 gap-4 px-3 py-2 bg-gray-100 rounded-lg font-semibold text-sm text-gray-700">
-          <div className="col-span-3">Códigos</div>
+          <div className="col-span-2">Códigos</div>
+          <div className="col-span-1 text-center">Pocillo</div>
           <div className="col-span-7">Resultados</div>
           <div className="col-span-2">Estado</div>
         </div>

@@ -34,26 +34,24 @@ export const ExternalizacionListDetail = ({
   const [isExpanded, setIsExpanded] = useState(false)
 
   const isPendiente = !externalizacion.f_recepcion
-  const tieneRecepcionDatos = !!externalizacion.f_recepcion_datos
+  // const tieneRecepcionDatos = !!externalizacion.f_recepcion_datos
 
-  const getEstadoColor = () => {
-    if (tieneRecepcionDatos) return 'bg-success-100 text-success-700 border-success-300'
-    if (!isPendiente) return 'bg-info-100 text-info-700 border-info-300'
-    return 'bg-warning-100 text-warning-700 border-warning-300'
-  }
+  // const getEstadoColor = () => {
+  //   if (tieneRecepcionDatos) return 'bg-success-100 text-success-700 border-success-300'
+  //   if (!isPendiente) return 'bg-info-100 text-info-700 border-info-300'
+  //   return 'bg-warning-100 text-warning-700 border-warning-300'
+  // }
 
-  const getEstadoText = () => {
-    if (tieneRecepcionDatos) return 'Con datos'
-    if (!isPendiente) return 'Recibida'
-    return 'Pendiente'
-  }
+  // const getEstadoText = () => {
+  //   if (tieneRecepcionDatos) return 'Con datos'
+  //   if (!isPendiente) return 'Recibida'
+  //   return 'Pendiente'
+  // }
 
   return (
     <div
       className={`border rounded-lg shadow-soft hover:shadow-medium transition-all ${
-        isSelected
-          ? 'border-primary-400 bg-primary-50'
-          : 'border-surface-200 bg-white'
+        isSelected ? 'border-primary-400 bg-primary-50' : 'border-surface-200 bg-white'
       }`}
     >
       {/* Fila principal compacta */}
@@ -124,11 +122,11 @@ export const ExternalizacionListDetail = ({
               <IndicadorEstado estado={externalizacion.tecnica.estadoInfo} size="small" />
             )}
             {/* Estado de la Externalización */}
-            <span
+            {/* <span
               className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full border ${getEstadoColor()}`}
             >
               {getEstadoText()}
-            </span>
+            </span> */}
           </div>
         </div>
 

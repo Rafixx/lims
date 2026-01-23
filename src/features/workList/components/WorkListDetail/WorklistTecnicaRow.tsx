@@ -37,8 +37,8 @@ export const TecnicaRow = ({
 
   return (
     <div className="grid grid-cols-12 gap-4 border p-2 rounded bg-white hover:bg-gray-50 transition-colors items-center">
-      {/* Columna 1: Códigos inline (span 3) */}
-      <div className="col-span-3 text-xs text-gray-700">
+      {/* Columna 1: Códigos inline (span 2) */}
+      <div className="col-span-2 text-xs text-gray-700">
         <span className="font-medium text-gray-500">Ext:</span>{' '}
         {tecnica.muestra?.codigo_externo || 'N/A'}
         <span className="mx-2 text-gray-300">|</span>
@@ -46,7 +46,14 @@ export const TecnicaRow = ({
         {tecnica.muestra?.codigo_epi || 'N/A'}
       </div>
 
-      {/* Columna 2: Resultados + Botones inline (span 7) */}
+      {/* Columna 2: Pocillo (span 1) */}
+      <div className="col-span-1 text-xs text-center">
+        <span className="font-medium text-gray-700">
+          {tecnica.muestraArray?.posicion_placa || '-'}
+        </span>
+      </div>
+
+      {/* Columna 3: Resultados + Botones inline (span 7) */}
       <div className="col-span-7">
         {hasResultados && tecnica.resultados && tecnica.resultados.length > 0 ? (
           <div className="flex items-center justify-between gap-3">
