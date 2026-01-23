@@ -2,30 +2,74 @@
 import { useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/services/apiClient'
+import { Tecnica, TecnicaAgrupada } from '../interfaces/muestras.types'
 
-export interface Tecnica {
+// Tipo unificado para manejar técnicas normales y agrupadas
+export interface TecnicaSimple {
   id: number
-  tecnica_proc: string
+  nombre: string
 }
 
+// Tipo para DimTecnicaProc (viene de /pruebas/:id/tecnicas)
+interface DimTecnicaProcSimple {
+  id: number
+  tecnica_proc: string
+  orden?: number
+}
+
+// Convierte Tecnica o DimTecnicaProcSimple a TecnicaSimple
+const mapTecnicaToSimple = (tecnica: Tecnica | DimTecnicaProcSimple): TecnicaSimple => {
+  // Si viene de /pruebas/:id/tecnicas (DimTecnicaProc)
+  // Este tipo tiene 'tecnica_proc' como string directo, no como objeto anidado
+  if ('tecnica_proc' in tecnica && typeof tecnica.tecnica_proc === 'string') {
+    const dimTecnica = tecnica as DimTecnicaProcSimple
+    return {
+      id: dimTecnica.id,
+      nombre: dimTecnica.tecnica_proc
+    }
+  }
+
+  // Si es una Técnica normal (de una muestra)
+  // Este tipo tiene 'tecnica_proc' como objeto anidado con { id, tecnica_proc }
+  const tecnicaNormal = tecnica as Tecnica
+  return {
+    id: tecnicaNormal.id_tecnica || 0,
+    nombre: tecnicaNormal.tecnica_proc?.tecnica_proc || 'Sin nombre'
+  }
+}
+
+// Convierte TecnicaAgrupada a TecnicaSimple
+const mapTecnicaAgrupadaToSimple = (tecnica: TecnicaAgrupada): TecnicaSimple => ({
+  id: tecnica.primera_tecnica_id,
+  nombre: tecnica.proceso_nombre
+})
+
 export const useTecnicasPorPrueba = (pruebaId?: number) =>
-  useQuery<Tecnica[], Error>({
+  useQuery<TecnicaSimple[], Error>({
     queryKey: ['tecnicasPorPrueba', pruebaId],
     queryFn: async () => {
       if (!pruebaId || pruebaId <= 0) return []
-      const { data } = await apiClient.get<Tecnica[]>(`/pruebas/${pruebaId}/tecnicas`)
-      return data
+      const { data } = await apiClient.get<DimTecnicaProcSimple[]>(`/pruebas/${pruebaId}/tecnicas`)
+      return data.map(mapTecnicaToSimple)
     },
     enabled: !!pruebaId && pruebaId > 0
   })
 
 export const useTecnicasPorMuestra = (muestraId?: number) =>
-  useQuery<Tecnica[], Error>({
+  useQuery<TecnicaSimple[], Error>({
     queryKey: ['tecnicasPorMuestra', muestraId],
     queryFn: async () => {
       if (!muestraId || muestraId <= 0) return []
-      const { data } = await apiClient.get<Tecnica[]>(`/tecnicas/muestra/${muestraId}`)
-      return data
+      // Usar el endpoint agrupadas que devuelve técnicas normales o agrupadas según el tipo de muestra
+      const { data } = await apiClient.get<Tecnica[] | TecnicaAgrupada[]>(
+        `/tecnicas/muestra/${muestraId}/agrupadas`
+      )
+
+      // Verificar si son técnicas agrupadas o normales
+      if (data.length > 0 && 'proceso_nombre' in data[0]) {
+        return (data as TecnicaAgrupada[]).map(mapTecnicaAgrupadaToSimple)
+      }
+      return (data as Tecnica[]).map(mapTecnicaToSimple)
     },
     enabled: !!muestraId && muestraId > 0
   })
@@ -41,15 +85,15 @@ export const useTecnicas = (pruebaId?: number, muestraId?: number) => {
   const query =
     muestraId && muestraId > 0 ? useTecnicasPorMuestra(muestraId) : useTecnicasPorPrueba(pruebaId)
 
-  // 2️⃣ Estado local de técnicas “eliminadas”
-  const [tecnicasDeleted, setTecnicasDeleted] = useState<Tecnica[]>([])
+  // 2️⃣ Estado local de técnicas "eliminadas"
+  const [tecnicasDeleted, setTecnicasDeleted] = useState<TecnicaSimple[]>([])
 
   useEffect(() => {
     setTecnicasDeleted([])
   }, [pruebaId, muestraId])
 
   // 3️⃣ Cambiar orden: actualiza la cache de la query apropiada
-  const setOrder = (newList: Tecnica[]) => {
+  const setOrder = (newList: TecnicaSimple[]) => {
     const key =
       muestraId && muestraId > 0
         ? ['tecnicasPorMuestra', muestraId]
@@ -57,7 +101,7 @@ export const useTecnicas = (pruebaId?: number, muestraId?: number) => {
     queryClient.setQueryData(key, newList)
   }
 
-  // 4️⃣ “Borrar” (mover a deleted)
+  // 4️⃣ "Borrar" (mover a deleted)
   const deleteOne = (id: number) => {
     const all = query.data || []
     const item = all.find(t => t.id === id)

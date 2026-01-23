@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query'
 import muestrasService from '../services/muestras.services'
-import { CodigoEpiResponse, Muestra, MuestraStats, Tecnica } from '../interfaces/muestras.types'
+import { CodigoEpiResponse, Muestra, MuestraStats, Tecnica, TecnicaAgrupada } from '../interfaces/muestras.types'
 import { STALE_TIME } from '@/shared/constants/constants'
+import tecnicaService from '../services/tecnica.service'
 
 export const useMuestras = () => {
   const { data, isLoading, error, refetch }: UseQueryResult<Muestra[], Error> = useQuery({
@@ -42,6 +43,23 @@ export const useTecnicasByMuestra = (id: number) => {
   const { data, isLoading, error, refetch }: UseQueryResult<Tecnica[], Error> = useQuery({
     queryKey: ['muestra', id, 'tecnicas'],
     queryFn: async () => muestrasService.getTecnicasByMuestra(id),
+    enabled: !!id && id > 0,
+    staleTime: STALE_TIME
+  })
+
+  return {
+    tecnicas: data || [],
+    isLoading,
+    error,
+    refetch
+  }
+}
+
+// Hook para obtener técnicas agrupadas o normales según el tipo de muestra
+export const useTecnicasAgrupadasByMuestra = (id: number) => {
+  const { data, isLoading, error, refetch }: UseQueryResult<Tecnica[] | TecnicaAgrupada[], Error> = useQuery({
+    queryKey: ['muestra', id, 'tecnicas-agrupadas'],
+    queryFn: async () => tecnicaService.getTecnicasAgrupadasByMuestra(id),
     enabled: !!id && id > 0,
     staleTime: STALE_TIME
   })

@@ -15,6 +15,7 @@ interface Props {
   onSuccess?: () => void
   onCancel?: () => void
   externalizacionId?: number
+  tecnicaNombre?: string // Nombre de la técnica para mostrar en modo edición
 }
 
 const DEFAULT_EXTERNALIZACION: ExternalizacionFormData = {
@@ -35,8 +36,10 @@ export const ExternalizacionForm = ({
   initialValues,
   onSuccess,
   onCancel,
-  externalizacionId
+  externalizacionId,
+  tecnicaNombre
 }: Props) => {
+  const isEditMode = !!externalizacionId
   const {
     register,
     handleSubmit,
@@ -78,20 +81,29 @@ export const ExternalizacionForm = ({
         <h3 className="text-lg font-semibold text-surface-800">Datos de la Externalización</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* ID Técnica */}
-          <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">
-              ID Técnica <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="number"
-              {...register('id_tecnica', { required: 'ID de técnica es requerido', min: 1 })}
-              className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-            />
-            {errors.id_tecnica && (
-              <span className="text-red-500 text-sm">{errors.id_tecnica.message}</span>
-            )}
-          </div>
+          {/* Técnica (solo lectura en modo edición) */}
+          {isEditMode && tecnicaNombre ? (
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1">Técnica</label>
+              <div className="w-full px-3 py-2 border border-surface-200 rounded-lg bg-surface-50 text-surface-700">
+                {tecnicaNombre}
+              </div>
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-medium text-surface-700 mb-1">
+                ID Técnica <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                {...register('id_tecnica', { required: 'ID de técnica es requerido', min: 1 })}
+                className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+              {errors.id_tecnica && (
+                <span className="text-red-500 text-sm">{errors.id_tecnica.message}</span>
+              )}
+            </div>
+          )}
 
           {/* Volumen */}
           <div>

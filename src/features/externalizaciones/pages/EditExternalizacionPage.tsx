@@ -72,6 +72,7 @@ export const EditExternalizacionPage = () => {
         onSuccess={handleSuccess}
         onCancel={handleCancel}
         externalizacionId={externalizacionId}
+        tecnicaNombre={externalizacion.tecnica?.tecnica_proc?.tecnica_proc}
       />
     </div>
   )

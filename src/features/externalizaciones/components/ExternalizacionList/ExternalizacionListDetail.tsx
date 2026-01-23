@@ -11,18 +11,25 @@ import {
 } from 'lucide-react'
 import { Externalizacion } from '../../interfaces/externalizaciones.types'
 import { formatDate } from '@/shared/utils/helpers'
+import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 
 type ExternalizacionListDetailProps = {
   externalizacion: Externalizacion
   onEdit: (externalizacion: Externalizacion) => void
   onDelete: (externalizacion: Externalizacion) => void
   fieldSpans?: number[]
+  showCheckbox?: boolean
+  isSelected?: boolean
+  onSelectChange?: (checked: boolean) => void
 }
 
 export const ExternalizacionListDetail = ({
   externalizacion,
   onEdit,
-  onDelete
+  onDelete,
+  showCheckbox = false,
+  isSelected = false,
+  onSelectChange
 }: ExternalizacionListDetailProps) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -42,11 +49,25 @@ export const ExternalizacionListDetail = ({
   }
 
   return (
-    <div className="border border-surface-200 bg-white rounded-lg shadow-soft hover:shadow-medium transition-all">
+    <div
+      className={`border rounded-lg shadow-soft hover:shadow-medium transition-all ${
+        isSelected
+          ? 'border-primary-400 bg-primary-50'
+          : 'border-surface-200 bg-white'
+      }`}
+    >
       {/* Fila principal compacta */}
       <div className="grid grid-cols-12 gap-3 px-4 py-3 items-center">
-        {/* Botón expandir */}
-        <div className="col-span-1 flex items-center">
+        {/* Checkbox o Botón expandir */}
+        <div className="col-span-1 flex items-center gap-2">
+          {showCheckbox && (
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={e => onSelectChange?.(e.target.checked)}
+              className="w-4 h-4 text-primary-600 rounded focus:ring-2 focus:ring-primary-500"
+            />
+          )}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="p-1 hover:bg-surface-100 rounded transition-colors"
@@ -95,13 +116,20 @@ export const ExternalizacionListDetail = ({
           </div>
         </div>
 
-        {/* Estado */}
+        {/* Estado de Técnica y Externalización */}
         <div className="col-span-2">
-          <span
-            className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border ${getEstadoColor()}`}
-          >
-            {getEstadoText()}
-          </span>
+          <div className="space-y-1">
+            {/* Estado de la Técnica */}
+            {externalizacion.tecnica?.estadoInfo && (
+              <IndicadorEstado estado={externalizacion.tecnica.estadoInfo} size="small" />
+            )}
+            {/* Estado de la Externalización */}
+            <span
+              className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full border ${getEstadoColor()}`}
+            >
+              {getEstadoText()}
+            </span>
+          </div>
         </div>
 
         {/* Acciones */}

@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMuestras, useMuestrasStats } from '../hooks/useMuestras'
+import { useMuestras, useMuestrasStats, useDeleteMuestra } from '../hooks/useMuestras'
 import { Muestra } from '../interfaces/muestras.types'
 import { MuestraFilter } from '../components/MuestraFilter'
 import { ListPage } from '../../../shared/components/organisms/ListPage'
@@ -14,6 +14,8 @@ import {
 } from '@/shared/utils/filterUtils'
 import { MuestraListHeader } from '../components/MuestraList/MuestraListHeader'
 import { MuestraListDetail } from '../components/MuestraList/MuestraListDetail'
+import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
+import { useNotification } from '@/shared/components/Notification/NotificationContext'
 
 // Configuración de columnas (mantener spans sincronizados)
 const COLUMN_CONFIG = [
@@ -33,7 +35,11 @@ const COLUMN_CONFIG = [
 export const MuestrasPage = () => {
   const { muestras, isLoading, error, refetch } = useMuestras()
   const { stats, isLoading: statsLoading } = useMuestrasStats()
+  const deleteMuestraMutation = useDeleteMuestra()
   const navigate = useNavigate()
+  const { confirm } = useConfirmation()
+  const { notify } = useNotification()
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Configuración de filtros específica para muestras
   const filterConfig = useMemo(
@@ -70,6 +76,30 @@ export const MuestrasPage = () => {
     clearFilters
   } = useListFilters(muestras || [], filterConfig)
 
+  const handleDelete = async (muestra: Muestra) => {
+    const confirmed = await confirm({
+      title: 'Eliminar muestra',
+      message: `¿Estás seguro de que deseas eliminar la muestra ${muestra.codigo_externo || muestra.codigo_epi || `#${muestra.id_muestra}`}? Esta acción no se puede deshacer.`,
+      confirmText: 'Sí, eliminar',
+      cancelText: 'Cancelar',
+      type: 'danger'
+    })
+
+    if (!confirmed) return
+
+    setIsDeleting(true)
+    try {
+      await deleteMuestraMutation.mutateAsync(muestra.id_muestra)
+      notify('Muestra eliminada correctamente', 'success')
+      refetch()
+    } catch (error) {
+      notify('Error al eliminar la muestra', 'error')
+      console.error('Error deleting muestra:', error)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   const handlers = {
     onNew: () => navigate('/muestras/nueva'),
     onSecondaryAction: () => navigate('/muestras/nueva?tipo=grupo')
@@ -99,7 +129,7 @@ export const MuestrasPage = () => {
         items: muestrasFiltradas,
         total: muestras?.length,
         filtered: muestrasFiltradas.length,
-        isLoading,
+        isLoading: isLoading || isDeleting,
         error,
         refetch
       }}
@@ -120,9 +150,7 @@ export const MuestrasPage = () => {
             key={muestra.id_muestra}
             muestra={muestra}
             onEdit={m => navigate(`/muestras/${m.id_muestra}/editar`)}
-            onDelete={() => {
-              /* handle delete */
-            }}
+            onDelete={handleDelete}
             fieldSpans={COLUMN_CONFIG.map(col => col.span)}
           />
         ))}

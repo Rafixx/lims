@@ -5,10 +5,7 @@ import { Externalizacion } from '../interfaces/externalizaciones.types'
 import { ExternalizacionFilter } from '../components/ExternalizacionFilter'
 import { ListPage } from '@/shared/components/organisms/ListPage'
 import { useListFilters } from '@/shared/hooks/useListFilters'
-import {
-  createNumericExactFilter,
-  createMultiFieldSearchFilter
-} from '@/shared/utils/filterUtils'
+import { createNumericExactFilter, createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import {
   ExternalizacionListHeader,
   type SortField,
@@ -17,6 +14,9 @@ import {
 import { ExternalizacionListDetail } from '../components/ExternalizacionList/ExternalizacionListDetail'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { Send } from 'lucide-react'
+import { Button } from '@/shared/components/molecules/Button'
+import { EnviarExternalizacionesModal } from '../components/EnviarExternalizacionesModal'
 
 export const ExternalizacionesPage = () => {
   const { externalizaciones, isLoading, error, refetch } = useExternalizaciones()
@@ -27,6 +27,8 @@ export const ExternalizacionesPage = () => {
   const [isDeleting, setIsDeleting] = useState(false)
   const [sortField, setSortField] = useState<SortField | null>(null)
   const [sortDirection, setSortDirection] = useState<SortDirection>(null)
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [showEnviarModal, setShowEnviarModal] = useState(false)
 
   const filterConfig = useMemo(
     () => ({
@@ -118,7 +120,7 @@ export const ExternalizacionesPage = () => {
           valueA = a.f_envio ? new Date(a.f_envio).getTime() : 0
           valueB = b.f_envio ? new Date(b.f_envio).getTime() : 0
           break
-        case 'estado':
+        case 'estado': {
           // Ordenar por estado: Pendiente < Recibida < Con datos
           const getEstadoValue = (ext: Externalizacion) => {
             if (ext.f_recepcion_datos) return 3
@@ -128,6 +130,7 @@ export const ExternalizacionesPage = () => {
           valueA = getEstadoValue(a)
           valueB = getEstadoValue(b)
           break
+        }
       }
 
       if (valueA === valueB) return 0
@@ -162,8 +165,48 @@ export const ExternalizacionesPage = () => {
     }
   }
 
+  // Filtrar solo externalizaciones en estado EXTERNALIZADA (id_estado = 16)
+  const externalizacionesExternalizadas = useMemo(() => {
+    return externalizacionesOrdenadas.filter(ext => ext.tecnica?.id_estado === 16)
+  }, [externalizacionesOrdenadas])
+
+  // Handler para selección de checkbox
+  const handleSelectExternalizacion = (id: number, checked: boolean) => {
+    const newSelected = new Set(selectedIds)
+    if (checked) {
+      newSelected.add(id)
+    } else {
+      newSelected.delete(id)
+    }
+    setSelectedIds(newSelected)
+  }
+
+  // Handler para seleccionar todas las externalizadas
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allIds = new Set(externalizacionesExternalizadas.map(ext => ext.id_externalizacion))
+      setSelectedIds(allIds)
+    } else {
+      setSelectedIds(new Set())
+    }
+  }
+
+  // Handler para enviar externalizaciones seleccionadas
+  const handleEnviar = () => {
+    if (selectedIds.size === 0) {
+      notify('Debes seleccionar al menos una externalización', 'warning')
+      return
+    }
+    setShowEnviarModal(true)
+  }
+
+  const handleEnviarSuccess = () => {
+    setSelectedIds(new Set())
+    setShowEnviarModal(false)
+  }
+
   const handlers = {
-    onNew: () => navigate('/externalizaciones/nueva')
+    // Eliminamos el botón de "Nueva Externalización"
   }
 
   const renderFilters = () => (
@@ -180,39 +223,89 @@ export const ExternalizacionesPage = () => {
     />
   )
 
+  const allExternalizadasSelected =
+    externalizacionesExternalizadas.length > 0 &&
+    externalizacionesExternalizadas.every(ext => selectedIds.has(ext.id_externalizacion))
+
   return (
-    <ListPage
-      title="Gestión de Externalizaciones"
-      data={{
-        items: externalizacionesOrdenadas,
-        total: externalizaciones?.length,
-        filtered: externalizacionesOrdenadas.length,
-        isLoading: isLoading || isDeleting,
-        error,
-        refetch
-      }}
-      handlers={handlers}
-      renderFilters={renderFilters}
-      config={{
-        newButtonText: 'Nueva Externalización',
-        emptyStateMessage: 'No hay externalizaciones disponibles'
-      }}
-    >
-      <div className="grid gap-2">
-        <ExternalizacionListHeader
-          sortField={sortField}
-          sortDirection={sortDirection}
-          onSort={handleSort}
-        />
-        {externalizacionesOrdenadas.map((externalizacion: Externalizacion) => (
-          <ExternalizacionListDetail
-            key={externalizacion.id_externalizacion}
-            externalizacion={externalizacion}
-            onEdit={ext => navigate(`/externalizaciones/${ext.id_externalizacion}/editar`)}
-            onDelete={handleDelete}
+    <>
+      <ListPage
+        title="Gestión de Externalizaciones"
+        data={{
+          items: externalizacionesOrdenadas,
+          total: externalizaciones?.length,
+          filtered: externalizacionesOrdenadas.length,
+          isLoading: isLoading || isDeleting,
+          error,
+          refetch
+        }}
+        handlers={handlers}
+        renderFilters={renderFilters}
+        config={{
+          emptyStateMessage: 'No hay externalizaciones disponibles',
+          hideNewButton: true
+        }}
+      >
+        {/* Barra de acciones para selección múltiple */}
+        {externalizacionesExternalizadas.length > 0 && (
+          <div className="mb-4 flex items-center justify-between bg-surface-50 p-4 rounded-lg border border-surface-200">
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={allExternalizadasSelected}
+                onChange={e => handleSelectAll(e.target.checked)}
+                className="w-4 h-4 text-primary-600 rounded focus:ring-2 focus:ring-primary-500"
+              />
+              <span className="text-sm text-surface-700">
+                {selectedIds.size > 0
+                  ? `${selectedIds.size} externalización(es) seleccionada(s)`
+                  : 'Seleccionar todas las externalizadas'}
+              </span>
+            </div>
+            {selectedIds.size > 0 && (
+              <Button variant="primary" onClick={handleEnviar}>
+                <Send className="w-4 h-4" />
+                Enviar Seleccionadas
+              </Button>
+            )}
+          </div>
+        )}
+
+        <div className="grid gap-2">
+          <ExternalizacionListHeader
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={handleSort}
           />
-        ))}
-      </div>
-    </ListPage>
+          {externalizacionesOrdenadas.map((externalizacion: Externalizacion) => {
+            const isExternalizada = externalizacion.tecnica?.id_estado === 16
+            const isSelected = selectedIds.has(externalizacion.id_externalizacion)
+
+            return (
+              <ExternalizacionListDetail
+                key={externalizacion.id_externalizacion}
+                externalizacion={externalizacion}
+                onEdit={ext => navigate(`/externalizaciones/${ext.id_externalizacion}/editar`)}
+                onDelete={handleDelete}
+                showCheckbox={isExternalizada}
+                isSelected={isSelected}
+                onSelectChange={checked =>
+                  handleSelectExternalizacion(externalizacion.id_externalizacion, checked)
+                }
+              />
+            )
+          })}
+        </div>
+      </ListPage>
+
+      {/* Modal para enviar externalizaciones */}
+      {showEnviarModal && (
+        <EnviarExternalizacionesModal
+          externalizacionIds={Array.from(selectedIds)}
+          onClose={() => setShowEnviarModal(false)}
+          onSuccess={handleEnviarSuccess}
+        />
+      )}
+    </>
   )
 }

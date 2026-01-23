@@ -101,6 +101,19 @@ export type Tecnica = {
   estadoInfo?: DimEstado | null
 }
 
+export type TecnicaAgrupada = {
+  proceso_nombre: string
+  total_posiciones: number
+  pendientes: number
+  asignadas: number
+  en_proceso: number
+  completadas: number
+  resultado_erroneo: number
+  tecnico_resp?: TecnicoLaboratorio | null
+  estadoInfo?: DimEstado | null
+  primera_tecnica_id: number
+}
+
 export type MuestraStats = {
   total: number
   pendientes: number

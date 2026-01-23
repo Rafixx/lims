@@ -1,10 +1,11 @@
 import { ReactNode, useMemo } from 'react'
 import { Edit, Trash2, Plus } from 'lucide-react'
-import { Muestra } from '../../interfaces/muestras.types'
+import { Muestra, Tecnica, TecnicaAgrupada } from '../../interfaces/muestras.types'
 import { useNavigate } from 'react-router-dom'
-import { useTecnicasByMuestra } from '../../hooks/useMuestras'
+import { useTecnicasAgrupadasByMuestra } from '../../hooks/useMuestras'
 import { TecnicaListHeader } from './TecnicaListHeader'
 import { TecnicaListDetail } from './TecnicaListDetail'
+import { TecnicaAgrupadaListDetail } from './TecnicaAgrupadaListDetail'
 import { ListDetail, ListDetailAction } from '@/shared/components/organisms/ListDetail'
 import { formatDateTime } from '@/shared/utils/helpers'
 
@@ -57,7 +58,10 @@ export const MuestraListDetail = ({
   fieldSpans
 }: MuestraListDetailProps) => {
   const navigate = useNavigate()
-  const { tecnicas } = useTecnicasByMuestra(muestra.id_muestra)
+  const { tecnicas, isLoading } = useTecnicasAgrupadasByMuestra(muestra.id_muestra)
+
+  // Determinar si son técnicas agrupadas o normales
+  const isTecnicasAgrupadas = tecnicas.length > 0 && 'proceso_nombre' in tecnicas[0]
 
   // Definir los campos a renderizar
   const renderFields = (): ReactNode[] => [
@@ -129,10 +133,11 @@ export const MuestraListDetail = ({
     }
   ]
 
-  // ✅ Determinar si alguna técnica tiene resultados
+  // ✅ Determinar si alguna técnica tiene resultados (solo para técnicas normales)
   const hasAnyResultados = useMemo(() => {
-    return tecnicas?.some(
-      tecnica =>
+    if (isTecnicasAgrupadas) return false
+    return (tecnicas as Tecnica[])?.some(
+      (tecnica: Tecnica) =>
         tecnica.resultados &&
         tecnica.resultados.length > 0 &&
         tecnica.resultados.some(
@@ -143,27 +148,52 @@ export const MuestraListDetail = ({
             resultado.tipo_res
         )
     )
-  }, [tecnicas])
+  }, [tecnicas, isTecnicasAgrupadas])
 
-  // ✅ Usar configuración de columnas según si hay resultados
-  const TECNICA_COLUMNS = hasAnyResultados
-    ? TECNICA_COLUMNS_WITH_RESULTS
-    : TECNICA_COLUMNS_WITHOUT_RESULTS
+  // Configuración de columnas para técnicas agrupadas
+  const TECNICA_COLUMNS_AGRUPADAS = [
+    { label: 'Técnica/Proceso', span: 2 },
+    { label: 'Total', span: 2 },
+    { label: 'Estados', span: 4 },
+    { label: 'Técnico', span: 2 },
+    { label: 'Estado', span: 1 },
+    { label: 'Acciones', span: 1 }
+  ]
+
+  // ✅ Usar configuración de columnas según el tipo
+  const TECNICA_COLUMNS = isTecnicasAgrupadas
+    ? TECNICA_COLUMNS_AGRUPADAS
+    : hasAnyResultados
+      ? TECNICA_COLUMNS_WITH_RESULTS
+      : TECNICA_COLUMNS_WITHOUT_RESULTS
 
   // Contenido expandido con las técnicas
   const expandedContent = (
     <div className="space-y-2">
-      {tecnicas && tecnicas.length > 0 ? (
+      {isLoading ? (
+        <p className="text-sm text-surface-600">Cargando técnicas...</p>
+      ) : tecnicas && tecnicas.length > 0 ? (
         <>
           <TecnicaListHeader fieldList={TECNICA_COLUMNS} />
-          {tecnicas.map((tecnica, index) => (
-            <TecnicaListDetail
-              key={index}
-              tecnica={tecnica}
-              fieldSpans={TECNICA_COLUMNS.map(col => col.span)}
-              hasResultados={hasAnyResultados}
-            />
-          ))}
+          {isTecnicasAgrupadas
+            ? // Renderizar técnicas agrupadas
+              (tecnicas as TecnicaAgrupada[]).map(tecnicaAgrupada => (
+                <TecnicaAgrupadaListDetail
+                  key={`agrupada-${tecnicaAgrupada.primera_tecnica_id}`}
+                  tecnicaAgrupada={tecnicaAgrupada}
+                  fieldSpans={TECNICA_COLUMNS.map(col => col.span)}
+                  muestraId={muestra.id_muestra}
+                />
+              ))
+            : // Renderizar técnicas normales
+              (tecnicas as Tecnica[]).map((tecnica: Tecnica) => (
+                <TecnicaListDetail
+                  key={`tecnica-${tecnica.id_tecnica}`}
+                  tecnica={tecnica}
+                  fieldSpans={TECNICA_COLUMNS.map(col => col.span)}
+                  hasResultados={hasAnyResultados}
+                />
+              ))}
         </>
       ) : (
         <p className="text-sm text-surface-600">No hay técnicas asociadas a esta muestra.</p>

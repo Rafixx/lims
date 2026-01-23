@@ -47,7 +47,6 @@ import { EditPlantillaPasoPage } from '@/features/dim_tables/plantillas_pasos/pa
 import { PlantillasPasosPage } from '@/features/dim_tables/plantillas_pasos/pages/PlantillasPasosPage'
 import { LotesPage } from '@/features/tecnicasReactivos'
 import { ExternalizacionesPage } from '@/features/externalizaciones/pages/ExternalizacionesPage'
-import { CreateExternalizacionPage } from '@/features/externalizaciones/pages/CreateExternalizacionPage'
 import { EditExternalizacionPage } from '@/features/externalizaciones/pages/EditExternalizacionPage'
 
 export const router = createBrowserRouter(
@@ -80,7 +79,6 @@ export const router = createBrowserRouter(
         { path: 'muestras/:id/editar', element: <CreateMuestraPage /> },
 
         { path: 'externalizaciones', element: <ExternalizacionesPage /> },
-        { path: 'externalizaciones/nueva', element: <CreateExternalizacionPage /> },
         { path: 'externalizaciones/:id/editar', element: <EditExternalizacionPage /> },
 
         { path: 'maestros', element: <MaestrosPage /> },

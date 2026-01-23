@@ -47,12 +47,13 @@ export const MuestraAsidePreview = ({
     reinsertOne: onReinsert
   } = useTecnicas(id_prueba, id_muestra)
 
-  const { data: clienteData } = useCliente(id_cliente)
-  const { data: pacienteData } = usePaciente(id_paciente)
+  const { data: clienteData, isLoading: loadingCliente } = useCliente(id_cliente)
+  const { data: pacienteData, isLoading: loadingPaciente } = usePaciente(id_paciente)
 
-  const showTecnicas = tecnicas.length > 0 || loadingTecnicas
-  const showCliente = !!clienteData
-  const showPaciente = !!pacienteData
+  // Mostrar cada sección si hay un ID válido seleccionado
+  const showTecnicas = !!id_prueba && id_prueba > 0
+  const showCliente = !!id_cliente && id_cliente > 0
+  const showPaciente = !!id_paciente && id_paciente > 0
 
   // 🔧 Memoizar el payload para evitar loop infinito
   // Solo se recalcula cuando cambian los IDs de las técnicas, no en cada render
@@ -63,8 +64,10 @@ export const MuestraAsidePreview = ({
   useEffect(() => {
     if (!onTecnicasChange) return
     onTecnicasChange(tecnicasPayload)
-  }, [tecnicasPayload, onTecnicasChange])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tecnicasPayload])
 
+  // Renderizar el aside si al menos una sección debe mostrarse
   if (!showTecnicas && !showCliente && !showPaciente) return null
 
   return (
@@ -92,7 +95,7 @@ export const MuestraAsidePreview = ({
             ) : (
               <ul className="space-y-1 text-gray-600">
                 {tecnicas.map(tecnica => (
-                  <li key={tecnica.id}>{tecnica.tecnica_proc}</li>
+                  <li key={tecnica.id}>{tecnica.nombre}</li>
                 ))}
               </ul>
             )}
@@ -102,37 +105,49 @@ export const MuestraAsidePreview = ({
         {showCliente && (
           <Card variant="ghost">
             <h4 className="text-xs font-semibold text-gray-500 mb-2">Datos del cliente</h4>
-            <ul className="text-gray-600 space-y-1">
-              <li>
-                <strong>Nombre:</strong> {clienteData.nombre}
-              </li>
-              <li>
-                <strong>Razón social:</strong> {clienteData.razon_social}
-              </li>
-              <li>
-                <strong>NIF:</strong> {clienteData.nif}
-              </li>
-              <li>
-                <strong>Dirección:</strong> {clienteData.direccion}
-              </li>
-            </ul>
+            {loadingCliente ? (
+              <p className="text-xs text-gray-400">Cargando cliente...</p>
+            ) : clienteData ? (
+              <ul className="text-gray-600 space-y-1">
+                <li>
+                  <strong>Nombre:</strong> {clienteData.nombre}
+                </li>
+                <li>
+                  <strong>Razón social:</strong> {clienteData.razon_social}
+                </li>
+                <li>
+                  <strong>NIF:</strong> {clienteData.nif}
+                </li>
+                <li>
+                  <strong>Dirección:</strong> {clienteData.direccion}
+                </li>
+              </ul>
+            ) : (
+              <p className="text-xs text-gray-400">No hay datos del cliente</p>
+            )}
           </Card>
         )}
 
         {showPaciente && (
           <Card variant="ghost">
             <h4 className="text-xs font-semibold text-gray-500 mb-2">Datos del paciente</h4>
-            <ul className="text-gray-600 space-y-1">
-              <li>
-                <strong>Nombre:</strong> {pacienteData.nombre}
-              </li>
-              <li>
-                <strong>SIP:</strong> {pacienteData.sip}
-              </li>
-              <li>
-                <strong>Dirección:</strong> {pacienteData.direccion}
-              </li>
-            </ul>
+            {loadingPaciente ? (
+              <p className="text-xs text-gray-400">Cargando paciente...</p>
+            ) : pacienteData ? (
+              <ul className="text-gray-600 space-y-1">
+                <li>
+                  <strong>Nombre:</strong> {pacienteData.nombre}
+                </li>
+                <li>
+                  <strong>SIP:</strong> {pacienteData.sip}
+                </li>
+                <li>
+                  <strong>Dirección:</strong> {pacienteData.direccion}
+                </li>
+              </ul>
+            ) : (
+              <p className="text-xs text-gray-400">No hay datos del paciente</p>
+            )}
           </Card>
         )}
       </aside>
@@ -150,7 +165,7 @@ export const MuestraAsidePreview = ({
             items={tecnicas}
             deletedItems={tecnicasDeleted}
             getItemId={t => t.id}
-            getItemLabel={t => t.tecnica_proc}
+            getItemLabel={t => t.nombre}
             onOrderChange={onOrderChange}
             onDelete={onDelete}
             onReinsert={onReinsert}

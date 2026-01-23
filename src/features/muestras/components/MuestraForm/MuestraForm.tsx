@@ -74,7 +74,7 @@ export const MuestraForm = ({
   const id_muestra = watch('id_muestra')
   // const estado_muestra = watch('estado_muestra')
   // ✅ El aside solo se muestra si hay una prueba seleccionada (requerido para cargar técnicas)
-  const asideVisible = Boolean(pruebaId && (clienteId || pacienteId))
+  const asideVisible = Boolean(pruebaId || clienteId || pacienteId)
 
   const tabs = useMemo(() => {
     const baseTabs = [

@@ -83,6 +83,23 @@ class ExternalizacionesService {
     )
     return response.data.data
   }
+
+  async enviarExternalizaciones(
+    externalizacionIds: number[],
+    data: {
+      servicio: string
+      agencia: string
+      id_centro: number | null
+      id_tecnico_resp: number | null
+      f_envio: string
+      observaciones?: string
+    }
+  ): Promise<void> {
+    await apiClient.post(`${this.basePath}/enviar`, {
+      externalizacion_ids: externalizacionIds,
+      ...data
+    })
+  }
 }
 
 export const externalizacionesService = new ExternalizacionesService()

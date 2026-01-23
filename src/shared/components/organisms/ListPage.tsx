@@ -18,8 +18,8 @@ interface ListPageProps {
   }
 
   // Handlers principales
-  handlers: {
-    onNew: () => void
+  handlers?: {
+    onNew?: () => void
     onSecondaryAction?: () => void
     onRefresh?: () => void
   }
@@ -38,6 +38,7 @@ interface ListPageProps {
     secondaryActionText?: string
     secondaryActionIcon?: React.ReactNode
     emptyStateMessage?: string
+    hideNewButton?: boolean
   }
 
   // Contenido principal
@@ -63,7 +64,8 @@ export const ListPage = ({
     showFilterToggle = true,
     showRefreshButton = true,
     newButtonText = 'Nuevo',
-    emptyStateMessage = 'No hay elementos disponibles'
+    emptyStateMessage = 'No hay elementos disponibles',
+    hideNewButton = false
   } = config
 
   if (data.isLoading) {
@@ -100,7 +102,7 @@ export const ListPage = ({
           {/* Botón refrescar */}
           {showRefreshButton && (
             <Button
-              onClick={handlers.onRefresh || data.refetch}
+              onClick={handlers?.onRefresh || data.refetch}
               variant="secondary"
               disabled={data.isLoading}
             >
@@ -110,20 +112,22 @@ export const ListPage = ({
           )}
 
           {/* Botón nuevo */}
-          <div className="flex items-center gap-2">
-            <Button onClick={handlers.onNew} variant="primary">
-              <Plus className="w-4 h-4" />
-              {newButtonText}
-            </Button>
-            {config.secondaryActionText &&
-              config.secondaryActionIcon &&
-              handlers.onSecondaryAction && (
-                <Button onClick={handlers.onSecondaryAction} variant="primary">
-                  {config.secondaryActionIcon}
-                  {config.secondaryActionText}
-                </Button>
-              )}
-          </div>
+          {!hideNewButton && handlers?.onNew && (
+            <div className="flex items-center gap-2">
+              <Button onClick={handlers.onNew} variant="primary">
+                <Plus className="w-4 h-4" />
+                {newButtonText}
+              </Button>
+              {config.secondaryActionText &&
+                config.secondaryActionIcon &&
+                handlers.onSecondaryAction && (
+                  <Button onClick={handlers.onSecondaryAction} variant="primary">
+                    {config.secondaryActionIcon}
+                    {config.secondaryActionText}
+                  </Button>
+                )}
+            </div>
+          )}
         </div>
       </div>
 
