@@ -43,8 +43,11 @@ export type Muestra = {
   id_tecnico_recepcion?: number
   id_tecnico_verifica?: number
   f_destruccion?: string
+  id_tecnico_destruccion?: number
   f_devolucion?: string
+  id_tecnico_devolucion?: number
   f_agotada?: string
+  id_tecnico_agotada?: number
 
   id_estado?: number
   estadoInfo?: DimEstado | null

@@ -43,6 +43,8 @@ export const ExternalizacionForm = ({
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors }
   } = useForm<ExternalizacionFormData>({
     defaultValues: initialValues || DEFAULT_EXTERNALIZACION
@@ -55,6 +57,21 @@ export const ExternalizacionForm = ({
 
   const { data: centros = [] } = useCentros()
   const { data: tecnicosLaboratorio = [] } = useTecnicosLaboratorio()
+
+  // Helper para auto-completar fecha/hora actual en campos vacíos
+  const handleDateTimeFocus = (fieldName: keyof ExternalizacionFormData) => {
+    const currentValue = watch(fieldName)
+    if (!currentValue) {
+      const now = new Date()
+      const year = now.getFullYear()
+      const month = String(now.getMonth() + 1).padStart(2, '0')
+      const day = String(now.getDate()).padStart(2, '0')
+      const hours = String(now.getHours()).padStart(2, '0')
+      const minutes = String(now.getMinutes()).padStart(2, '0')
+      const defaultValue = `${year}-${month}-${day}T${hours}:${minutes}`
+      setValue(fieldName, defaultValue as never)
+    }
+  }
 
   const onSubmit = async (data: ExternalizacionFormData) => {
     setIsSubmitting(true)
@@ -193,6 +210,7 @@ export const ExternalizacionForm = ({
             <input
               type="datetime-local"
               {...register('f_envio')}
+              onFocus={() => handleDateTimeFocus('f_envio')}
               className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
@@ -205,6 +223,7 @@ export const ExternalizacionForm = ({
             <input
               type="datetime-local"
               {...register('f_recepcion')}
+              onFocus={() => handleDateTimeFocus('f_recepcion')}
               className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
@@ -217,6 +236,7 @@ export const ExternalizacionForm = ({
             <input
               type="datetime-local"
               {...register('f_recepcion_datos')}
+              onFocus={() => handleDateTimeFocus('f_recepcion_datos')}
               className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>

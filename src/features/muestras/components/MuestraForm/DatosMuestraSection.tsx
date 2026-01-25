@@ -10,6 +10,7 @@ import type { Muestra } from '../../interfaces/muestras.types'
 export const DatosMuestraSection = () => {
   const { watch, setValue, control } = useFormContext<Muestra>()
   const [editingField, setEditingField] = useState<string | null>(null)
+  const [tempDateValue, setTempDateValue] = useState<string | null>(null)
   const { data: tecnicos = [], isLoading: loadingTecnicos } = useTecnicosLaboratorio()
 
   // Observar valores actuales
@@ -21,6 +22,9 @@ export const DatosMuestraSection = () => {
     f_agotada: watch('f_agotada'),
     id_tecnico_recepcion: watch('id_tecnico_recepcion'),
     id_tecnico_verifica: watch('id_tecnico_verifica'),
+    id_tecnico_destruccion: watch('id_tecnico_destruccion'),
+    id_tecnico_devolucion: watch('id_tecnico_devolucion'),
+    id_tecnico_agotada: watch('id_tecnico_agotada'),
     'solicitud.f_creacion': watch('solicitud.f_creacion'),
     'solicitud.f_entrada': watch('solicitud.f_entrada'),
     'solicitud.f_compromiso': watch('solicitud.f_compromiso'),
@@ -66,30 +70,30 @@ export const DatosMuestraSection = () => {
 
   // Configuración de eventos del timeline
   const timelineEvents: TimelineEvent[] = [
-    {
-      id: 'solicitud.f_creacion',
-      title: 'Solicitud Creada',
-      description: 'Fecha en que se creó la solicitud en el sistema',
-      date: isValidDate(watchedValues['solicitud.f_creacion'])
-        ? (watchedValues['solicitud.f_creacion'] ?? null)
-        : null,
-      icon: MuestraIcons.creacion,
-      status: getEventStatus('solicitud.f_creacion'),
-      editable: true,
-      onClick: () => setEditingField('solicitud.f_creacion')
-    },
-    {
-      id: 'solicitud.f_entrada',
-      title: 'Entrada al Sistema',
-      description: 'Fecha de entrada de la solicitud al laboratorio',
-      date: isValidDate(watchedValues['solicitud.f_entrada'])
-        ? (watchedValues['solicitud.f_entrada'] ?? null)
-        : null,
-      icon: MuestraIcons.entrada,
-      status: getEventStatus('solicitud.f_entrada'),
-      editable: true,
-      onClick: () => setEditingField('solicitud.f_entrada')
-    },
+    // {
+    //   id: 'solicitud.f_creacion',
+    //   title: 'Solicitud Creada',
+    //   description: 'Fecha en que se creó la solicitud en el sistema',
+    //   date: isValidDate(watchedValues['solicitud.f_creacion'])
+    //     ? (watchedValues['solicitud.f_creacion'] ?? null)
+    //     : null,
+    //   icon: MuestraIcons.creacion,
+    //   status: getEventStatus('solicitud.f_creacion'),
+    //   editable: true,
+    //   onClick: () => setEditingField('solicitud.f_creacion')
+    // },
+    // {
+    //   id: 'solicitud.f_entrada',
+    //   title: 'Entrada al Sistema',
+    //   description: 'Fecha de entrada de la solicitud al laboratorio',
+    //   date: isValidDate(watchedValues['solicitud.f_entrada'])
+    //     ? (watchedValues['solicitud.f_entrada'] ?? null)
+    //     : null,
+    //   icon: MuestraIcons.entrada,
+    //   status: getEventStatus('solicitud.f_entrada'),
+    //   editable: true,
+    //   onClick: () => setEditingField('solicitud.f_entrada')
+    // },
     {
       id: 'f_toma',
       title: 'Toma de Muestra',
@@ -102,8 +106,8 @@ export const DatosMuestraSection = () => {
     },
     {
       id: 'f_recepcion',
-      title: 'Recepción en Laboratorio',
-      description: 'Fecha y hora de recepción de la muestra en el laboratorio',
+      title: 'Entrada de Muestra',
+      description: 'Fecha y hora de entrada de la muestra en el laboratorio',
       date: isValidDate(watchedValues.f_recepcion) ? (watchedValues.f_recepcion ?? null) : null,
       icon: MuestraIcons.recepcion,
       status: getEventStatus('f_recepcion'),
@@ -186,6 +190,25 @@ export const DatosMuestraSection = () => {
       date: isValidDate(watchedValues.f_agotada) ? (watchedValues.f_agotada ?? null) : null,
       icon: MuestraIcons.agotada,
       status: getEventStatus('f_agotada'),
+      additionalInfo: watchedValues.id_tecnico_agotada ? (
+        <div className="flex items-center text-sm text-gray-600">
+          <User className="w-4 h-4 mr-2" />
+          <span className="font-medium">Técnico: </span>
+          <span className="ml-1">
+            {(() => {
+              const tecnicoValue = watchedValues.id_tecnico_agotada
+              const tecnicoId =
+                typeof tecnicoValue === 'object' && tecnicoValue !== null
+                  ? (tecnicoValue as { id_usuario: number }).id_usuario
+                  : Number(tecnicoValue)
+
+              return (
+                tecnicos.find(t => t.id_usuario === tecnicoId)?.nombre || 'Técnico no encontrado'
+              )
+            })()}
+          </span>
+        </div>
+      ) : undefined,
       editable: true,
       onClick: () => setEditingField('f_agotada')
     },
@@ -208,6 +231,25 @@ export const DatosMuestraSection = () => {
       date: isValidDate(watchedValues.f_destruccion) ? (watchedValues.f_destruccion ?? null) : null,
       icon: MuestraIcons.destruccion,
       status: getEventStatus('f_destruccion'),
+      additionalInfo: watchedValues.id_tecnico_destruccion ? (
+        <div className="flex items-center text-sm text-gray-600">
+          <User className="w-4 h-4 mr-2" />
+          <span className="font-medium">Técnico: </span>
+          <span className="ml-1">
+            {(() => {
+              const tecnicoValue = watchedValues.id_tecnico_destruccion
+              const tecnicoId =
+                typeof tecnicoValue === 'object' && tecnicoValue !== null
+                  ? (tecnicoValue as { id_usuario: number }).id_usuario
+                  : Number(tecnicoValue)
+
+              return (
+                tecnicos.find(t => t.id_usuario === tecnicoId)?.nombre || 'Técnico no encontrado'
+              )
+            })()}
+          </span>
+        </div>
+      ) : undefined,
       editable: true,
       onClick: () => setEditingField('f_destruccion')
     },
@@ -218,15 +260,81 @@ export const DatosMuestraSection = () => {
       date: isValidDate(watchedValues.f_devolucion) ? (watchedValues.f_devolucion ?? null) : null,
       icon: MuestraIcons.devolucion,
       status: getEventStatus('f_devolucion'),
+      additionalInfo: watchedValues.id_tecnico_devolucion ? (
+        <div className="flex items-center text-sm text-gray-600">
+          <User className="w-4 h-4 mr-2" />
+          <span className="font-medium">Técnico: </span>
+          <span className="ml-1">
+            {(() => {
+              const tecnicoValue = watchedValues.id_tecnico_devolucion
+              const tecnicoId =
+                typeof tecnicoValue === 'object' && tecnicoValue !== null
+                  ? (tecnicoValue as { id_usuario: number }).id_usuario
+                  : Number(tecnicoValue)
+
+              return (
+                tecnicos.find(t => t.id_usuario === tecnicoId)?.nombre || 'Técnico no encontrado'
+              )
+            })()}
+          </span>
+        </div>
+      ) : undefined,
       editable: true,
       onClick: () => setEditingField('f_devolucion')
     }
   ]
 
-  const handleDateChange = (fieldName: string, value: string | null) => {
-    setValue(fieldName as keyof Muestra, value)
+  // Guardar los cambios al hacer clic en "Guardar"
+  const handleSave = () => {
+    if (editingField && tempDateValue) {
+      setValue(editingField as keyof Muestra, tempDateValue)
+    }
     setEditingField(null)
+    setTempDateValue(null)
   }
+
+  // Cancelar sin guardar
+  const handleCancel = () => {
+    setEditingField(null)
+    setTempDateValue(null)
+  }
+
+  // Obtener el valor inicial para el DateTimePicker (fecha actual si está vacío)
+  const getInitialDateValue = () => {
+    if (!editingField) return undefined
+    const currentValue = watchedValues[editingField as keyof typeof watchedValues] as string
+
+    // Si hay una fecha válida, devolverla
+    if (isValidDate(currentValue)) {
+      return currentValue
+    }
+
+    // Si no hay fecha válida, devolver la fecha actual como valor inicial
+    return new Date().toISOString()
+  }
+
+  // Inicializar tempDateValue cuando se abre el modal
+  React.useEffect(() => {
+    if (editingField) {
+      setTempDateValue(getInitialDateValue() || null)
+    }
+  }, [editingField])
+
+  // Establecer fecha actual por defecto para f_creacion y f_entrada si están vacíos
+  React.useEffect(() => {
+    const fCreacion = watchedValues['solicitud.f_creacion']
+    const fEntrada = watchedValues['solicitud.f_entrada']
+
+    // Si no hay fecha válida para f_creacion, establecer fecha actual
+    if (!isValidDate(fCreacion as string)) {
+      setValue('solicitud.f_creacion' as keyof Muestra, new Date().toISOString() as never)
+    }
+
+    // Si no hay fecha válida para f_entrada, establecer fecha actual
+    if (!isValidDate(fEntrada as string)) {
+      setValue('solicitud.f_entrada' as keyof Muestra, new Date().toISOString() as never)
+    }
+  }, [])
 
   return (
     <div className="space-y-6">
@@ -254,13 +362,8 @@ export const DatosMuestraSection = () => {
 
             <div className="space-y-4">
               <DateTimePicker
-                value={
-                  editingField &&
-                  isValidDate(watchedValues[editingField as keyof typeof watchedValues] as string)
-                    ? (watchedValues[editingField as keyof typeof watchedValues] as string)
-                    : undefined
-                }
-                onChange={value => handleDateChange(editingField, value || '')}
+                value={getInitialDateValue()}
+                onChange={value => setTempDateValue(value)}
                 label="Fecha y Hora"
                 placeholder="Seleccionar fecha y hora"
               />
@@ -290,19 +393,58 @@ export const DatosMuestraSection = () => {
                   getLabel={tec => tec.nombre || ''}
                 />
               )}
+
+              {/* Campo adicional de técnico para evento de destrucción */}
+              {editingField === 'f_destruccion' && (
+                <EntitySelect
+                  name="id_tecnico_destruccion"
+                  control={control}
+                  label="Técnico Responsable"
+                  options={tecnicos}
+                  isLoading={loadingTecnicos}
+                  getValue={tec => tec.id_usuario}
+                  getLabel={tec => tec.nombre || ''}
+                />
+              )}
+
+              {/* Campo adicional de técnico para evento de devolución */}
+              {editingField === 'f_devolucion' && (
+                <EntitySelect
+                  name="id_tecnico_devolucion"
+                  control={control}
+                  label="Técnico Responsable"
+                  options={tecnicos}
+                  isLoading={loadingTecnicos}
+                  getValue={tec => tec.id_usuario}
+                  getLabel={tec => tec.nombre || ''}
+                />
+              )}
+
+              {/* Campo adicional de técnico para evento de muestra agotada */}
+              {editingField === 'f_agotada' && (
+                <EntitySelect
+                  name="id_tecnico_agotada"
+                  control={control}
+                  label="Técnico Responsable"
+                  options={tecnicos}
+                  isLoading={loadingTecnicos}
+                  getValue={tec => tec.id_usuario}
+                  getLabel={tec => tec.nombre || ''}
+                />
+              )}
             </div>
 
             <div className="flex justify-end gap-3 mt-6">
               <button
                 type="button"
-                onClick={() => setEditingField(null)}
+                onClick={handleCancel}
                 className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
               >
                 Cancelar
               </button>
               <button
                 type="button"
-                onClick={() => setEditingField(null)}
+                onClick={handleSave}
                 className="px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
               >
                 Guardar

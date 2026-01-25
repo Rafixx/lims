@@ -26,7 +26,7 @@ export const EnviarExternalizacionesModal = ({
   onClose,
   onSuccess
 }: EnviarExternalizacionesModalProps) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<EnvioFormData>({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<EnvioFormData>({
     defaultValues: {
       f_envio: new Date().toISOString().slice(0, 16) // Fecha y hora actual
     }
@@ -37,6 +37,14 @@ export const EnviarExternalizacionesModal = ({
   const { data: tecnicosLaboratorio = [] } = useTecnicosLaboratorio()
   const enviarMutation = useEnviarExternalizaciones()
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Helper para auto-completar fecha/hora actual si está vacío
+  const handleDateTimeFocus = () => {
+    const currentValue = watch('f_envio')
+    if (!currentValue) {
+      setValue('f_envio', new Date().toISOString().slice(0, 16))
+    }
+  }
 
   const onSubmit = async (data: EnvioFormData) => {
     setIsSubmitting(true)
@@ -167,6 +175,7 @@ export const EnviarExternalizacionesModal = ({
             <input
               type="datetime-local"
               {...register('f_envio', { required: 'La fecha de envío es requerida' })}
+              onFocus={handleDateTimeFocus}
               className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
             {errors.f_envio && (

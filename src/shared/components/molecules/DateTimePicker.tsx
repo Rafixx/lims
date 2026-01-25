@@ -91,6 +91,18 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
   const timeOptions = generateTimeOptions()
 
+  const handleOpen = () => {
+    // Si no hay valor, establecer fecha y hora actual
+    if (!value) {
+      const now = new Date()
+      const currentDate = format(now, 'yyyy-MM-dd')
+      const currentTime = format(now, 'HH:mm')
+      setSelectedDate(currentDate)
+      setSelectedTime(currentTime)
+    }
+    setIsOpen(true)
+  }
+
   return (
     <div className="relative">
       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -101,7 +113,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       <div className="relative">
         <button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleOpen}
           disabled={disabled}
           className={`
             w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-left
