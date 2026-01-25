@@ -4,7 +4,6 @@ import { useNotification } from '@/shared/components/Notification/NotificationCo
 import { MuestraAsidePreview } from './MuestraAsidePreview'
 import { DatosGeneralesSection } from './DatosGeneralesSection'
 import { Tabs } from '@/shared/components/molecules/Tabs'
-import { DatosMuestraSection } from './DatosMuestraSection'
 import { Button } from '@/shared/components/molecules/Button'
 import { SendIcon } from 'lucide-react'
 import { Muestra } from '../../interfaces/muestras.types'
@@ -82,11 +81,6 @@ export const MuestraForm = ({
         id: 'general',
         label: 'Datos principales',
         content: <DatosGeneralesSection isDuplicating={isDuplicating} />
-      },
-      {
-        id: 'cronologia',
-        label: 'Cronología',
-        content: <DatosMuestraSection />
       }
     ]
 

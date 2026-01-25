@@ -422,6 +422,43 @@ export const useTecnicaProc = (
   })
 }
 
+// Mutaciones para técnicas proc
+export const useCreateTecnicaProc = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: Omit<TecnicaProc, 'id'>) => dimTablesService.createTecnicaProc(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tecnicasProc() })
+    }
+  })
+}
+
+export const useUpdateTecnicaProc = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<TecnicaProc, 'id'>> }) =>
+      dimTablesService.updateTecnicaProc(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tecnicaProc(id) })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tecnicasProc() })
+    }
+  })
+}
+
+export const useDeleteTecnicaProc = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: number) => dimTablesService.deleteTecnicaProc(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tecnicasProc() })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tecnicaProc(id) })
+    }
+  })
+}
+
 // ================================
 // HOOKS PARA TIPOS MUESTRA
 // ================================

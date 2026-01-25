@@ -13,6 +13,7 @@ import {
   useTecnicosLaboratorio,
   useCriteriosValidacion
 } from '@/shared/hooks/useDim_tables'
+import { TimelineEventsSection } from './TimelineEventsSection'
 
 interface DatosGeneralesSectionProps {
   isDuplicating?: boolean
@@ -195,19 +196,26 @@ export const DatosGeneralesSection = ({ isDuplicating = false }: DatosGeneralesS
             error={errors.solicitud?.tiempo_hielo?.message}
             className={muestraStyle}
           />
-        </div>
 
-        <FormField
-          id={`observaciones`}
-          label="Observaciones"
-          inputProps={{
-            ...register(`observaciones`),
-            type: 'text',
-            placeholder: 'Incidencias u observaciones adicionales sobre la muestra...'
-          }}
-          error={errors.observaciones?.message}
-          className={muestraStyle}
-        />
+          <div className="md:col-span-2">
+            <FormField
+              id={`observaciones`}
+              label="Observaciones"
+              inputProps={{
+                ...register(`observaciones`),
+                type: 'text',
+                placeholder: 'Incidencias u observaciones adicionales sobre la muestra...'
+              }}
+              error={errors.observaciones?.message}
+              className={muestraStyle}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Cronología de la Muestra */}
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <TimelineEventsSection />
       </div>
     </div>
   )

@@ -45,6 +45,9 @@ import { PlantillaTecnicaPage } from '@/features/plantillaTecnica/pages/Plantill
 import { CreatePlantillaPasoPage } from '@/features/dim_tables/plantillas_pasos/pages/CreatePlantillaPasoPage'
 import { EditPlantillaPasoPage } from '@/features/dim_tables/plantillas_pasos/pages/EditPlantillaPasoPage'
 import { PlantillasPasosPage } from '@/features/dim_tables/plantillas_pasos/pages/PlantillasPasosPage'
+import { TecnicasProcPage } from '@/features/dim_tables/tecnicas_proc/pages/TecnicasProcPage'
+import { CreateTecnicaProcPage } from '@/features/dim_tables/tecnicas_proc/pages/CreateTecnicaProcPage'
+import { EditTecnicaProcPage } from '@/features/dim_tables/tecnicas_proc/pages/EditTecnicaProcPage'
 import { LotesPage } from '@/features/tecnicasReactivos'
 import { ExternalizacionesPage } from '@/features/externalizaciones/pages/ExternalizacionesPage'
 import { EditExternalizacionPage } from '@/features/externalizaciones/pages/EditExternalizacionPage'
@@ -114,7 +117,10 @@ export const router = createBrowserRouter(
         { path: 'tipos-muestra/:id/editar', element: <EditTipoMuestraPage /> },
         { path: 'plantillas-pasos', element: <PlantillasPasosPage /> },
         { path: 'plantillas-pasos/nuevo', element: <CreatePlantillaPasoPage /> },
-        { path: 'plantillas-pasos/:id/editar', element: <EditPlantillaPasoPage /> }
+        { path: 'plantillas-pasos/:id/editar', element: <EditPlantillaPasoPage /> },
+        { path: 'tecnicas-proc', element: <TecnicasProcPage /> },
+        { path: 'tecnicas-proc/nueva', element: <CreateTecnicaProcPage /> },
+        { path: 'tecnicas-proc/:id/editar', element: <EditTecnicaProcPage /> }
       ]
     }
   ],

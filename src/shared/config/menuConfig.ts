@@ -16,7 +16,8 @@ import {
   Pipette,
   FlaskConical,
   LucideIcon,
-  Share2
+  Share2,
+  Microscope
 } from 'lucide-react'
 
 // Tipos para la nueva estructura de menú
@@ -141,6 +142,12 @@ export const configMenuItems: MenuItemWithChildren = {
       label: 'Pasos del proceso (Plantillas)',
       icon: LucideFileText,
       description: 'Gestión de pasos del proceso (Plantillas)'
+    },
+    {
+      path: '/tecnicas-proc',
+      label: 'Técnicas de Procesamiento',
+      icon: Microscope,
+      description: 'Gestión de técnicas de procesamiento'
     }
   ]
 }

@@ -9,6 +9,7 @@ import type {
   PlantillaPasos,
   Prueba,
   Reactivo,
+  TecnicaProc,
   TipoMuestra,
   Ubicacion
 } from '../interfaces/dim_tables.types'
@@ -161,6 +162,21 @@ class DimTablesService {
 
   async getTecnicaProc(id: number) {
     const response = await apiClient.get(`/tecnicasProc/${id}`)
+    return response.data
+  }
+
+  async createTecnicaProc(tecnicaProc: Omit<TecnicaProc, 'id'>) {
+    const response = await apiClient.post('/tecnicasProc', tecnicaProc)
+    return response.data
+  }
+
+  async updateTecnicaProc(id: number, tecnicaProc: Partial<Omit<TecnicaProc, 'id'>>) {
+    const response = await apiClient.put(`/tecnicasProc/${id}`, tecnicaProc)
+    return response.data
+  }
+
+  async deleteTecnicaProc(id: number) {
+    const response = await apiClient.delete(`/tecnicasProc/${id}`)
     return response.data
   }
 
