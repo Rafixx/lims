@@ -5,7 +5,7 @@ type ExternalizacionFilterProps = {
   filters: {
     busqueda: string
     id_centro: number | null
-    soloPendientes: boolean
+    id_estado: number | null
     mayorCincoDias: boolean
   }
   onFilterChange: (key: string, value: string | number | boolean | null) => void
@@ -35,18 +35,45 @@ export const ExternalizacionFilter = ({
         />
       </div>
 
-      {/* Filtros rápidos y selector de centro */}
+      {/* Filtros rápidos por estado */}
       <div className="flex flex-wrap gap-3">
-        {/* Filtro rápido: Pendientes */}
+        {/* Filtro rápido: EXTERNALIZADA (16) */}
         <button
-          onClick={() => onFilterChange('soloPendientes', !filters.soloPendientes)}
+          onClick={() => onFilterChange('id_estado', filters.id_estado === 16 ? null : 16)}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            filters.soloPendientes
-              ? 'bg-primary-500 text-white'
+            filters.id_estado === 16
+              ? 'bg-info-500 text-white'
               : 'bg-surface-100 text-surface-700 hover:bg-surface-200'
           }`}
+          title="Técnica marcada para el proceso de externalización"
         >
-          Pendientes
+          EXTERNALIZADA
+        </button>
+
+        {/* Filtro rápido: ENVIADA_EXT (17) */}
+        <button
+          onClick={() => onFilterChange('id_estado', filters.id_estado === 17 ? null : 17)}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            filters.id_estado === 17
+              ? 'bg-warning-500 text-white'
+              : 'bg-surface-100 text-surface-700 hover:bg-surface-200'
+          }`}
+          title="Enviada a laboratorio externo"
+        >
+          ENVIADA
+        </button>
+
+        {/* Filtro rápido: RECIBIDA_EXT (18) */}
+        <button
+          onClick={() => onFilterChange('id_estado', filters.id_estado === 18 ? null : 18)}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            filters.id_estado === 18
+              ? 'bg-success-500 text-white'
+              : 'bg-surface-100 text-surface-700 hover:bg-surface-200'
+          }`}
+          title="Recibida desde laboratorio externo"
+        >
+          RECIBIDA
         </button>
 
         {/* Filtro rápido: > 5 días */}
@@ -54,7 +81,7 @@ export const ExternalizacionFilter = ({
           onClick={() => onFilterChange('mayorCincoDias', !filters.mayorCincoDias)}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             filters.mayorCincoDias
-              ? 'bg-warning-500 text-white'
+              ? 'bg-danger-500 text-white'
               : 'bg-surface-100 text-surface-700 hover:bg-surface-200'
           }`}
         >
@@ -79,7 +106,7 @@ export const ExternalizacionFilter = ({
         {hasActiveFilters && (
           <button
             onClick={onClearFilters}
-            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-danger-50 text-danger-600 rounded-lg text-sm font-medium hover:bg-danger-100 transition-colors"
           >
             <X className="w-4 h-4" />
             Limpiar filtros

@@ -127,22 +127,78 @@ export const useRegistrarRecepcionDatos = () => {
 /**
  * Hook para externalizar una o múltiples técnicas
  * Crea una externalización por cada técnica proporcionada
+ * Retorna un objeto con éxitos y errores para manejo granular
  */
 export const useExternalizarTecnicas = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (tecnicaIds: number[]) => {
-      // Crear una externalización por cada técnica
-      const promises = tecnicaIds.map(id_tecnica =>
-        externalizacionesService.createExternalizacion({ id_tecnica })
+      // Procesar cada técnica individualmente para capturar errores específicos
+      const results = await Promise.allSettled(
+        tecnicaIds.map(async id_tecnica => {
+          try {
+            const result = await externalizacionesService.createExternalizacion({ id_tecnica })
+            return { success: true, id_tecnica, data: result }
+          } catch (error: unknown) {
+            // Extraer mensaje de error del backend
+            let errorMessage = 'Error desconocido'
+
+            // Axios wraps errors in a specific structure
+            if (error && typeof error === 'object') {
+              const axiosError = error as {
+                response?: {
+                  data?: {
+                    message?: string
+                    error?: string
+                  }
+                  status?: number
+                }
+                message?: string
+              }
+
+              // Prioridad: mensaje del backend > mensaje de axios > mensaje genérico
+              if (axiosError.response?.data?.message) {
+                errorMessage = axiosError.response.data.message
+              } else if (axiosError.response?.data?.error) {
+                errorMessage = axiosError.response.data.error
+              } else if (axiosError.message) {
+                errorMessage = axiosError.message
+              }
+
+              // Log para debugging en desarrollo
+              console.warn(`Error externalizando técnica ${id_tecnica}:`, {
+                status: axiosError.response?.status,
+                message: errorMessage,
+                fullError: error
+              })
+            }
+
+            return { success: false, id_tecnica, error: errorMessage }
+          }
+        })
       )
-      return Promise.all(promises)
+
+      // Separar éxitos y errores
+      const successful = results
+        .filter(r => r.status === 'fulfilled' && r.value.success)
+        .map(r => (r as PromiseFulfilledResult<{ success: true; id_tecnica: number }>).value)
+
+      const failed = results
+        .filter(r => r.status === 'fulfilled' && !r.value.success)
+        .map(
+          r =>
+            (r as PromiseFulfilledResult<{ success: false; id_tecnica: number; error: string }>)
+              .value
+        )
+
+      return { successful, failed, total: tecnicaIds.length }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['externalizaciones'] })
       queryClient.invalidateQueries({ queryKey: ['muestras'] })
       queryClient.invalidateQueries({ queryKey: ['tecnicasPorMuestra'] })
+      queryClient.invalidateQueries({ queryKey: ['tecnicas', 'pendientes-externalizacion'] })
     }
   })
 }
@@ -172,6 +228,30 @@ export const useEnviarExternalizaciones = () => {
       return externalizacionesService.enviarExternalizaciones(externalizacionIds, data)
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['externalizaciones'] })
+      queryClient.invalidateQueries({ queryKey: ['muestras'] })
+      queryClient.invalidateQueries({ queryKey: ['tecnicasPorMuestra'] })
+    }
+  })
+}
+
+/**
+ * Hook para marcar una externalización como recibida
+ * Cambia el estado de la técnica a RECIBIDA_EXT (id_estado = 18)
+ */
+export const useMarcarComoRecibida = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data
+    }: {
+      id: number
+      data: { f_recepcion: string; observaciones?: string }
+    }) => externalizacionesService.marcarComoRecibida(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['externalizacion', id] })
       queryClient.invalidateQueries({ queryKey: ['externalizaciones'] })
       queryClient.invalidateQueries({ queryKey: ['muestras'] })
       queryClient.invalidateQueries({ queryKey: ['tecnicasPorMuestra'] })

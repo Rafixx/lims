@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Trash2, Loader2, Send } from 'lucide-react'
+import { Trash2, Loader2 } from 'lucide-react'
 import { Tecnica } from '../../interfaces/muestras.types'
 import { ListDetail } from '@/shared/components/organisms/ListDetail'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
@@ -9,7 +9,6 @@ import { ResultadoInfo } from './ResultadoInfo'
 import { useDeleteTecnica } from '../../hooks/useMuestras'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
-import { useExternalizarTecnicas } from '@/features/externalizaciones/hooks/useExternalizaciones'
 
 interface TecnicaListDetailProps {
   tecnica: Tecnica
@@ -32,9 +31,7 @@ export const TecnicaListDetail = ({
   const { confirm } = useConfirmation()
   const { notify } = useNotification()
   const deleteTecnicaMutation = useDeleteTecnica()
-  const externalizarMutation = useExternalizarTecnicas()
   const [isDeleting, setIsDeleting] = useState(false)
-  const [isExternalizing, setIsExternalizing] = useState(false)
 
   // Determinar si hay resultados para mostrar
   const hasResultadosLocal = Boolean(
@@ -86,37 +83,10 @@ export const TecnicaListDetail = ({
     }
   }
 
-  // Handler para externalizar técnica
-  const handleExternalizarTecnica = async () => {
-    const tecnicaNombre = tecnica.tecnica_proc?.tecnica_proc || 'esta técnica'
-
-    const confirmed = await confirm({
-      title: 'Externalizar técnica',
-      message: `¿Deseas externalizar la técnica "${tecnicaNombre}"? Se creará una externalización para esta técnica.`,
-      confirmText: 'Sí, externalizar',
-      cancelText: 'No',
-      type: 'info'
-    })
-
-    if (!confirmed) return
-
-    setIsExternalizing(true)
-    try {
-      await externalizarMutation.mutateAsync([tecnica.id_tecnica])
-      notify('Técnica externalizada correctamente', 'success')
-    } catch (error) {
-      console.error('Error externalizando técnica:', error)
-      notify('Error al externalizar la técnica', 'error')
-    } finally {
-      setIsExternalizing(false)
-    }
-  }
-
-  // Verificar si la técnica puede ser eliminada o externalizada
+  // Verificar si la técnica puede ser eliminada
   const isExternalized =
     tecnica.id_estado === 16 || tecnica.id_estado === 17 || tecnica.id_estado === 18
   const canDelete = !isTecnicaInWorklist(tecnica) && !isExternalized
-  const canExternalize = !isTecnicaInWorklist(tecnica) && !isExternalized
   const isCancelled = tecnica.id_estado === 13
 
   // Definir los campos a renderizar
@@ -192,28 +162,9 @@ export const TecnicaListDetail = ({
       />
     )
 
-    // Columna de acciones (externalizar y eliminar)
+    // Columna de acciones (eliminar)
     baseFields.push(
       <div key={`acciones-${tecnica.id_tecnica}`} className="flex justify-end items-center gap-2">
-        {/* Botón de externalizar */}
-        {canExternalize && !isCancelled ? (
-          <button
-            onClick={handleExternalizarTecnica}
-            disabled={isExternalizing}
-            className="p-1 text-primary-600 hover:bg-primary-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Externalizar técnica"
-            aria-label={`Externalizar técnica ${tecnica.tecnica_proc?.tecnica_proc || ''}`}
-          >
-            {isExternalizing ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
-          </button>
-        ) : (
-          !isCancelled && <span className="text-xs text-surface-300">-</span>
-        )}
-
         {/* Botón de eliminar */}
         {canDelete && !isCancelled ? (
           <button

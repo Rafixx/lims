@@ -100,6 +100,17 @@ class ExternalizacionesService {
       ...data
     })
   }
+
+  async marcarComoRecibida(
+    id: number,
+    data: { f_recepcion: string; observaciones?: string }
+  ): Promise<Externalizacion> {
+    const response = await apiClient.patch<{ success: boolean; data: Externalizacion }>(
+      `${this.basePath}/${id}/marcar-recibida`,
+      data
+    )
+    return response.data.data
+  }
 }
 
 export const externalizacionesService = new ExternalizacionesService()

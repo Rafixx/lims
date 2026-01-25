@@ -1,11 +1,10 @@
 import { ReactNode, useState } from 'react'
-import { Send, Loader2, Trash2 } from 'lucide-react'
+import { Loader2, Trash2 } from 'lucide-react'
 import { TecnicaAgrupada } from '../../interfaces/muestras.types'
 import { ListDetail } from '@/shared/components/organisms/ListDetail'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
-import { useExternalizarTecnicas } from '@/features/externalizaciones/hooks/useExternalizaciones'
 import { useDeleteTecnica } from '../../hooks/useMuestras'
 import tecnicaService from '../../services/tecnica.service'
 
@@ -25,52 +24,13 @@ export const TecnicaAgrupadaListDetail = ({
 }: TecnicaAgrupadaListDetailProps) => {
   const { confirm } = useConfirmation()
   const { notify } = useNotification()
-  const externalizarMutation = useExternalizarTecnicas()
   const deleteTecnicaMutation = useDeleteTecnica()
-  const [isExternalizing, setIsExternalizing] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
   // Verificar si alguna técnica está asignada a un worklist o si no hay técnicas pendientes
   const hasWorklistAssigned = tecnicaAgrupada.asignadas > 0 || tecnicaAgrupada.en_proceso > 0
   const hasPendingTechniques = tecnicaAgrupada.pendientes > 0
-  const canExternalize = !hasWorklistAssigned && hasPendingTechniques
   const canDelete = !hasWorklistAssigned && hasPendingTechniques
-
-  // Handler para externalizar grupo de técnicas
-  const handleExternalizarGrupo = async () => {
-    if (!canExternalize) {
-      notify(
-        'No se pueden externalizar técnicas que ya están asignadas a un worklist o externalizadas',
-        'warning'
-      )
-      return
-    }
-
-    const confirmed = await confirm({
-      title: 'Externalizar grupo de técnicas',
-      message: `¿Deseas externalizar todas las técnicas del proceso "${tecnicaAgrupada.proceso_nombre}"? Se crearán ${tecnicaAgrupada.pendientes} externalizaciones.`,
-      confirmText: 'Sí, externalizar',
-      cancelText: 'No',
-      type: 'info'
-    })
-
-    if (!confirmed) return
-
-    setIsExternalizing(true)
-    try {
-      // Obtener los IDs de todas las técnicas del grupo
-      const tecnicaIds = await tecnicaService.getTecnicaIdsFromGroup(
-        tecnicaAgrupada.primera_tecnica_id
-      )
-      await externalizarMutation.mutateAsync(tecnicaIds)
-      notify(`${tecnicaIds.length} técnicas externalizadas correctamente`, 'success')
-    } catch (error) {
-      console.error('Error externalizando grupo de técnicas:', error)
-      notify('Error al externalizar el grupo de técnicas', 'error')
-    } finally {
-      setIsExternalizing(false)
-    }
-  }
 
   // Handler para eliminar/cancelar grupo de técnicas
   const handleDeleteGrupo = async () => {
@@ -183,30 +143,11 @@ export const TecnicaAgrupadaListDetail = ({
       size="small"
     />,
 
-    // Acciones - Externalizar y Eliminar
+    // Acciones - Eliminar
     <div
       key={`accion-${tecnicaAgrupada.proceso_nombre}`}
       className="flex justify-end items-center gap-2"
     >
-      {/* Botón de externalizar */}
-      {canExternalize ? (
-        <button
-          onClick={handleExternalizarGrupo}
-          disabled={isExternalizing}
-          className="p-1 text-primary-600 hover:bg-primary-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Externalizar grupo de técnicas"
-          aria-label={`Externalizar grupo ${tecnicaAgrupada.proceso_nombre}`}
-        >
-          {isExternalizing ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Send className="w-4 h-4" />
-          )}
-        </button>
-      ) : (
-        <span className="text-xs text-surface-300">-</span>
-      )}
-
       {/* Botón de eliminar */}
       {canDelete ? (
         <button

@@ -7,11 +7,13 @@ import {
   Calendar,
   User,
   Building,
-  Package
+  Package,
+  CheckCircle
 } from 'lucide-react'
 import { Externalizacion } from '../../interfaces/externalizaciones.types'
 import { formatDate } from '@/shared/utils/helpers'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
+import { MarcarRecibidaModal } from '../MarcarRecibidaModal'
 
 type ExternalizacionListDetailProps = {
   externalizacion: Externalizacion
@@ -32,21 +34,10 @@ export const ExternalizacionListDetail = ({
   onSelectChange
 }: ExternalizacionListDetailProps) => {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [showMarcarRecibidaModal, setShowMarcarRecibidaModal] = useState(false)
 
-  const isPendiente = !externalizacion.f_recepcion
-  // const tieneRecepcionDatos = !!externalizacion.f_recepcion_datos
-
-  // const getEstadoColor = () => {
-  //   if (tieneRecepcionDatos) return 'bg-success-100 text-success-700 border-success-300'
-  //   if (!isPendiente) return 'bg-info-100 text-info-700 border-info-300'
-  //   return 'bg-warning-100 text-warning-700 border-warning-300'
-  // }
-
-  // const getEstadoText = () => {
-  //   if (tieneRecepcionDatos) return 'Con datos'
-  //   if (!isPendiente) return 'Recibida'
-  //   return 'Pendiente'
-  // }
+  // Estado ENVIADA_EXT (id_estado = 17) permite marcar como recibida
+  const esEnviada = externalizacion.tecnica?.id_estado === 17
 
   return (
     <div
@@ -132,6 +123,16 @@ export const ExternalizacionListDetail = ({
 
         {/* Acciones */}
         <div className="col-span-1 flex justify-end gap-1">
+          {esEnviada && (
+            <button
+              onClick={() => setShowMarcarRecibidaModal(true)}
+              className="p-1.5 text-success-600 hover:bg-success-50 rounded transition-colors"
+              title="Marcar como recibida"
+              aria-label={`Marcar externalización ${externalizacion.id_externalizacion} como recibida`}
+            >
+              <CheckCircle className="w-4 h-4" />
+            </button>
+          )}
           <button
             onClick={() => onEdit(externalizacion)}
             className="p-1.5 text-primary-600 hover:bg-primary-50 rounded transition-colors"
@@ -230,6 +231,15 @@ export const ExternalizacionListDetail = ({
             </div>
           )}
         </div>
+      )}
+
+      {/* Modal para marcar como recibida */}
+      {showMarcarRecibidaModal && (
+        <MarcarRecibidaModal
+          externalizacion={externalizacion}
+          onClose={() => setShowMarcarRecibidaModal(false)}
+          onSuccess={() => setShowMarcarRecibidaModal(false)}
+        />
       )}
     </div>
   )

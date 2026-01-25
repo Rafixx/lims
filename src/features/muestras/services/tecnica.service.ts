@@ -39,6 +39,21 @@ class TecnicaService {
     )
     return response.data.tecnica_ids
   }
+
+  /**
+   * Obtiene técnicas pendientes de externalización
+   * Requisitos:
+   * - id_worklist = null
+   * - estado no final
+   * - Incluye información de muestra y array si aplica
+   * @returns Promise con array de técnicas pendientes
+   */
+  async getTecnicasPendientesExternalizacion(): Promise<Tecnica[]> {
+    const response = await apiClient.get<{ success: boolean; data: Tecnica[] }>(
+      `${this.basePath}/pendientes-externalizacion`
+    )
+    return response.data.data
+  }
 }
 
 // Instancia singleton del servicio

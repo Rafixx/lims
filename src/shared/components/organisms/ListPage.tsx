@@ -28,6 +28,7 @@ interface ListPageProps {
   renderStats?: () => React.ReactNode
   renderFilters?: () => React.ReactNode
   renderActions?: () => React.ReactNode
+  customActions?: React.ReactNode
 
   // Configuración de comportamiento
   config?: {
@@ -53,6 +54,7 @@ export const ListPage = ({
   renderStats,
   renderFilters,
   renderActions,
+  customActions,
   config = {},
   children
 }: ListPageProps) => {
@@ -110,6 +112,9 @@ export const ListPage = ({
               Actualizar
             </Button>
           )}
+
+          {/* Acciones personalizadas adicionales */}
+          {customActions}
 
           {/* Botón nuevo */}
           {!hideNewButton && handlers?.onNew && (

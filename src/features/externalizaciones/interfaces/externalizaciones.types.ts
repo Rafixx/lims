@@ -26,6 +26,12 @@ export type Externalizacion = {
       codigo_epi?: string
       codigo_externo?: string
       estudio?: string
+      tipo_array?: boolean
+    }
+    muestraArray?: {
+      id_array: number
+      codigo_placa: string
+      posicion_placa: string
     }
   }
   centro?: Centro | null

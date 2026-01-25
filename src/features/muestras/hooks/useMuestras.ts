@@ -195,3 +195,30 @@ export const useDeleteTecnica = () => {
     }
   })
 }
+
+/**
+ * Hook para obtener técnicas pendientes de externalización
+ * Requisitos:
+ * - id_worklist = null
+ * - estado no final
+ * - Excluye técnicas con id_estado = 16 (EXTERNALIZADA)
+ */
+export const useTecnicasPendientesExternalizacion = () => {
+  const { data, isLoading, error, refetch }: UseQueryResult<Tecnica[], Error> = useQuery({
+    queryKey: ['tecnicas', 'pendientes-externalizacion'],
+    queryFn: async () => {
+      const tecnicas = await tecnicaService.getTecnicasPendientesExternalizacion()
+      // Filtrar técnicas que ya están externalizadas (id_estado = 16)
+      return tecnicas.filter(tecnica => tecnica.id_estado !== 16)
+    },
+    staleTime: STALE_TIME,
+    placeholderData: []
+  })
+
+  return {
+    tecnicas: data || [],
+    isLoading,
+    error,
+    refetch
+  }
+}

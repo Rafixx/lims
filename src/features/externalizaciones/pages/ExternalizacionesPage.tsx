@@ -12,11 +12,13 @@ import {
   type SortDirection
 } from '../components/ExternalizacionList/ExternalizacionListHeader'
 import { ExternalizacionListDetail } from '../components/ExternalizacionList/ExternalizacionListDetail'
+import { ExternalizacionArrayGroup } from '../components/ExternalizacionList/ExternalizacionArrayGroup'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
-import { Send } from 'lucide-react'
+import { Send, Plus } from 'lucide-react'
 import { Button } from '@/shared/components/molecules/Button'
 import { EnviarExternalizacionesModal } from '../components/EnviarExternalizacionesModal'
+import { SeleccionarTecnicasModal } from '../components/SeleccionarTecnicasModal'
 
 export const ExternalizacionesPage = () => {
   const { externalizaciones, isLoading, error, refetch } = useExternalizaciones()
@@ -29,6 +31,7 @@ export const ExternalizacionesPage = () => {
   const [sortDirection, setSortDirection] = useState<SortDirection>(null)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [showEnviarModal, setShowEnviarModal] = useState(false)
+  const [showSeleccionarModal, setShowSeleccionarModal] = useState(false)
 
   const filterConfig = useMemo(
     () => ({
@@ -50,10 +53,10 @@ export const ExternalizacionesPage = () => {
         defaultValue: null,
         filterFn: createNumericExactFilter<Externalizacion>(ext => ext.centro?.id)
       },
-      soloPendientes: {
-        type: 'toggle' as const,
-        defaultValue: false,
-        filterFn: (ext: Externalizacion) => !ext.f_recepcion
+      id_estado: {
+        type: 'select' as const,
+        defaultValue: null,
+        filterFn: createNumericExactFilter<Externalizacion>(ext => ext.tecnica?.id_estado)
       },
       mayorCincoDias: {
         type: 'toggle' as const,
@@ -70,13 +73,21 @@ export const ExternalizacionesPage = () => {
     []
   )
 
+  // Filtrar primero por estados válidos (16, 17, 18)
+  const externalizacionesValidasEstado = useMemo(() => {
+    return (externalizaciones || []).filter(ext => {
+      const estado = ext.tecnica?.id_estado
+      return estado === 16 || estado === 17 || estado === 18
+    })
+  }, [externalizaciones])
+
   const {
     filters,
     filteredItems: externalizacionesFiltradas,
     hasActiveFilters,
     updateFilter,
     clearFilters
-  } = useListFilters(externalizaciones || [], filterConfig)
+  } = useListFilters(externalizacionesValidasEstado, filterConfig)
 
   // Función para manejar el ordenamiento
   const handleSort = (field: SortField) => {
@@ -165,18 +176,72 @@ export const ExternalizacionesPage = () => {
     }
   }
 
-  // Filtrar solo externalizaciones en estado EXTERNALIZADA (id_estado = 16)
+  // Filtrar solo externalizaciones en estado EXTERNALIZADA (id_estado = 16) para acciones de envío
   const externalizacionesExternalizadas = useMemo(() => {
     return externalizacionesOrdenadas.filter(ext => ext.tecnica?.id_estado === 16)
   }, [externalizacionesOrdenadas])
 
-  // Handler para selección de checkbox
-  const handleSelectExternalizacion = (id: number, checked: boolean) => {
+  // Agrupar externalizaciones por muestra tipo array (id_muestra + tecnica_proc)
+  const externalizacionesAgrupadas = useMemo(() => {
+    const grupos: { [key: string]: Externalizacion[] } = {}
+    const individuales: Externalizacion[] = []
+
+    externalizacionesOrdenadas.forEach(ext => {
+      // Solo agrupar si es tipo array Y tiene los datos necesarios
+      if (
+        ext.tecnica?.muestra?.tipo_array &&
+        ext.tecnica?.muestra?.id_muestra &&
+        ext.tecnica?.tecnica_proc?.id
+      ) {
+        // Clave única por id_muestra + id de técnica de procesamiento
+        const key = `${ext.tecnica.muestra.id_muestra}-${ext.tecnica.tecnica_proc.id}`
+
+        if (!grupos[key]) {
+          grupos[key] = []
+        }
+        grupos[key].push(ext)
+      } else {
+        individuales.push(ext)
+      }
+    })
+
+    // Ordenar cada grupo por posición de placa
+    Object.keys(grupos).forEach(key => {
+      grupos[key].sort((a, b) => {
+        const posA = a.tecnica?.muestraArray?.posicion_placa || ''
+        const posB = b.tecnica?.muestraArray?.posicion_placa || ''
+        return posA.localeCompare(posB)
+      })
+    })
+
+    // Log informativo para debug (solo si hay grupos)
+    if (Object.keys(grupos).length > 0) {
+      console.log('✅ Externalizaciones agrupadas por muestra+técnica:', {
+        grupos: Object.keys(grupos).length,
+        totalEnGrupos: Object.values(grupos).reduce((sum, g) => sum + g.length, 0),
+        individuales: individuales.length,
+        detalleGrupos: Object.entries(grupos).map(([key, exts]) => ({
+          key,
+          muestra: exts[0].tecnica?.muestra?.codigo_epi,
+          tecnica: exts[0].tecnica?.tecnica_proc?.tecnica_proc,
+          posiciones: exts.length,
+          placa: exts[0].tecnica?.muestraArray?.codigo_placa
+        }))
+      })
+    }
+
+    return { grupos, individuales }
+  }, [externalizacionesOrdenadas])
+
+  // Handler para selección de checkbox (individual o múltiple)
+  const handleSelectExternalizacion = (ids: number[] | number, checked: boolean) => {
     const newSelected = new Set(selectedIds)
+    const idsArray = Array.isArray(ids) ? ids : [ids]
+
     if (checked) {
-      newSelected.add(id)
+      idsArray.forEach(id => newSelected.add(id))
     } else {
-      newSelected.delete(id)
+      idsArray.forEach(id => newSelected.delete(id))
     }
     setSelectedIds(newSelected)
   }
@@ -205,8 +270,13 @@ export const ExternalizacionesPage = () => {
     setShowEnviarModal(false)
   }
 
+  const handleSeleccionarSuccess = () => {
+    setShowSeleccionarModal(false)
+    refetch()
+  }
+
   const handlers = {
-    // Eliminamos el botón de "Nueva Externalización"
+    // Botón personalizado para añadir técnicas pendientes
   }
 
   const renderFilters = () => (
@@ -214,7 +284,7 @@ export const ExternalizacionesPage = () => {
       filters={{
         busqueda: filters.busqueda as string,
         id_centro: filters.id_centro as number | null,
-        soloPendientes: filters.soloPendientes as boolean,
+        id_estado: filters.id_estado as number | null,
         mayorCincoDias: filters.mayorCincoDias as boolean
       }}
       onFilterChange={updateFilter}
@@ -233,7 +303,7 @@ export const ExternalizacionesPage = () => {
         title="Gestión de Externalizaciones"
         data={{
           items: externalizacionesOrdenadas,
-          total: externalizaciones?.length,
+          total: externalizacionesValidasEstado.length,
           filtered: externalizacionesOrdenadas.length,
           isLoading: isLoading || isDeleting,
           error,
@@ -245,6 +315,15 @@ export const ExternalizacionesPage = () => {
           emptyStateMessage: 'No hay externalizaciones disponibles',
           hideNewButton: true
         }}
+        customActions={
+          <Button
+            variant="primary"
+            onClick={() => setShowSeleccionarModal(true)}
+            title="Añadir muestras/técnicas pendientes de externalizar"
+          >
+            <Plus className="w-4 h-4" />
+          </Button>
+        }
       >
         {/* Barra de acciones para selección múltiple */}
         {externalizacionesExternalizadas.length > 0 && (
@@ -277,7 +356,24 @@ export const ExternalizacionesPage = () => {
             sortDirection={sortDirection}
             onSort={handleSort}
           />
-          {externalizacionesOrdenadas.map((externalizacion: Externalizacion) => {
+
+          {/* Grupos de arrays */}
+          {Object.entries(externalizacionesAgrupadas.grupos).map(([key, externalizaciones]) => {
+            return (
+              <ExternalizacionArrayGroup
+                key={key}
+                externalizaciones={externalizaciones}
+                onEdit={ext => navigate(`/externalizaciones/${ext.id_externalizacion}/editar`)}
+                onDelete={handleDelete}
+                showCheckbox={externalizaciones.some(ext => ext.tecnica?.id_estado === 16)}
+                selectedIds={selectedIds}
+                onSelectChange={handleSelectExternalizacion}
+              />
+            )
+          })}
+
+          {/* Externalizaciones individuales */}
+          {externalizacionesAgrupadas.individuales.map((externalizacion: Externalizacion) => {
             const isExternalizada = externalizacion.tecnica?.id_estado === 16
             const isSelected = selectedIds.has(externalizacion.id_externalizacion)
 
@@ -304,6 +400,14 @@ export const ExternalizacionesPage = () => {
           externalizacionIds={Array.from(selectedIds)}
           onClose={() => setShowEnviarModal(false)}
           onSuccess={handleEnviarSuccess}
+        />
+      )}
+
+      {/* Modal para seleccionar técnicas pendientes */}
+      {showSeleccionarModal && (
+        <SeleccionarTecnicasModal
+          onClose={() => setShowSeleccionarModal(false)}
+          onSuccess={handleSeleccionarSuccess}
         />
       )}
     </>
