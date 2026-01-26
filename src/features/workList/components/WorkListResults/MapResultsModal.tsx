@@ -53,10 +53,15 @@ export const MapResultsModal = ({
           )
         }
 
-        // Caso 2: Si no hay match por posición o no hay posición, buscar por codigo_epi (muestras normales)
+        // Caso 2: Si no hay match por posición, buscar por codigo_epi del array o de la muestra
         if (!tecnicaMatch && sampleId) {
           tecnicaMatch = tecnicas.find(
-            t => t.muestra?.codigo_epi === sampleId && !usedTecnicas.has(t.id_tecnica || 0)
+            t =>
+              !usedTecnicas.has(t.id_tecnica || 0) &&
+              (t.muestraArray?.codigo_epi === sampleId ||
+                t.muestraArray?.codigo_externo === sampleId ||
+                t.muestra?.codigo_epi === sampleId ||
+                t.muestra?.codigo_externo === sampleId)
           )
         }
 
@@ -265,7 +270,11 @@ export const MapResultsModal = ({
 
                         // Determinar el label según si es array o muestra normal
                         const label = tecnica.muestraArray
-                          ? `${tecnica.muestraArray.codigo_placa} - ${tecnica.muestraArray.posicion_placa}`
+                          ? `${tecnica.muestraArray.codigo_placa} - ${tecnica.muestraArray.posicion_placa}${
+                              tecnica.muestraArray.codigo_epi
+                                ? ` (${tecnica.muestraArray.codigo_epi})`
+                                : ''
+                            }`
                           : tecnica.muestra?.codigo_epi || tecnica.muestra?.codigo_externo || 'N/A'
 
                         return (
@@ -292,6 +301,18 @@ export const MapResultsModal = ({
                               <span className="font-semibold">Posición:</span>{' '}
                               {tecnicaAsignada.muestraArray.posicion_placa}
                             </div>
+                            {tecnicaAsignada.muestraArray.codigo_epi && (
+                              <div>
+                                <span className="font-semibold">Código EPI:</span>{' '}
+                                {tecnicaAsignada.muestraArray.codigo_epi}
+                              </div>
+                            )}
+                            {tecnicaAsignada.muestraArray.codigo_externo && (
+                              <div>
+                                <span className="font-semibold">Código Externo:</span>{' '}
+                                {tecnicaAsignada.muestraArray.codigo_externo}
+                              </div>
+                            )}
                           </>
                         ) : (
                           <div>

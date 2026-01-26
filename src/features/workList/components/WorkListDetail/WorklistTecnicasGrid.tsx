@@ -55,9 +55,9 @@ export const WorklistTecnicasGrid = ({
 
     // Ordenar por código de muestra y luego por posición de placa
     return [...filtradas].sort((a, b) => {
-      // Primero ordenar por código externo de muestra
-      const codigoA = a.muestra?.codigo_externo || ''
-      const codigoB = b.muestra?.codigo_externo || ''
+      // Primero ordenar por código externo (usar muestraArray si existe, sino muestra)
+      const codigoA = (a.muestraArray?.codigo_externo || a.muestra?.codigo_externo || '')
+      const codigoB = (b.muestraArray?.codigo_externo || b.muestra?.codigo_externo || '')
       const codigoComparison = codigoA.localeCompare(codigoB)
 
       if (codigoComparison !== 0) return codigoComparison

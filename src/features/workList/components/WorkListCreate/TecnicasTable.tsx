@@ -32,14 +32,26 @@ export const TecnicasTable = ({
   const [pageSize, setPageSize] = useState<number>(20)
   const [currentPage, setCurrentPage] = useState(1)
 
+
   // Filtrar técnicas
   const filteredTecnicas = useMemo(() => {
     if (!filterMuestra.trim()) return tecnicas
 
     const searchTerm = filterMuestra.toLowerCase().trim()
     return tecnicas.filter(tecnica => {
-      const codigoEpi = tecnica.muestra?.codigo_epi?.toLowerCase() || ''
-      const codigoExterno = tecnica.muestra?.codigo_externo?.toLowerCase() || ''
+      // Obtener códigos según si es array o no
+      const isArray = Boolean(tecnica.muestraArray)
+
+      const codigoEpi =
+        isArray && tecnica.muestraArray?.codigo_epi
+          ? tecnica.muestraArray.codigo_epi.toLowerCase()
+          : tecnica.muestra?.codigo_epi?.toLowerCase() || ''
+
+      const codigoExterno =
+        isArray && tecnica.muestraArray?.codigo_externo
+          ? tecnica.muestraArray.codigo_externo.toLowerCase()
+          : tecnica.muestra?.codigo_externo?.toLowerCase() || ''
+
       const estudio = tecnica.muestra?.estudio?.toLowerCase() || ''
 
       return (
@@ -58,12 +70,13 @@ export const TecnicasTable = ({
 
       switch (sortField) {
         case 'codigo_epi':
-          valueA = a.muestra?.codigo_epi || ''
-          valueB = b.muestra?.codigo_epi || ''
+          // Usar códigos de muestraArray si existe, sino de muestra
+          valueA = a.muestraArray?.codigo_epi || a.muestra?.codigo_epi || ''
+          valueB = b.muestraArray?.codigo_epi || b.muestra?.codigo_epi || ''
           break
         case 'codigo_externo':
-          valueA = a.muestra?.codigo_externo || ''
-          valueB = b.muestra?.codigo_externo || ''
+          valueA = a.muestraArray?.codigo_externo || a.muestra?.codigo_externo || ''
+          valueB = b.muestraArray?.codigo_externo || b.muestra?.codigo_externo || ''
           break
         case 'estudio':
           valueA = a.muestra?.estudio || ''
@@ -237,6 +250,9 @@ export const TecnicasTable = ({
                   <SortIcon field="codigo_epi" />
                 </div>
               </th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Pocillo
+              </th>
               <th
                 className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                 onClick={() => handleSort('estudio')}
@@ -251,7 +267,7 @@ export const TecnicasTable = ({
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedTecnicas.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
                   {filterMuestra
                     ? 'No se encontraron técnicas con el filtro aplicado'
                     : 'No hay técnicas disponibles'}
@@ -262,6 +278,15 @@ export const TecnicasTable = ({
                 const isSelected = tecnica.id_tecnica
                   ? selectedTecnicas.has(tecnica.id_tecnica)
                   : false
+
+                // Priorizar códigos de muestraArray sobre muestra (patrón recomendado)
+                const codigoExterno =
+                  tecnica.muestraArray?.codigo_externo || tecnica.muestra?.codigo_externo || '-'
+
+                const codigoEpi =
+                  tecnica.muestraArray?.codigo_epi || tecnica.muestra?.codigo_epi || '-'
+
+                const posicionPlaca = tecnica.muestraArray?.posicion_placa || '-'
 
                 return (
                   <tr
@@ -280,11 +305,10 @@ export const TecnicasTable = ({
                         className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                       />
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-900">
-                      {tecnica.muestra?.codigo_externo || '-'}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">
-                      {tecnica.muestra?.codigo_epi || '-'}
+                    <td className="px-4 py-3 text-sm text-gray-900">{codigoExterno}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900 font-medium">{codigoEpi}</td>
+                    <td className="px-4 py-3 text-sm text-gray-700 text-center font-mono">
+                      {posicionPlaca}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
                       {tecnica.muestra?.estudio || '-'}

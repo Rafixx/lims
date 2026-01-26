@@ -35,15 +35,25 @@ export const TecnicaRow = ({
     }
   }
 
+  // Determinar si es un array y mostrar códigos específicos
+  const isArray = Boolean(tecnica.muestraArray)
+
+  // Si es array, usar códigos de muestraArray; si no, usar códigos de muestra
+  const codigoEpi = isArray && tecnica.muestraArray?.codigo_epi
+    ? tecnica.muestraArray.codigo_epi
+    : tecnica.muestra?.codigo_epi
+
+  const codigoExterno = isArray && tecnica.muestraArray?.codigo_externo
+    ? tecnica.muestraArray.codigo_externo
+    : tecnica.muestra?.codigo_externo
+
   return (
     <div className="grid grid-cols-12 gap-4 border p-2 rounded bg-white hover:bg-gray-50 transition-colors items-center">
       {/* Columna 1: Códigos inline (span 2) */}
       <div className="col-span-2 text-xs text-gray-700">
-        <span className="font-medium text-gray-500">Ext:</span>{' '}
-        {tecnica.muestra?.codigo_externo || 'N/A'}
+        <span className="font-medium text-gray-500">Ext:</span> {codigoExterno || 'N/A'}
         <span className="mx-2 text-gray-300">|</span>
-        <span className="font-medium text-gray-500">Epi:</span>{' '}
-        {tecnica.muestra?.codigo_epi || 'N/A'}
+        <span className="font-medium text-gray-500">Epi:</span> {codigoEpi || 'N/A'}
       </div>
 
       {/* Columna 2: Pocillo (span 1) */}

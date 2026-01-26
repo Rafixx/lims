@@ -43,9 +43,10 @@ export const TecnicasList = ({ tecnicas }: TecnicasListProps) => {
 
             return (
               <div key={colIndex} className="border border-surface-200 rounded-lg overflow-hidden">
-                {/* Encabezado de la tabla con 4 columnas */}
-                <div className="grid grid-cols-[80px_1fr_90px_80px] gap-2 bg-primary-50 border-b border-surface-200 px-3 py-2">
-                  <div className="text-[10px] font-bold text-surface-700 uppercase">Código</div>
+                {/* Encabezado de la tabla con 5 columnas */}
+                <div className="grid grid-cols-[70px_70px_1fr_90px_70px] gap-2 bg-primary-50 border-b border-surface-200 px-3 py-2">
+                  <div className="text-[10px] font-bold text-surface-700 uppercase">Cód. Ext</div>
+                  <div className="text-[10px] font-bold text-surface-700 uppercase">Cód. Epi</div>
                   <div className="text-[10px] font-bold text-surface-700 uppercase">
                     Tipo Resultado
                   </div>
@@ -58,18 +59,29 @@ export const TecnicasList = ({ tecnicas }: TecnicasListProps) => {
                 {/* Filas de datos */}
                 <div className="divide-y divide-surface-200">
                   {tecnicasColumna.map((tecnica, tecnicaIndex) => {
-                    const codigoMuestra =
-                      tecnica.muestra?.codigo_epi || tecnica.muestra?.codigo_externo || '-'
+                    // Determinar si es un array y obtener códigos correctos
+                    const isArray = Boolean(tecnica.muestraArray)
+
+                    const codigoExterno = isArray && tecnica.muestraArray?.codigo_externo
+                      ? tecnica.muestraArray.codigo_externo
+                      : tecnica.muestra?.codigo_externo || '-'
+
+                    const codigoEpi = isArray && tecnica.muestraArray?.codigo_epi
+                      ? tecnica.muestraArray.codigo_epi
+                      : tecnica.muestra?.codigo_epi || '-'
 
                     // Si no hay resultados, mostrar una fila vacía
                     if (!tecnica.resultados || tecnica.resultados.length === 0) {
                       return (
                         <div
                           key={tecnicaIndex}
-                          className="grid grid-cols-[80px_1fr_90px_80px] gap-2 px-3 py-1.5 hover:bg-surface-50 transition-colors"
+                          className="grid grid-cols-[70px_70px_1fr_90px_70px] gap-2 px-3 py-1.5 hover:bg-surface-50 transition-colors"
                         >
                           <div className="text-[10px] font-mono font-semibold text-primary-600 leading-tight break-words">
-                            {codigoMuestra}
+                            {codigoExterno}
+                          </div>
+                          <div className="text-[10px] font-mono font-semibold text-primary-600 leading-tight break-words">
+                            {codigoEpi}
                           </div>
                           <div className="text-[10px] text-surface-400 italic">Sin resultados</div>
                           <div className="text-[10px] text-surface-400 text-right">-</div>
@@ -82,11 +94,16 @@ export const TecnicasList = ({ tecnicas }: TecnicasListProps) => {
                     return tecnica.resultados.map((resultado, resultadoIndex) => (
                       <div
                         key={`${tecnicaIndex}-${resultadoIndex}`}
-                        className="grid grid-cols-[80px_1fr_90px_80px] gap-2 px-3 py-1.5 hover:bg-surface-50 transition-colors"
+                        className="grid grid-cols-[70px_70px_1fr_90px_70px] gap-2 px-3 py-1.5 hover:bg-surface-50 transition-colors"
                       >
-                        {/* Código - Solo mostrar en la primera fila, con wrap en 2 líneas */}
+                        {/* Código Externo - Solo mostrar en la primera fila */}
                         <div className="text-[10px] font-mono font-semibold text-primary-600 leading-tight break-words">
-                          {resultadoIndex === 0 ? codigoMuestra : ''}
+                          {resultadoIndex === 0 ? codigoExterno : ''}
+                        </div>
+
+                        {/* Código Epidisease - Solo mostrar en la primera fila */}
+                        <div className="text-[10px] font-mono font-semibold text-primary-600 leading-tight break-words">
+                          {resultadoIndex === 0 ? codigoEpi : ''}
                         </div>
 
                         {/* Tipo de Resultado */}

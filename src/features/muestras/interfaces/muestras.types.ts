@@ -82,6 +82,8 @@ export type MuestraArray = {
   num_array: number
   num_serie: string
   pos_array: string
+  codigo_epi?: string | null
+  codigo_externo?: string | null
 }
 
 export type Worklist = {
@@ -99,6 +101,7 @@ export type Tecnica = {
   worklist?: Worklist
   tecnico_resp?: TecnicoLaboratorio | null
   resultados?: Resultado[]
+  muestraArray?: MuestraArray | null
 
   id_estado?: number
   estadoInfo?: DimEstado | null

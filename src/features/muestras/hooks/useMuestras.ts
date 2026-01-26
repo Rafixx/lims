@@ -222,3 +222,25 @@ export const useTecnicasPendientesExternalizacion = () => {
     refetch
   }
 }
+
+/**
+ * Hook para obtener las técnicas completas de un grupo (técnica agrupada)
+ * @param primeraTecnicaId - ID de la primera técnica del grupo
+ * @param enabled - Controla si la query está habilitada (default: true cuando primeraTecnicaId > 0)
+ */
+export const useTecnicasFromGroup = (primeraTecnicaId?: number, enabled = true) => {
+  const { data, isLoading, error, refetch }: UseQueryResult<Tecnica[], Error> = useQuery({
+    queryKey: ['tecnicas', 'grupo', primeraTecnicaId],
+    queryFn: async () => tecnicaService.getTecnicasFromGroup(primeraTecnicaId!),
+    enabled: !!primeraTecnicaId && primeraTecnicaId > 0 && enabled,
+    staleTime: STALE_TIME,
+    placeholderData: []
+  })
+
+  return {
+    tecnicas: data || [],
+    isLoading,
+    error,
+    refetch
+  }
+}

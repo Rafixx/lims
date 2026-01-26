@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { Button } from '@/shared/components/molecules/Button'
 import { SendIcon } from 'lucide-react'
@@ -45,6 +45,7 @@ export const ExternalizacionForm = ({
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors }
   } = useForm<ExternalizacionFormData>({
     defaultValues: initialValues || DEFAULT_EXTERNALIZACION
@@ -57,6 +58,13 @@ export const ExternalizacionForm = ({
 
   const { data: centros = [] } = useCentros()
   const { data: tecnicosLaboratorio = [] } = useTecnicosLaboratorio()
+
+  // Actualizar el formulario cuando initialValues cambie (datos cargados del servidor)
+  useEffect(() => {
+    if (initialValues) {
+      reset(initialValues)
+    }
+  }, [initialValues, reset])
 
   // Helper para auto-completar fecha/hora actual en campos vacíos
   const handleDateTimeFocus = (fieldName: keyof ExternalizacionFormData) => {
@@ -172,7 +180,9 @@ export const ExternalizacionForm = ({
           <div>
             <label className="block text-sm font-medium text-surface-700 mb-1">Centro</label>
             <select
-              {...register('id_centro')}
+              {...register('id_centro', {
+                setValueAs: (value) => (value === '' ? null : Number(value))
+              })}
               className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="">Seleccionar centro</option>
@@ -190,7 +200,9 @@ export const ExternalizacionForm = ({
               Técnico Responsable
             </label>
             <select
-              {...register('id_tecnico_resp')}
+              {...register('id_tecnico_resp', {
+                setValueAs: (value) => (value === '' ? null : Number(value))
+              })}
               className="w-full px-3 py-2 border border-surface-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
             >
               <option value="">Seleccionar técnico</option>

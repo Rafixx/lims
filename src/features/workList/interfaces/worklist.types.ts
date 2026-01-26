@@ -56,6 +56,8 @@ export interface MuestraArray {
   id_array: number
   codigo_placa: string
   posicion_placa: string
+  codigo_epi?: string | null
+  codigo_externo?: string | null
 }
 
 export interface ManualResultFormValues {

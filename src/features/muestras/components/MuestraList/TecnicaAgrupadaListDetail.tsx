@@ -1,11 +1,11 @@
 import { ReactNode, useState } from 'react'
-import { Loader2, Trash2 } from 'lucide-react'
+import { Loader2, Trash2, ChevronDown, ChevronRight, Grid3x3 } from 'lucide-react'
 import { TecnicaAgrupada } from '../../interfaces/muestras.types'
 import { ListDetail } from '@/shared/components/organisms/ListDetail'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
-import { useDeleteTecnica } from '../../hooks/useMuestras'
+import { useDeleteTecnica, useTecnicasFromGroup } from '../../hooks/useMuestras'
 import tecnicaService from '../../services/tecnica.service'
 
 interface TecnicaAgrupadaListDetailProps {
@@ -26,6 +26,23 @@ export const TecnicaAgrupadaListDetail = ({
   const { notify } = useNotification()
   const deleteTecnicaMutation = useDeleteTecnica()
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  // Cargar técnicas del grupo solo cuando está expandido
+  const { tecnicas, isLoading: isLoadingTecnicas, error: errorTecnicas } = useTecnicasFromGroup(
+    tecnicaAgrupada.primera_tecnica_id,
+    isExpanded
+  )
+
+  // Log para debugging
+  if (isExpanded) {
+    console.log('[TecnicaAgrupadaListDetail] Expandido:', {
+      primera_tecnica_id: tecnicaAgrupada.primera_tecnica_id,
+      isLoading: isLoadingTecnicas,
+      tecnicas: tecnicas.length,
+      error: errorTecnicas
+    })
+  }
 
   // Verificar si alguna técnica está asignada a un worklist o si no hay técnicas pendientes
   const hasWorklistAssigned = tecnicaAgrupada.asignadas > 0 || tecnicaAgrupada.en_proceso > 0
@@ -79,13 +96,22 @@ export const TecnicaAgrupadaListDetail = ({
 
   // Definir los campos a renderizar según las columnas específicas para técnicas agrupadas
   const renderFields = (): ReactNode[] => [
-    // Proceso/Técnica
-    <span
-      key={`proceso-${tecnicaAgrupada.proceso_nombre}`}
-      className="font-medium text-surface-800"
-    >
-      {tecnicaAgrupada.proceso_nombre}
-    </span>,
+    // Proceso/Técnica con botón de expansión
+    <div key={`proceso-${tecnicaAgrupada.proceso_nombre}`} className="flex items-center gap-2">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+        title={isExpanded ? 'Contraer' : 'Expandir técnicas individuales'}
+      >
+        {isExpanded ? (
+          <ChevronDown className="w-4 h-4 text-primary-600 flex-shrink-0" />
+        ) : (
+          <ChevronRight className="w-4 h-4 text-primary-600 flex-shrink-0" />
+        )}
+        <Grid3x3 className="w-4 h-4 text-primary-600 flex-shrink-0" />
+      </button>
+      <span className="font-medium text-surface-800">{tecnicaAgrupada.proceso_nombre}</span>
+    </div>,
 
     // Total Posiciones
     <span key={`total-${tecnicaAgrupada.proceso_nombre}`} className="text-sm text-surface-700">
@@ -170,12 +196,92 @@ export const TecnicaAgrupadaListDetail = ({
   ]
 
   return (
-    <ListDetail
-      item={tecnicaAgrupada}
-      fieldSpans={fieldSpans}
-      renderFields={renderFields}
-      actions={undefined}
-      rowClassName="grid grid-cols-12 gap-4 px-4 py-2 border rounded-lg shadow-soft transition-all items-center text-sm border-primary-200 bg-primary-50/30 hover:shadow-medium"
-    />
+    <div>
+      <ListDetail
+        item={tecnicaAgrupada}
+        fieldSpans={fieldSpans}
+        renderFields={renderFields}
+        actions={undefined}
+        rowClassName="grid grid-cols-12 gap-4 px-4 py-2 border rounded-lg shadow-soft transition-all items-center text-sm border-primary-200 bg-primary-50/30 hover:shadow-medium"
+      />
+
+      {/* Lista expandible de técnicas individuales */}
+      {isExpanded && (
+        <div className="mt-2 ml-8 border-l-2 border-primary-200 pl-4">
+          {isLoadingTecnicas ? (
+            <div className="flex items-center gap-2 text-sm text-surface-500 py-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Cargando técnicas...</span>
+            </div>
+          ) : errorTecnicas ? (
+            <div className="text-sm text-red-600 py-2">
+              Error al cargar técnicas: {errorTecnicas.message}
+            </div>
+          ) : tecnicas.length === 0 ? (
+            <div className="text-sm text-surface-500 py-2">No hay técnicas disponibles</div>
+          ) : (
+            <div className="space-y-1">
+              {/* Header de la tabla */}
+              <div className="grid grid-cols-12 gap-2 px-3 py-2 text-xs font-medium text-surface-600 bg-surface-50 rounded border border-surface-200">
+                <div className="col-span-2">Posición</div>
+                <div className="col-span-3">Código EPI</div>
+                <div className="col-span-3">Código Externo</div>
+                <div className="col-span-2">Técnico</div>
+                <div className="col-span-2">Estado</div>
+              </div>
+
+              {/* Filas de técnicas */}
+              {tecnicas.map(tecnica => (
+                <div
+                  key={tecnica.id_tecnica}
+                  className="grid grid-cols-12 gap-2 px-3 py-2 text-sm bg-white rounded border border-surface-200 hover:border-primary-300 hover:shadow-sm transition-all"
+                >
+                  {/* Posición de la placa */}
+                  <div className="col-span-2">
+                    <span className="font-mono font-semibold text-primary-700 bg-primary-50 px-2 py-0.5 rounded text-xs">
+                      {tecnica.muestraArray?.posicion_placa || '-'}
+                    </span>
+                  </div>
+
+                  {/* Código EPI */}
+                  <div className="col-span-3">
+                    <span className="font-mono text-xs text-surface-900 truncate block">
+                      {tecnica.muestraArray?.codigo_epi || '-'}
+                    </span>
+                  </div>
+
+                  {/* Código Externo */}
+                  <div className="col-span-3">
+                    <span className="font-mono text-xs text-surface-700 truncate block">
+                      {tecnica.muestraArray?.codigo_externo || '-'}
+                    </span>
+                  </div>
+
+                  {/* Técnico */}
+                  <div className="col-span-2">
+                    {tecnica.tecnico_resp ? (
+                      <span className="text-xs text-surface-600 truncate block">
+                        {tecnica.tecnico_resp.nombre}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-surface-400">-</span>
+                    )}
+                  </div>
+
+                  {/* Estado */}
+                  <div className="col-span-2">
+                    {tecnica.estadoInfo ? (
+                      <IndicadorEstado estado={tecnica.estadoInfo} size="small" />
+                    ) : (
+                      <span className="text-xs text-surface-400">-</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   )
 }

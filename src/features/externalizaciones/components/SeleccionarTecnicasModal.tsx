@@ -351,20 +351,33 @@ export const SeleccionarTecnicasModal = ({ onClose, onSuccess }: SeleccionarTecn
                     {isExpanded && (
                       <div className="px-4 pb-4 ml-7">
                         <div className="grid grid-cols-8 gap-2">
-                          {tecnicas.map(tecnica => (
-                            <button
-                              key={tecnica.id_tecnica}
-                              onClick={() => handleSelectTecnica(tecnica.id_tecnica)}
-                              className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
-                                selectedIds.has(tecnica.id_tecnica)
-                                  ? 'bg-primary-600 text-white'
-                                  : 'bg-white border border-surface-300 text-surface-700 hover:bg-surface-50'
-                              }`}
-                              title={`Posición: ${tecnica.muestraArray?.posicion_placa}`}
-                            >
-                              {tecnica.muestraArray?.posicion_placa || `ID ${tecnica.id_tecnica}`}
-                            </button>
-                          ))}
+                          {tecnicas.map(tecnica => {
+                            const tooltipParts = [
+                              `Posición: ${tecnica.muestraArray?.posicion_placa || '-'}`
+                            ]
+                            if (tecnica.muestraArray?.codigo_epi) {
+                              tooltipParts.push(`EPI: ${tecnica.muestraArray.codigo_epi}`)
+                            }
+                            if (tecnica.muestraArray?.codigo_externo) {
+                              tooltipParts.push(`Ext: ${tecnica.muestraArray.codigo_externo}`)
+                            }
+                            const tooltipText = tooltipParts.join(' | ')
+
+                            return (
+                              <button
+                                key={tecnica.id_tecnica}
+                                onClick={() => handleSelectTecnica(tecnica.id_tecnica)}
+                                className={`px-3 py-2 rounded text-xs font-medium transition-colors ${
+                                  selectedIds.has(tecnica.id_tecnica)
+                                    ? 'bg-primary-600 text-white'
+                                    : 'bg-white border border-surface-300 text-surface-700 hover:bg-surface-50'
+                                }`}
+                                title={tooltipText}
+                              >
+                                {tecnica.muestraArray?.posicion_placa || `ID ${tecnica.id_tecnica}`}
+                              </button>
+                            )
+                          })}
                         </div>
                       </div>
                     )}

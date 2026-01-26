@@ -4,6 +4,27 @@ import { useExternalizacion } from '../hooks/useExternalizaciones'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { ExternalizacionFormData } from '../interfaces/externalizaciones.types'
 
+/**
+ * Convierte una fecha ISO a formato datetime-local (YYYY-MM-DDTHH:mm)
+ * Los inputs datetime-local no aceptan el formato ISO completo con zona horaria
+ */
+const formatDateForInput = (isoDate: string | null | undefined): string | null => {
+  if (!isoDate) return null
+  try {
+    // Convertir a fecha local y formatear sin zona horaria
+    const date = new Date(isoDate)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    return `${year}-${month}-${day}T${hours}:${minutes}`
+  } catch (error) {
+    console.error('Error formateando fecha:', error)
+    return null
+  }
+}
+
 export const EditExternalizacionPage = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
@@ -42,9 +63,9 @@ export const EditExternalizacionPage = () => {
     volumen: externalizacion.volumen,
     concentracion: externalizacion.concentracion,
     servicio: externalizacion.servicio,
-    f_envio: externalizacion.f_envio,
-    f_recepcion: externalizacion.f_recepcion,
-    f_recepcion_datos: externalizacion.f_recepcion_datos,
+    f_envio: formatDateForInput(externalizacion.f_envio),
+    f_recepcion: formatDateForInput(externalizacion.f_recepcion),
+    f_recepcion_datos: formatDateForInput(externalizacion.f_recepcion_datos),
     agencia: externalizacion.agencia,
     observaciones: externalizacion.observaciones,
     id_centro: externalizacion.centro?.id || null,

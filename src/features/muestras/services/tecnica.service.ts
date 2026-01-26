@@ -41,6 +41,18 @@ class TecnicaService {
   }
 
   /**
+   * Obtiene las técnicas completas de un grupo (técnica agrupada)
+   * @param primeraTecnicaId - ID de la primera técnica del grupo
+   * @returns Promise con array de técnicas con su información completa
+   */
+  async getTecnicasFromGroup(primeraTecnicaId: number): Promise<Tecnica[]> {
+    const response = await apiClient.get<Tecnica[]>(
+      `${this.basePath}/grupo/${primeraTecnicaId}`
+    )
+    return response.data
+  }
+
+  /**
    * Obtiene técnicas pendientes de externalización
    * Requisitos:
    * - id_worklist = null

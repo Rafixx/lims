@@ -145,125 +145,166 @@ export const ExternalizacionArrayGroup = ({
 
       {/* Lista de externalizaciones individuales (expandida) */}
       {isExpanded && (
-        <div className="border-t border-primary-200">
-          {externalizaciones.map((externalizacion, index) => (
-            <div
-              key={externalizacion.id_externalizacion}
-              className={`px-4 py-3 ${
-                index < externalizaciones.length - 1 ? 'border-b border-primary-100' : ''
-              } ${
-                selectedIds.has(externalizacion.id_externalizacion)
-                  ? 'bg-primary-100/50'
-                  : 'bg-white/50'
-              } hover:bg-primary-100/30 transition-colors`}
-            >
-              <div className="grid grid-cols-12 gap-3 items-center">
-                {/* Checkbox individual */}
-                {showCheckbox && (
-                  <div className="col-span-1">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(externalizacion.id_externalizacion)}
-                      onChange={e =>
-                        onSelectChange?.([externalizacion.id_externalizacion], e.target.checked)
-                      }
-                      className="w-4 h-4 text-primary-600 rounded focus:ring-2 focus:ring-primary-500"
-                    />
-                  </div>
-                )}
+        <div className="border-t border-primary-200 bg-surface-50 p-3">
+          <div className="space-y-2">
+            {externalizaciones.map(externalizacion => (
+              <div
+                key={externalizacion.id_externalizacion}
+                className={`bg-white rounded-lg border transition-all ${
+                  selectedIds.has(externalizacion.id_externalizacion)
+                    ? 'border-primary-400 shadow-sm'
+                    : 'border-surface-200 hover:border-primary-300 hover:shadow-sm'
+                }`}
+              >
+                <div className="p-3">
+                  {/* Fila 1: Posición + Códigos + Checkbox + Acciones */}
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    {/* Izquierda: Checkbox + Posición + Códigos */}
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      {showCheckbox && (
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(externalizacion.id_externalizacion)}
+                          onChange={e =>
+                            onSelectChange?.([externalizacion.id_externalizacion], e.target.checked)
+                          }
+                          className="w-4 h-4 mt-1 text-primary-600 rounded focus:ring-2 focus:ring-primary-500"
+                        />
+                      )}
 
-                {/* Posición en placa */}
-                <div className={`${showCheckbox ? 'col-span-2' : 'col-span-3'}`}>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-semibold text-primary-700 bg-white px-2 py-0.5 rounded">
-                      {externalizacion.tecnica?.muestraArray?.posicion_placa || '-'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Volumen y Concentración */}
-                <div className="col-span-3">
-                  <div className="text-xs space-y-0.5">
-                    {externalizacion.volumen && (
-                      <div className="text-surface-600">
-                        <span className="font-medium">Vol:</span> {externalizacion.volumen}
+                      {/* Posición de la placa */}
+                      <div className="flex-shrink-0">
+                        <div className="font-mono text-base font-bold text-primary-700 bg-primary-50 px-3 py-1 rounded border border-primary-200">
+                          {externalizacion.tecnica?.muestraArray?.posicion_placa || '-'}
+                        </div>
                       </div>
-                    )}
-                    {externalizacion.concentracion && (
-                      <div className="text-surface-600">
-                        <span className="font-medium">Conc:</span> {externalizacion.concentracion}
-                      </div>
-                    )}
-                  </div>
-                </div>
 
-                {/* Servicio */}
-                <div className="col-span-2">
-                  <div className="text-xs text-surface-600 truncate">
-                    {externalizacion.servicio && (
-                      <div className="flex items-center gap-1">
-                        <Package className="w-3 h-3" />
-                        <span className="truncate">{externalizacion.servicio}</span>
+                      {/* Códigos EPI y Externo */}
+                      <div className="flex-1 min-w-0 space-y-1">
+                        {externalizacion.tecnica?.muestraArray?.codigo_epi && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium text-surface-500 flex-shrink-0">
+                              EPI:
+                            </span>
+                            <span className="font-mono text-sm text-surface-900 truncate">
+                              {externalizacion.tecnica.muestraArray.codigo_epi}
+                            </span>
+                          </div>
+                        )}
+                        {externalizacion.tecnica?.muestraArray?.codigo_externo && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium text-surface-500 flex-shrink-0">
+                              EXT:
+                            </span>
+                            <span className="font-mono text-sm text-surface-700 truncate">
+                              {externalizacion.tecnica.muestraArray.codigo_externo}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </div>
+                    </div>
 
-                {/* Técnico */}
-                <div className="col-span-2">
-                  {externalizacion.tecnico_resp && (
-                    <div className="flex items-center gap-1 text-xs text-surface-600">
-                      <User className="w-3 h-3" />
-                      <span className="truncate">{externalizacion.tecnico_resp.nombre}</span>
+                    {/* Derecha: Estado + Acciones */}
+                    <div className="flex items-start gap-2 flex-shrink-0">
+                      {/* Estado */}
+                      {externalizacion.tecnica?.estadoInfo && (
+                        <div className="mt-1">
+                          <IndicadorEstado
+                            estado={externalizacion.tecnica.estadoInfo}
+                            size="small"
+                          />
+                        </div>
+                      )}
+
+                      {/* Acciones */}
+                      <div className="flex gap-1">
+                        {externalizacion.tecnica?.id_estado === 17 && (
+                          <button
+                            onClick={() => handleMarcarRecibida(externalizacion)}
+                            className="p-1.5 text-success-600 hover:bg-success-50 rounded transition-colors"
+                            title="Marcar como recibida"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => onEdit(externalizacion)}
+                          className="p-1.5 text-primary-600 hover:bg-primary-50 rounded transition-colors"
+                          title="Editar"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => onDelete(externalizacion)}
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Fila 2: Información adicional en grid */}
+                  <div className="grid grid-cols-3 gap-3 pt-3 border-t border-surface-100">
+                    {/* Volumen y Concentración */}
+                    <div className="space-y-1">
+                      {externalizacion.volumen && (
+                        <div className="flex items-center gap-1.5 text-xs">
+                          <Package className="w-3.5 h-3.5 text-surface-400" />
+                          <span className="font-medium text-surface-600">Vol:</span>
+                          <span className="text-surface-900">{externalizacion.volumen}</span>
+                        </div>
+                      )}
+                      {externalizacion.concentracion && (
+                        <div className="flex items-center gap-1.5 text-xs">
+                          <Package className="w-3.5 h-3.5 text-surface-400" />
+                          <span className="font-medium text-surface-600">Conc:</span>
+                          <span className="text-surface-900">{externalizacion.concentracion}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Servicio */}
+                    <div>
+                      {externalizacion.servicio && (
+                        <div className="flex items-center gap-1.5 text-xs">
+                          <Package className="w-3.5 h-3.5 text-surface-400" />
+                          <span className="font-medium text-surface-600">Servicio:</span>
+                          <span className="text-surface-900 truncate">
+                            {externalizacion.servicio}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Técnico */}
+                    <div>
+                      {externalizacion.tecnico_resp && (
+                        <div className="flex items-center gap-1.5 text-xs">
+                          <User className="w-3.5 h-3.5 text-surface-400" />
+                          <span className="font-medium text-surface-600">Técnico:</span>
+                          <span className="text-surface-900 truncate">
+                            {externalizacion.tecnico_resp.nombre}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Fila 3: Observaciones (si existen) */}
+                  {externalizacion.observaciones && (
+                    <div className="mt-3 pt-3 border-t border-surface-100">
+                      <div className="text-xs text-surface-600">
+                        <span className="font-medium text-surface-700">Observaciones:</span>{' '}
+                        {externalizacion.observaciones}
+                      </div>
                     </div>
                   )}
                 </div>
-
-                {/* Estado */}
-                <div className="col-span-1">
-                  {externalizacion.tecnica?.estadoInfo && (
-                    <IndicadorEstado estado={externalizacion.tecnica.estadoInfo} size="small" />
-                  )}
-                </div>
-
-                {/* Acciones */}
-                <div className="col-span-1 flex justify-end gap-1">
-                  {externalizacion.tecnica?.id_estado === 17 && (
-                    <button
-                      onClick={() => handleMarcarRecibida(externalizacion)}
-                      className="p-1 text-success-600 hover:bg-success-100 rounded transition-colors"
-                      title="Marcar como recibida"
-                    >
-                      <CheckCircle className="w-3 h-3" />
-                    </button>
-                  )}
-                  <button
-                    onClick={() => onEdit(externalizacion)}
-                    className="p-1 text-primary-600 hover:bg-primary-100 rounded transition-colors"
-                    title="Editar"
-                  >
-                    <Edit className="w-3 h-3" />
-                  </button>
-                  <button
-                    onClick={() => onDelete(externalizacion)}
-                    className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
-                    title="Eliminar"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                </div>
               </div>
-
-              {/* Observaciones si existen */}
-              {externalizacion.observaciones && (
-                <div className="mt-2 pt-2 border-t border-primary-100">
-                  <div className="text-xs text-surface-500">
-                    <span className="font-medium">Obs:</span> {externalizacion.observaciones}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
