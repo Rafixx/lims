@@ -104,7 +104,9 @@ export const MuestrasPage = () => {
           cmp = (a.estudio || '').localeCompare(b.estudio || '')
           break
         case 'cliente':
-          cmp = (a.solicitud?.cliente?.nombre || '').localeCompare(b.solicitud?.cliente?.nombre || '')
+          cmp = (a.solicitud?.cliente?.nombre || '').localeCompare(
+            b.solicitud?.cliente?.nombre || ''
+          )
           break
         case 'paciente':
           cmp = (a.paciente?.nombre || '').localeCompare(b.paciente?.nombre || '')

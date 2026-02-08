@@ -27,7 +27,7 @@ export const TemplateNodePDF = ({ node, values, calculatedValues }: Props) => {
 
     case 'calc': {
       const value = calculatedValues[node.key]
-      return <CalcNodePDF node={node} value={value} />
+      return <CalcNodePDF node={node} value={value as number | string | undefined} />
     }
 
     case 'group':

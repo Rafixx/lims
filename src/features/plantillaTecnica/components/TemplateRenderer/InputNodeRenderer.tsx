@@ -46,7 +46,7 @@ export const InputNodeRenderer = ({ node, value, error, onChange }: Props) => {
             <Input
               type="number"
               step="any"
-              value={value ?? ''}
+              value={(value as number | string | undefined) ?? ''}
               onChange={handleChange}
               className={`flex-1 ${error ? 'border-red-500' : ''}`}
               placeholder={node.default !== undefined ? String(node.default) : ''}
