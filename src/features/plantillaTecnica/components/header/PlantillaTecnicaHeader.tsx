@@ -6,6 +6,7 @@ import { Button } from '@/shared/components/molecules/Button'
 import { ArrowLeft, FileText, Download, Printer, Loader2 } from 'lucide-react'
 import { Tecnica } from '@/features/workList/interfaces/worklist.types'
 import { TecnicaProc } from '../../interfaces/plantillaTecnica.types'
+import { Template, TemplateValues } from '../../interfaces/template.types'
 import { downloadPlantillaTecnicaPDF } from '../PDF'
 
 interface PlantillaTecnicaHeaderProps {
@@ -14,6 +15,9 @@ interface PlantillaTecnicaHeaderProps {
   tecnicaProc?: string
   tecnicas: Tecnica[]
   plantillaTecnica: TecnicaProc | null
+  template?: Template | null
+  templateValues?: TemplateValues
+  calculatedValues?: TemplateValues
 }
 
 /**
@@ -25,7 +29,10 @@ export const PlantillaTecnicaHeader = ({
   codigoPlantilla,
   tecnicaProc,
   tecnicas,
-  plantillaTecnica
+  plantillaTecnica,
+  template,
+  templateValues,
+  calculatedValues
 }: PlantillaTecnicaHeaderProps) => {
   const navigate = useNavigate()
   const [isDownloading, setIsDownloading] = useState(false)
@@ -59,7 +66,10 @@ export const PlantillaTecnicaHeader = ({
         tecnicas,
         plantillaTecnica,
         fecha,
-        hora
+        hora,
+        template,
+        templateValues,
+        calculatedValues
       })
     } catch (error) {
       console.error('Error al generar el PDF:', error)

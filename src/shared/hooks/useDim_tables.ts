@@ -32,6 +32,8 @@ export const dimTablesQueryKeys = {
   prueba: (id: number) => [...dimTablesQueryKeys.pruebas(), id] as const,
   tecnicasProc: () => [...dimTablesQueryKeys.all, 'tecnicas-proc'] as const,
   tecnicaProc: (id: number) => [...dimTablesQueryKeys.tecnicasProc(), id] as const,
+  tecnicasProcByPrueba: (id: number, activa: boolean) =>
+    [...dimTablesQueryKeys.prueba(id), 'tecnicas-proc', activa] as const,
   tiposMuestra: () => [...dimTablesQueryKeys.all, 'tipos-muestra'] as const,
   tipoMuestra: (id: number) => [...dimTablesQueryKeys.tiposMuestra(), id] as const,
   ubicaciones: () => [...dimTablesQueryKeys.all, 'ubicaciones'] as const,
@@ -380,11 +382,12 @@ export const useDeletePrueba = () => {
 
 export const useTecnicasProcByPrueba = (
   id: number,
+  activa = true,
   options?: Omit<UseQueryOptions<TecnicaProc[]>, 'queryKey' | 'queryFn' | 'enabled'>
 ) => {
   return useQuery<TecnicaProc[], Error>({
-    queryKey: [...dimTablesQueryKeys.prueba(id), 'tecnicas-proc'],
-    queryFn: () => dimTablesService.getTecnicasProcByPrueba(id),
+    queryKey: dimTablesQueryKeys.tecnicasProcByPrueba(id, activa),
+    queryFn: () => dimTablesService.getTecnicasProcByPrueba(id, activa),
     staleTime: STALE_TIME,
     gcTime: GC_TIME,
     enabled: !!id && id > 0,
@@ -440,8 +443,25 @@ export const useUpdateTecnicaProc = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<Omit<TecnicaProc, 'id'>> }) =>
       dimTablesService.updateTecnicaProc(id, data),
-    onSuccess: (_, { id }) => {
+    onSuccess: (updated, { id }) => {
       queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tecnicaProc(id) })
+      queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tecnicasProc() })
+      if (updated?.id_prueba) {
+        queryClient.invalidateQueries({
+          queryKey: dimTablesQueryKeys.prueba(updated.id_prueba)
+        })
+      }
+    }
+  })
+}
+
+export const useBatchUpdateTecnicasProcOrden = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (items: { id: number; orden: number }[]) =>
+      dimTablesService.batchUpdateTecnicasProcOrden(items),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: dimTablesQueryKeys.tecnicasProc() })
     }
   })

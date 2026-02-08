@@ -4,6 +4,7 @@ import { pdf } from '@react-pdf/renderer'
 import { PlantillaTecnicaPDF } from './PlantillaTecnicaPDF'
 import { Tecnica } from '@/features/workList/interfaces/worklist.types'
 import { TecnicaProc } from '../../interfaces/plantillaTecnica.types'
+import { Template, TemplateValues } from '../../interfaces/template.types'
 
 interface DownloadPDFParams {
   tecnicas: Tecnica[]
@@ -11,6 +12,9 @@ interface DownloadPDFParams {
   fecha: string
   hora: string
   filename?: string
+  template?: Template | null
+  templateValues?: TemplateValues
+  calculatedValues?: TemplateValues
 }
 
 /**
@@ -21,7 +25,10 @@ export const downloadPlantillaTecnicaPDF = async ({
   plantillaTecnica,
   fecha,
   hora,
-  filename
+  filename,
+  template,
+  templateValues,
+  calculatedValues
 }: DownloadPDFParams): Promise<void> => {
   // Generar el blob del PDF
   const blob = await pdf(
@@ -30,6 +37,9 @@ export const downloadPlantillaTecnicaPDF = async ({
       plantillaTecnica={plantillaTecnica}
       fecha={fecha}
       hora={hora}
+      template={template}
+      templateValues={templateValues}
+      calculatedValues={calculatedValues}
     />
   ).toBlob()
 

@@ -58,7 +58,7 @@ export default [
       quotes: ['error', 'single'],
       semi: ['error', 'never'],
       'react/react-in-jsx-scope': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn'],
+      '@typescript-eslint/no-unused-vars': ['warn', { varsIgnorePattern: '^_', argsIgnorePattern: '^_' }],
       'no-console': ['error', { allow: ['warn', 'error', 'log'] }]
     }
   },

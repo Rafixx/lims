@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "1.0",
+  "scope": "PLANTILLA",
+  "title": "Cuantificación Qubit",
+  "nodes": [
+    {
+      "type": "procedure",
+      "key": "proc_cuqub",
+      "label": "Procedimiento de Cuantificación Qubit",
+      "steps": [
+        {
+          "label": "Preparación de reactivos",
+          "text": "Preparar el buffer de trabajo mezclando el buffer con el reactivo en proporción 199:1"
+        },
+        {
+          "label": "Carga de muestras",
+          "text": "Cargar las muestras en tubos de cuantificación según el número de tubos especificado"
+        },
+        {
+          "label": "Medición",
+          "text": "Realizar la medición en el equipo Qubit siguiendo el protocolo estándar"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "key": "group_calculos",
+      "label": "Cálculos de Volúmenes",
+      "children": [
+        {
+          "type": "input",
+          "key": "num_tubos",
+          "label": "Número de tubos",
+          "valueType": "number",
+          "required": true,
+          "default": 8
+        },
+        {
+          "type": "input",
+          "key": "error_factor",
+          "label": "Factor de error",
+          "valueType": "number",
+          "required": true,
+          "default": 1.1
+        },
+        {
+          "type": "calc",
+          "key": "buffer_ul",
+          "label": "Volumen de buffer",
+          "valueType": "number",
+          "unit": "µL",
+          "expr": {
+            "lang": "expr",
+            "value": "199 * num_tubos * error_factor"
+          }
+        },
+        {
+          "type": "calc",
+          "key": "reagent_ul",
+          "label": "Volumen de reactivo",
+          "valueType": "number",
+          "unit": "µL",
+          "expr": {
+            "lang": "expr",
+            "value": "num_tubos * error_factor"
+          }
+        },
+        {
+          "type": "calc",
+          "key": "total_ul",
+          "label": "Volumen total",
+          "valueType": "number",
+          "unit": "µL",
+          "expr": {
+            "lang": "expr",
+            "value": "buffer_ul + reagent_ul"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -3,10 +3,12 @@
 import { Document, Page, View, Text, StyleSheet } from '@react-pdf/renderer'
 import { Tecnica } from '@/features/workList/interfaces/worklist.types'
 import { TecnicaProc } from '../../interfaces/plantillaTecnica.types'
+import { Template, TemplateValues } from '../../interfaces/template.types'
 import { TecnicasListPDF } from './TecnicasListPDF'
 import { PipetasListPDF } from './PipetasListPDF'
 import { ReactivosListPDF } from './ReactivosListPDF'
 import { PasosListPDF } from './PasosListPDF'
+import { DynamicTemplatePDF } from './DynamicTemplatePDF'
 import { styles, colors } from './styles'
 
 interface PlantillaTecnicaPDFProps {
@@ -14,6 +16,9 @@ interface PlantillaTecnicaPDFProps {
   plantillaTecnica: TecnicaProc
   fecha: string
   hora: string
+  template?: Template | null
+  templateValues?: TemplateValues
+  calculatedValues?: TemplateValues
 }
 
 const localStyles = StyleSheet.create({
@@ -57,7 +62,10 @@ export const PlantillaTecnicaPDF = ({
   tecnicas,
   plantillaTecnica,
   fecha,
-  hora
+  hora,
+  template,
+  templateValues,
+  calculatedValues
 }: PlantillaTecnicaPDFProps) => {
   const codigoPlantilla = plantillaTecnica.plantillaTecnica?.cod_plantilla_tecnica || ''
   const tecnicaProc = plantillaTecnica.tecnica_proc || ''
@@ -88,6 +96,15 @@ export const PlantillaTecnicaPDF = ({
             </View>
           </View>
         </View>
+
+        {/* Sección: Plantilla Dinámica (si existe) */}
+        {template && templateValues && calculatedValues && (
+          <DynamicTemplatePDF
+            template={template}
+            values={templateValues}
+            calculatedValues={calculatedValues}
+          />
+        )}
 
         {/* Sección: Técnicas del Worklist */}
         <TecnicasListPDF tecnicas={tecnicas} />

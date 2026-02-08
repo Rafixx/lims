@@ -150,8 +150,13 @@ class DimTablesService {
     return response.data
   }
 
-  async getTecnicasProcByPrueba(id: number) {
-    const response = await apiClient.get(`/pruebas/${id}/tecnicas`)
+  async getTecnicasProcByPrueba(id: number, activa = true) {
+    const response = await apiClient.get(`/pruebas/${id}/tecnicas`, { params: { activa } })
+    return response.data
+  }
+
+  async batchUpdateTecnicasProcOrden(items: { id: number; orden: number }[]) {
+    const response = await apiClient.patch('/tecnicasProc/orden', items)
     return response.data
   }
 

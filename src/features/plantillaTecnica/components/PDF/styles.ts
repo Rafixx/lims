@@ -29,6 +29,10 @@ export const colors = {
     100: '#dcfce7',
     600: '#16a34a'
   },
+  danger: {
+    600: '#dc2626',
+    700: '#b91c1c'
+  },
   info: {
     100: '#dbeafe',
     600: '#2563eb'

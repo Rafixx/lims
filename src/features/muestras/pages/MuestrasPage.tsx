@@ -6,7 +6,7 @@ import { MuestraFilter } from '../components/MuestraFilter'
 import { ListPage } from '../../../shared/components/organisms/ListPage'
 import { useListFilters } from '@/shared/hooks/useListFilters'
 import { MuestraStatsComponent } from '../components/MuestraStats'
-import { PlusCircle } from 'lucide-react'
+import { FileSpreadsheet, PlusCircle } from 'lucide-react'
 import {
   createNumericExactFilter,
   createTodayFilter,
@@ -16,18 +16,20 @@ import { MuestraListHeader } from '../components/MuestraList/MuestraListHeader'
 import { MuestraListDetail } from '../components/MuestraList/MuestraListDetail'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { Button } from '@/shared/components/molecules/Button'
+import { formatDate } from '@/shared/utils/helpers'
 
 // Configuración de columnas (mantener spans sincronizados)
 const COLUMN_CONFIG = [
-  { label: 'Cód EXT', span: 1 },
-  { label: 'Cód EPI', span: 1 },
-  { label: 'Estudio', span: 1 },
-  { label: 'Cliente', span: 2 },
-  { label: 'Paciente', span: 2 },
-  { label: 'Tipo Muestra', span: 1 },
-  { label: 'Prueba', span: 2 },
-  { label: 'Recepción', span: 1 },
-  { label: 'Estado', span: 1 },
+  { label: 'Cód EXT', span: 1, sortKey: 'codigo_externo' },
+  { label: 'Cód EPI', span: 1, sortKey: 'codigo_epi' },
+  { label: 'Estudio', span: 1, sortKey: 'estudio' },
+  { label: 'Cliente', span: 2, sortKey: 'cliente' },
+  { label: 'Paciente', span: 2, sortKey: 'paciente' },
+  { label: 'Tipo Muestra', span: 1, sortKey: 'tipo_muestra' },
+  { label: 'Prueba', span: 2, sortKey: 'prueba' },
+  { label: 'Recepción', span: 1, sortKey: 'f_recepcion' },
+  { label: 'Estado', span: 1, sortKey: 'estado' },
   { label: '', span: 1 }
 ]
 
@@ -40,6 +42,8 @@ export const MuestrasPage = () => {
   const { confirm } = useConfirmation()
   const { notify } = useNotification()
   const [isDeleting, setIsDeleting] = useState(false)
+  const [sortKey, setSortKey] = useState<string>('')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
 
   // Configuración de filtros específica para muestras
   const filterConfig = useMemo(
@@ -75,6 +79,91 @@ export const MuestrasPage = () => {
     updateFilter,
     clearFilters
   } = useListFilters(muestras || [], filterConfig)
+
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDirection('asc')
+    }
+  }
+
+  const sortedMuestras = useMemo(() => {
+    if (!sortKey) return muestrasFiltradas
+    return [...muestrasFiltradas].sort((a, b) => {
+      let cmp = 0
+      switch (sortKey) {
+        case 'codigo_externo':
+          cmp = (a.codigo_externo || '').localeCompare(b.codigo_externo || '')
+          break
+        case 'codigo_epi':
+          cmp = (a.codigo_epi || '').localeCompare(b.codigo_epi || '')
+          break
+        case 'estudio':
+          cmp = (a.estudio || '').localeCompare(b.estudio || '')
+          break
+        case 'cliente':
+          cmp = (a.solicitud?.cliente?.nombre || '').localeCompare(b.solicitud?.cliente?.nombre || '')
+          break
+        case 'paciente':
+          cmp = (a.paciente?.nombre || '').localeCompare(b.paciente?.nombre || '')
+          break
+        case 'tipo_muestra':
+          cmp = (a.tipo_muestra?.tipo_muestra || '').localeCompare(
+            b.tipo_muestra?.tipo_muestra || ''
+          )
+          break
+        case 'prueba':
+          cmp = (a.prueba?.prueba || '').localeCompare(b.prueba?.prueba || '')
+          break
+        case 'f_recepcion':
+          cmp = (a.f_recepcion || '').localeCompare(b.f_recepcion || '')
+          break
+        case 'estado':
+          cmp = (a.estadoInfo?.estado || '').localeCompare(b.estadoInfo?.estado || '')
+          break
+      }
+      return sortDirection === 'asc' ? cmp : -cmp
+    })
+  }, [muestrasFiltradas, sortKey, sortDirection])
+
+  const handleExportCSV = () => {
+    const headers = [
+      'Cód EXT',
+      'Cód EPI',
+      'Estudio',
+      'Cliente',
+      'Paciente',
+      'Tipo Muestra',
+      'Prueba',
+      'Recepción',
+      'Estado'
+    ]
+    const rows = sortedMuestras.map(m => [
+      m.codigo_externo || '',
+      m.codigo_epi || '',
+      m.estudio || '',
+      m.solicitud?.cliente?.nombre || '',
+      m.paciente?.nombre || '',
+      m.tipo_muestra?.tipo_muestra || '',
+      m.prueba?.prueba || '',
+      m.f_recepcion ? formatDate(m.f_recepcion) : '',
+      m.estadoInfo?.estado || ''
+    ])
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n')
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `muestras_${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
 
   const handleDelete = async (muestra: Muestra) => {
     const confirmed = await confirm({
@@ -126,9 +215,9 @@ export const MuestrasPage = () => {
     <ListPage
       title="Gestión de Muestras"
       data={{
-        items: muestrasFiltradas,
+        items: sortedMuestras,
         total: muestras?.length,
-        filtered: muestrasFiltradas.length,
+        filtered: sortedMuestras.length,
         isLoading: isLoading || isDeleting,
         error,
         refetch
@@ -136,6 +225,12 @@ export const MuestrasPage = () => {
       handlers={handlers}
       renderStats={renderStats}
       renderFilters={renderFilters}
+      customActions={
+        <Button variant="secondary" onClick={handleExportCSV}>
+          <FileSpreadsheet className="w-4 h-4" />
+          Exportar CSV
+        </Button>
+      }
       config={{
         newButtonText: 'Nueva Muestra',
         emptyStateMessage: 'No hay muestras disponibles',
@@ -144,8 +239,13 @@ export const MuestrasPage = () => {
       }}
     >
       <div className="grid gap-1">
-        <MuestraListHeader fieldList={COLUMN_CONFIG} />
-        {muestrasFiltradas.map((muestra: Muestra) => (
+        <MuestraListHeader
+          fieldList={COLUMN_CONFIG}
+          sortKey={sortKey}
+          sortDirection={sortDirection}
+          onSort={handleSort}
+        />
+        {sortedMuestras.map((muestra: Muestra) => (
           <MuestraListDetail
             key={muestra.id_muestra}
             muestra={muestra}

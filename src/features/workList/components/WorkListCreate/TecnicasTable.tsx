@@ -32,7 +32,6 @@ export const TecnicasTable = ({
   const [pageSize, setPageSize] = useState<number>(20)
   const [currentPage, setCurrentPage] = useState(1)
 
-
   // Filtrar técnicas
   const filteredTecnicas = useMemo(() => {
     if (!filterMuestra.trim()) return tecnicas

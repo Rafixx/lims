@@ -23,9 +23,9 @@ export interface EditableListProps<T> {
   getItemId: (item: T) => number
   /** Cómo extraer el texto que quieres mostrar */
   getItemLabel: (item: T) => string
-  onOrderChange: (newItems: T[]) => void
-  onDelete: (id: number) => void
-  onReinsert: (id: number) => void
+  onOrderChange: (newItems: T[]) => void | Promise<void>
+  onDelete: (id: number) => void | Promise<void>
+  onReinsert: (id: number) => void | Promise<void>
 }
 
 export const EditableList = <T,>({
@@ -53,21 +53,30 @@ export const EditableList = <T,>({
   }
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={items.map(i => getItemId(i))} strategy={verticalListSortingStrategy}>
-        <ul className="space-y-1">
-          {items.map(item => {
-            const id = getItemId(item)
-            return (
-              <EditableListItem
-                key={id}
-                id={id}
-                label={getItemLabel(item)}
-                onDelete={() => onDelete(id)}
-              />
-            )
-          })}
+    <div className="space-y-1">
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={items.map(i => getItemId(i))}
+          strategy={verticalListSortingStrategy}
+        >
+          <ul className="space-y-1">
+            {items.map(item => {
+              const id = getItemId(item)
+              return (
+                <EditableListItem
+                  key={id}
+                  id={id}
+                  label={getItemLabel(item)}
+                  onDelete={() => onDelete(id)}
+                />
+              )
+            })}
+          </ul>
+        </SortableContext>
+      </DndContext>
 
+      {deletedItems.length > 0 && (
+        <ul className="space-y-1 mt-2">
           {deletedItems.map(item => {
             const id = getItemId(item)
             return (
@@ -81,7 +90,7 @@ export const EditableList = <T,>({
             )
           })}
         </ul>
-      </SortableContext>
-    </DndContext>
+      )}
+    </div>
   )
 }

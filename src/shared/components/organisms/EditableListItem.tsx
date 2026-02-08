@@ -11,12 +11,11 @@ interface TecnicaItemProps {
   variant?: Variant // controla estilo y comportamientos
 }
 
-export const EditableListItem = ({
+const SortableItem = ({
   id,
   label,
-  onDelete,
-  variant = 'default'
-}: TecnicaItemProps) => {
+  onDelete
+}: Omit<TecnicaItemProps, 'variant'>) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
 
   const style = {
@@ -24,45 +23,53 @@ export const EditableListItem = ({
     transition
   }
 
-  const isDeleted = variant === 'deleted'
-
   return (
     <li
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className={`
-        flex justify-between items-center px-2 py-1
-        ${isDeleted ? 'bg-surface-100 border border-surface-300' : 'bg-white border border-surface-200'}
-        rounded-md shadow-soft text-sm
-        transition-opacity duration-200 ease-in-out
-      `}
+      className="flex justify-between items-center px-2 py-1 bg-white border border-surface-200 rounded-md shadow-soft text-sm"
     >
       <span className="flex items-center gap-2">
-        {/* Oculta el drag handle si es deleted */}
-        {!isDeleted && (
-          <span {...listeners} className="cursor-grab text-surface-400">
-            <GripVertical size={16} />
-          </span>
-        )}
+        <span {...listeners} className="cursor-grab text-surface-400">
+          <GripVertical size={16} />
+        </span>
         {label}
       </span>
-
       <button
         type="button"
         onClick={onDelete}
-        className={`
-          ml-2 rounded-full p-1 transition-colors
-          ${
-            isDeleted
-              ? 'bg-surface-200 text-info-500 hover:bg-surface-300'
-              : 'text-danger-600 hover:text-danger-400'
-          }
-        `}
-        aria-label={isDeleted ? 'Reinsertar técnica' : 'Eliminar técnica'}
+        className="ml-2 rounded-full p-1 transition-colors text-danger-600 hover:text-danger-400"
+        aria-label="Eliminar técnica"
       >
-        {isDeleted ? <Plus size={14} /> : <X size={14} />}
+        <X size={14} />
       </button>
     </li>
   )
+}
+
+const DeletedItem = ({ label, onDelete }: { label: string; onDelete: () => void }) => (
+  <li className="flex justify-between items-center px-2 py-1 bg-surface-100 border border-surface-300 rounded-md shadow-soft text-sm">
+    <span className="flex items-center gap-2 text-surface-500">{label}</span>
+    <button
+      type="button"
+      onClick={onDelete}
+      className="ml-2 rounded-full p-1 transition-colors bg-surface-200 text-info-500 hover:bg-surface-300"
+      aria-label="Reinsertar técnica"
+    >
+      <Plus size={14} />
+    </button>
+  </li>
+)
+
+export const EditableListItem = ({
+  id,
+  label,
+  onDelete,
+  variant = 'default'
+}: TecnicaItemProps) => {
+  if (variant === 'deleted') {
+    return <DeletedItem label={label} onDelete={onDelete} />
+  }
+  return <SortableItem id={id} label={label} onDelete={onDelete} />
 }
