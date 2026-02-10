@@ -19,17 +19,19 @@ import { useNotification } from '@/shared/components/Notification/NotificationCo
 import { Button } from '@/shared/components/molecules/Button'
 import { formatDate } from '@/shared/utils/helpers'
 
-// Configuración de columnas (mantener spans sincronizados)
+// Configuración de columnas — spans deben sumar exactamente 12 (grid-cols-12)
+// 1+1+1+1+1+2+1+1+2+1 = 12 ✓
+// Estado necesita span 2 para que el badge sea legible
 const COLUMN_CONFIG = [
   { label: 'Cód EXT', span: 1, sortKey: 'codigo_externo' },
   { label: 'Cód EPI', span: 1, sortKey: 'codigo_epi' },
-  { label: 'Estudio', span: 1, sortKey: 'estudio' },
-  { label: 'Cliente', span: 2, sortKey: 'cliente' },
-  { label: 'Paciente', span: 2, sortKey: 'paciente' },
+  { label: 'Cliente', span: 1, sortKey: 'cliente' },
+  { label: 'Paciente', span: 1, sortKey: 'paciente' },
   { label: 'Tipo Muestra', span: 1, sortKey: 'tipo_muestra' },
   { label: 'Prueba', span: 2, sortKey: 'prueba' },
+  { label: 'Estudio', span: 1, sortKey: 'estudio' },
   { label: 'Recepción', span: 1, sortKey: 'f_recepcion' },
-  { label: 'Estado', span: 1, sortKey: 'estado' },
+  { label: 'Estado', span: 2, sortKey: 'estado' },
   { label: '', span: 1 }
 ]
 
@@ -100,9 +102,6 @@ export const MuestrasPage = () => {
         case 'codigo_epi':
           cmp = (a.codigo_epi || '').localeCompare(b.codigo_epi || '')
           break
-        case 'estudio':
-          cmp = (a.estudio || '').localeCompare(b.estudio || '')
-          break
         case 'cliente':
           cmp = (a.solicitud?.cliente?.nombre || '').localeCompare(
             b.solicitud?.cliente?.nombre || ''
@@ -118,6 +117,9 @@ export const MuestrasPage = () => {
           break
         case 'prueba':
           cmp = (a.prueba?.prueba || '').localeCompare(b.prueba?.prueba || '')
+          break
+        case 'estudio':
+          cmp = (a.estudio || '').localeCompare(b.estudio || '')
           break
         case 'f_recepcion':
           cmp = (a.f_recepcion || '').localeCompare(b.f_recepcion || '')
@@ -192,8 +194,8 @@ export const MuestrasPage = () => {
   }
 
   const handlers = {
-    onNew: () => navigate('/muestras/nueva'),
-    onSecondaryAction: () => navigate('/muestras/nueva?tipo=grupo')
+    onNew: () => navigate('/muestras/nueva')
+    // onSecondaryAction: () => navigate('/muestras/nueva?tipo=grupo')
   }
 
   const renderStats = () => (
@@ -236,26 +238,29 @@ export const MuestrasPage = () => {
       config={{
         newButtonText: 'Nueva Muestra',
         emptyStateMessage: 'No hay muestras disponibles',
-        secondaryActionIcon: <PlusCircle className="w-4 h-4" />,
-        secondaryActionText: 'Grupo de muestras'
+        secondaryActionIcon: <PlusCircle className="w-4 h-4" />
+        // secondaryActionText: 'Grupo de muestras'
       }}
     >
-      <div className="grid gap-1">
-        <MuestraListHeader
-          fieldList={COLUMN_CONFIG}
-          sortKey={sortKey}
-          sortDirection={sortDirection}
-          onSort={handleSort}
-        />
-        {sortedMuestras.map((muestra: Muestra) => (
-          <MuestraListDetail
-            key={muestra.id_muestra}
-            muestra={muestra}
-            onEdit={m => navigate(`/muestras/${m.id_muestra}/editar`)}
-            onDelete={handleDelete}
-            fieldSpans={COLUMN_CONFIG.map(col => col.span)}
+      {/* overflow-x-auto para scroll horizontal en pantallas pequeñas */}
+      <div className="overflow-x-auto rounded-lg border border-surface-200 shadow-soft bg-white">
+        <div className="min-w-[720px]">
+          <MuestraListHeader
+            fieldList={COLUMN_CONFIG}
+            sortKey={sortKey}
+            sortDirection={sortDirection}
+            onSort={handleSort}
           />
-        ))}
+          {sortedMuestras.map((muestra: Muestra) => (
+            <MuestraListDetail
+              key={muestra.id_muestra}
+              muestra={muestra}
+              onEdit={m => navigate(`/muestras/${m.id_muestra}/editar`)}
+              onDelete={handleDelete}
+              fieldSpans={COLUMN_CONFIG.map(col => col.span)}
+            />
+          ))}
+        </div>
       </div>
     </ListPage>
   )

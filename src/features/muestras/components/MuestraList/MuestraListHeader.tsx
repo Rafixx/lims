@@ -11,6 +11,18 @@ export interface MuestraListHeaderProps {
  * Componente específico para el header de la lista de Muestras
  * Wrapper sobre el componente genérico ListHeader
  */
-export const MuestraListHeader = ({ fieldList, sortKey, sortDirection, onSort }: MuestraListHeaderProps) => {
-  return <ListHeader fieldList={fieldList} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+export const MuestraListHeader = ({
+  fieldList,
+  sortKey,
+  sortDirection,
+  onSort
+}: MuestraListHeaderProps) => {
+  return (
+    <ListHeader
+      fieldList={fieldList}
+      sortKey={sortKey}
+      sortDirection={sortDirection}
+      onSort={onSort}
+    />
+  )
 }

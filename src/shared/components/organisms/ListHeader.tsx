@@ -27,7 +27,8 @@ export const ListHeader = ({
   sortDirection,
   onSort
 }: ListHeaderProps) => {
-  const defaultClassName = 'grid grid-cols-12 gap-4 p-2 border-b font-semibold text-sm bg-gray-200'
+  const defaultClassName =
+    'grid grid-cols-12 gap-2 px-3 py-2 border-b font-semibold text-xs uppercase tracking-wide text-surface-500 bg-surface-100'
   const finalClassName = className || defaultClassName
 
   const handleSort = (field: ListHeaderField) => {

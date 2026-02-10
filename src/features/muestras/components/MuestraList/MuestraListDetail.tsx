@@ -7,6 +7,7 @@ import { TecnicaListHeader } from './TecnicaListHeader'
 import { TecnicaListDetail } from './TecnicaListDetail'
 import { TecnicaAgrupadaListDetail } from './TecnicaAgrupadaListDetail'
 import { ListDetail, ListDetailAction } from '@/shared/components/organisms/ListDetail'
+import { EstadoBadge } from '@/shared/components/atoms/EstadoBadge'
 import { formatDateTime } from '@/shared/utils/helpers'
 
 interface MuestraListDetailProps {
@@ -63,47 +64,49 @@ export const MuestraListDetail = ({
   // Determinar si son técnicas agrupadas o normales
   const isTecnicasAgrupadas = tecnicas.length > 0 && 'proceso_nombre' in tecnicas[0]
 
-  // Definir los campos a renderizar
+  // 9 campos — orden idéntico al COLUMN_CONFIG de MuestrasPage:
+  // CódEXT(1) CódEPI(1) Cliente(1) Paciente(1) TipoMuestra(1) Prueba(2) Estudio(1) Recepción(1) Estado(2) Actions(1)
   const renderFields = (): ReactNode[] => [
-    // Código EXTERNO
-    <span key={muestra.id_muestra} className="font-medium text-blue-600">
-      {muestra.codigo_externo || '-'}
+    // [0] Código EXTERNO — span 1
+    <span key={`ext-${muestra.id_muestra}`} className="block font-mono text-xs font-semibold text-primary-600 truncate" title={muestra.codigo_externo || ''}>
+      {muestra.codigo_externo || '—'}
     </span>,
-    // Código EPI
-    <span key={muestra.id_muestra} className="font-medium text-blue-600">
-      {muestra.codigo_epi || '-'}
+    // [1] Código EPI — span 1
+    <span key={`epi-${muestra.id_muestra}`} className="block font-mono text-xs font-semibold text-primary-700 truncate" title={muestra.codigo_epi || ''}>
+      {muestra.codigo_epi || '—'}
     </span>,
-    // Estudio
-    <span key={`estudio-${muestra.id_muestra}`} className="text-gray-700">
-      {muestra.estudio || '-'}
+    // [2] Cliente — span 1
+    <span key={`cliente-${muestra.solicitud?.cliente?.id}`} className="block text-xs text-surface-700 truncate" title={muestra.solicitud?.cliente?.nombre || ''}>
+      {muestra.solicitud?.cliente?.nombre || '—'}
     </span>,
-    // Cliente
-    <span key={muestra.solicitud?.cliente?.id} className="text-gray-700">
-      {muestra.solicitud?.cliente?.nombre || '-'}
+    // [3] Paciente — span 1
+    <span key={`paciente-${muestra.paciente?.id}`} className="block text-xs text-surface-800 font-medium truncate" title={muestra.paciente?.nombre || ''}>
+      {muestra.paciente?.nombre || '—'}
     </span>,
-    // Paciente
-    <span key={muestra.paciente?.id} className="text-gray-700">
-      {muestra.paciente?.nombre || '-'}
+    // [4] Tipo de muestra — span 1
+    <span key={`tipo-${muestra.tipo_muestra?.id}`} className="block text-xs text-surface-600 truncate" title={muestra.tipo_muestra?.tipo_muestra || ''}>
+      {muestra.tipo_muestra?.tipo_muestra || '—'}
     </span>,
-    // Tipo de muestra
-    <span key={muestra.tipo_muestra?.id} className="text-gray-700">
-      {muestra.tipo_muestra?.tipo_muestra || '-'}
+    // [5] Prueba — span 2
+    <span key={`prueba-${muestra.prueba?.id}`} className="block text-xs text-surface-700 truncate" title={muestra.prueba?.prueba || ''}>
+      {muestra.prueba?.prueba || '—'}
     </span>,
-    // Prueba
-    <span key={muestra.prueba?.id} className="text-gray-700">
-      {muestra.prueba?.prueba || '-'}
+    // [6] Estudio — span 1
+    <span key={`estudio-${muestra.id_muestra}`} className="block text-xs text-surface-600 truncate" title={muestra.estudio || ''}>
+      {muestra.estudio || '—'}
     </span>,
-    // Fecha Recepción
-    <span key={muestra.solicitud?.f_creacion} className="text-gray-600">
+    // [7] Fecha Recepción — span 1
+    <span key={`fecha-${muestra.id_muestra}`} className="block text-xs text-surface-500 font-mono whitespace-nowrap">
       {formatDateTime(muestra.f_recepcion)}
-    </span>
-    // Estado
-    // <span
-    //   key={muestra.id_muestra}
-    //   className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getEstadoBadgeColor(muestra.estado_muestra)}`}
-    // >
-    // {/* {muestra.estado_muestra} */}
-    // </span>
+    </span>,
+    // [8] Estado — span 2, badge con color del estado
+    <div key={`estado-${muestra.id_muestra}`} className="min-w-0">
+      {muestra.estadoInfo ? (
+        <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={true} />
+      ) : (
+        <span className="text-surface-300 text-xs">—</span>
+      )}
+    </div>
   ]
 
   // Handler para duplicar muestra
@@ -117,19 +120,19 @@ export const MuestraListDetail = ({
       icon: <Plus className="w-4 h-4" />,
       onClick: handleDuplicate,
       title: 'Nueva prueba para esta muestra',
-      className: 'p-1 text-green-600 hover:bg-green-50 rounded transition-colors'
+      className: 'p-1 text-success-600 hover:bg-success-50 rounded transition-colors'
     },
     {
       icon: <Edit className="w-4 h-4" />,
       onClick: () => onEdit(muestra),
       title: 'Editar',
-      className: 'p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors'
+      className: 'p-1 text-primary-600 hover:bg-primary-50 rounded transition-colors'
     },
     {
       icon: <Trash2 className="w-4 h-4" />,
       onClick: () => onDelete(muestra),
       title: 'Eliminar',
-      className: 'p-1 text-red-600 hover:bg-red-50 rounded transition-colors'
+      className: 'p-1 text-danger-600 hover:bg-danger-50 rounded transition-colors'
     }
   ]
 

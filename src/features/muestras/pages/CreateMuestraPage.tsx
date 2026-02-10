@@ -1,6 +1,8 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { Card } from '@/shared/components/molecules/Card'
+import { ToggleButton } from '@/shared/components/molecules/ToggleButton'
+import { QuantityInput } from '@/shared/components/molecules/QuantityInput'
 import { MuestraForm } from '../components/MuestraForm/MuestraForm'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { useMuestra, useNextCodigoEpi } from '../hooks/useMuestras'
@@ -11,9 +13,12 @@ export const CreateMuestraPage = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
 
-  // ✅ Leer el tipo de muestra desde query params
-  const tipo = searchParams.get('tipo')
-  const isMuestraGroup = tipo === 'grupo'
+  // ✅ Estado del tipo de muestra — inicializado desde query params, controlable con el toggle
+  // rerender-derived-state-no-effect: inicializar directamente en useState, sin useEffect
+  const [isMuestraGroup, setIsMuestraGroup] = useState(searchParams.get('tipo') === 'grupo')
+
+  // Cantidad de tubos a crear (solo aplica cuando !isMuestraGroup)
+  const [cantidad, setCantidad] = useState(1)
 
   // ✅ Leer si se está duplicando desde query params
   const duplicarId = searchParams.get('duplicar')
@@ -166,16 +171,16 @@ export const CreateMuestraPage = () => {
       <div className="container mx-auto py-8 px-4">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-surface-900">
+              <h1 className="text-2xl sm:text-3xl font-bold text-surface-900">
                 {isEditing
                   ? 'Editar Muestra'
                   : isDuplicating
                     ? 'Nueva Prueba para Muestra Existente'
                     : 'Nueva Muestra'}
               </h1>
-              <p className="text-surface-600 mt-1">
+              <p className="text-surface-600 mt-1 text-sm">
                 {isEditing
                   ? 'Modificar los datos de la muestra existente'
                   : isDuplicating
@@ -183,6 +188,30 @@ export const CreateMuestraPage = () => {
                     : 'Crear una nueva muestra en el sistema'}
               </p>
             </div>
+
+            {/* Controles de tipo y cantidad — solo en modo creación */}
+            {!isEditing && !isDuplicating ? (
+              <div className="flex items-center gap-3">
+                <ToggleButton<boolean>
+                  label=""
+                  options={[
+                    { value: true, label: 'Placa' },
+                    { value: false, label: 'Tubo' }
+                  ]}
+                  value={isMuestraGroup}
+                  onChange={setIsMuestraGroup}
+                />
+                {!isMuestraGroup ? (
+                  <QuantityInput
+                    label="Cantidad"
+                    value={cantidad}
+                    onChange={setCantidad}
+                    min={1}
+                    max={99}
+                  />
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -197,6 +226,7 @@ export const CreateMuestraPage = () => {
               isMuestraGroup={isMuestraGroup}
               generatedCodigos={formGeneratedCodigos}
               isDuplicating={isDuplicating}
+              cantidad={!isEditing && !isDuplicating && !isMuestraGroup ? cantidad : undefined}
             />
           </div>
         </Card>

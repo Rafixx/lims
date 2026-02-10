@@ -16,12 +16,12 @@ export const MaestrosPage = () => {
           <span>Volver al Dashboard</span>
         </Link>
 
-        <h1 className="text-3xl font-bold text-surface-900 mb-2">Configuración del Sistema</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 mb-2">Configuración del Sistema</h1>
         <p className="text-surface-600">Configura y gestiona los datos maestros del laboratorio</p>
       </div>
 
       {/* Grid de maestros */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {configMenuItems.children.map(item => (
           <MaestroCard
             key={item.path}

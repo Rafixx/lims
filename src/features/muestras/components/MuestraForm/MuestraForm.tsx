@@ -25,6 +25,7 @@ interface Props {
     codigo_epi?: string
   }
   isDuplicating?: boolean
+  cantidad?: number
 }
 
 export const muestraStyle = 'border-2 border-l-accent'
@@ -35,7 +36,8 @@ export const MuestraForm = ({
   onCancel,
   isMuestraGroup,
   generatedCodigos,
-  isDuplicating = false
+  isDuplicating = false,
+  cantidad
 }: Props) => {
   // Combinar DEFAULT_MUESTRA con códigos generados si existen
   const defaultValues = useMemo(() => {
@@ -156,7 +158,10 @@ export const MuestraForm = ({
         })
         notify('Muestra actualizada con éxito', 'success')
       } else {
-        const { ...createData } = formDataWithTecnicas
+        const createData = {
+          ...formDataWithTecnicas,
+          ...(cantidad !== undefined && cantidad > 1 ? { cantidad } : {})
+        }
 
         await createMutation.mutateAsync(createData as Muestra)
         notify('Muestra creada con éxito', 'success')

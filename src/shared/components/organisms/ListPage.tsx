@@ -7,7 +7,6 @@ interface ListPageProps {
   title: string
   subtitle?: string
 
-  // Data y loading states
   data: {
     items: unknown[]
     total?: number
@@ -17,20 +16,17 @@ interface ListPageProps {
     refetch: () => void
   }
 
-  // Handlers principales
   handlers?: {
     onNew?: () => void
     onSecondaryAction?: () => void
     onRefresh?: () => void
   }
 
-  // Render slots (máxima flexibilidad)
   renderStats?: () => React.ReactNode
   renderFilters?: () => React.ReactNode
   renderActions?: () => React.ReactNode
   customActions?: React.ReactNode
 
-  // Configuración de comportamiento
   config?: {
     showStatsToggle?: boolean
     showFilterToggle?: boolean
@@ -42,7 +38,6 @@ interface ListPageProps {
     hideNewButton?: boolean
   }
 
-  // Contenido principal
   children: React.ReactNode
 }
 
@@ -71,37 +66,46 @@ export const ListPage = ({
   } = config
 
   if (data.isLoading) {
-    return <span>Cargando...</span>
-    // <LoadingSkeleton title={title} />
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="h-6 w-32 bg-surface-200 rounded" />
+        <div className="h-8 w-64 bg-surface-200 rounded" />
+        <div className="h-4 w-48 bg-surface-200 rounded" />
+        <div className="space-y-2">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-10 bg-surface-100 rounded border border-surface-200" />
+          ))}
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-8 ">
-      {/* Header con navegación */}
-      <div className="flex justify-between items-center">
-        <div>
-          {/* Header */}
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-wrap gap-4 justify-between items-start">
+        <div className="min-w-0">
           <Link
             to="/dashboard"
-            className="inline-flex items-center gap-2 text-surface-600 hover:text-primary-600 transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-surface-600 hover:text-primary-600 transition-colors mb-3 text-sm"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 flex-shrink-0" />
             <span>Volver a Inicio</span>
           </Link>
-          <h1 className="text-3xl font-bold text-surface-900 mb-2">{title}</h1>
-          {subtitle && <p className="text-surface-600">{subtitle}</p>}
-          <p className="text-surface-600 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-surface-900 mb-1">{title}</h1>
+          {subtitle && <p className="text-surface-600 text-sm">{subtitle}</p>}
+          <p className="text-surface-500 text-sm mt-1">
             {data.filtered ?? data.items.length} de {data.total ?? data.items.length} elementos
             {data.filtered !== undefined &&
               data.filtered < (data.total ?? data.items.length) &&
-              ` (${(data.total ?? data.items.length) - data.filtered} filtrados)`}
+              ` · ${(data.total ?? data.items.length) - data.filtered} filtrados`}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          {/* Acciones personalizadas */}
+
+        {/* Acciones — hacen wrap en móvil */}
+        <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
           {renderActions && renderActions()}
 
-          {/* Botón refrescar */}
           {showRefreshButton && (
             <Button
               onClick={handlers?.onRefresh || data.refetch}
@@ -109,95 +113,81 @@ export const ListPage = ({
               disabled={data.isLoading}
             >
               <RefreshCw className={`w-4 h-4 ${data.isLoading ? 'animate-spin' : ''}`} />
-              Actualizar
+              <span className="hidden sm:inline">Actualizar</span>
             </Button>
           )}
 
-          {/* Acciones personalizadas adicionales */}
           {customActions}
 
-          {/* Botón nuevo */}
           {!hideNewButton && handlers?.onNew && (
-            <div className="flex items-center gap-2">
+            <>
               <Button onClick={handlers.onNew} variant="primary">
                 <Plus className="w-4 h-4" />
-                {newButtonText}
+                <span className="hidden xs:inline">{newButtonText}</span>
               </Button>
               {config.secondaryActionText &&
                 config.secondaryActionIcon &&
                 handlers.onSecondaryAction && (
                   <Button onClick={handlers.onSecondaryAction} variant="primary">
                     {config.secondaryActionIcon}
-                    {config.secondaryActionText}
+                    <span className="hidden sm:inline">{config.secondaryActionText}</span>
                   </Button>
                 )}
-            </div>
+            </>
           )}
         </div>
       </div>
 
-      {/* Stats Section */}
-      {renderStats && (
-        <div className="space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            {/* Stats Content */}
-            {(showStats || !showStatsToggle) && (
-              <div className="flex-1 animate-in slide-in-from-left-2 duration-300">
-                {renderStats()}
-              </div>
-            )}
-
-            {/* Toggle Button */}
-            {showStatsToggle && (
-              <div className="flex-shrink-0">
-                <Button
-                  onClick={() => setShowStats(!showStats)}
-                  variant="ghost"
-                  className="flex items-center gap-2"
-                >
-                  <Calendar className="w-4 h-4" />
-                  {showStats ? 'Ocultar estadísticas' : 'Ver estadísticas'}
-                </Button>
-              </div>
-            )}
-          </div>
+      {/* Barra de toggles para stats y filtros */}
+      {(renderStats || renderFilters) && (
+        <div className="flex flex-wrap gap-2">
+          {renderStats && showStatsToggle && (
+            <Button
+              onClick={() => setShowStats(!showStats)}
+              variant="ghost"
+              className="flex items-center gap-2 text-sm"
+            >
+              <Calendar className="w-4 h-4" />
+              {showStats ? 'Ocultar estadísticas' : 'Ver estadísticas'}
+            </Button>
+          )}
+          {renderFilters && showFilterToggle && (
+            <Button
+              onClick={() => setShowFilters(!showFilters)}
+              variant="ghost"
+              className="flex items-center gap-2 text-sm"
+            >
+              <Filter className="w-4 h-4" />
+              {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
+            </Button>
+          )}
         </div>
       )}
 
-      {/* Filters Section */}
-      {renderFilters && (
-        <div className="space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            {/* Filters Content */}
-            {(showFilters || !showFilterToggle) && (
-              <div className="flex-1 animate-in slide-in-from-left-2 duration-300 bg-white p-4 rounded-lg shadow border">
-                {renderFilters()}
-              </div>
-            )}
+      {/* Stats */}
+      {renderStats && (showStats || !showStatsToggle) && (
+        <div className="animate-fade-in">{renderStats()}</div>
+      )}
 
-            {/* Toggle Button */}
-            {showFilterToggle && (
-              <div className="flex-shrink-0">
-                <Button
-                  onClick={() => setShowFilters(!showFilters)}
-                  variant="ghost"
-                  className="flex items-center gap-2"
-                >
-                  <Filter className="w-4 h-4" />
-                  {showFilters ? 'Ocultar filtros' : 'Mostrar filtros'}
-                </Button>
-              </div>
-            )}
-          </div>
+      {/* Filtros */}
+      {renderFilters && (showFilters || !showFilterToggle) && (
+        <div className="bg-white p-4 rounded-lg shadow-soft border border-surface-200 animate-fade-in">
+          {renderFilters()}
         </div>
       )}
 
-      {/* Content */}
-      <div className="space-y-4">
-        {
-          data.items.length > 0 ? children : <span>{emptyStateMessage}</span>
-          // <EmptyState message={emptyStateMessage} />
-        }
+      {/* Contenido principal */}
+      <div>
+        {data.items.length > 0 ? (
+          children
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-12 h-12 rounded-full bg-surface-100 flex items-center justify-center mb-3">
+              <span className="text-surface-400 text-xl">·</span>
+            </div>
+            <p className="text-surface-500 text-sm">{emptyStateMessage}</p>
+          </div>
+        )}
       </div>
     </div>
   )

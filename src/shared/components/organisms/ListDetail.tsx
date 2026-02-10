@@ -45,7 +45,7 @@ export function ListDetail<T>({
   }
 
   const defaultRowClassName =
-    'grid grid-cols-12 gap-4 p-2 border-b hover:bg-gray-50 transition-colors items-center text-sm'
+    'grid grid-cols-12 gap-2 px-3 py-2.5 border-b hover:bg-surface-50 transition-colors items-center text-sm'
   const finalRowClassName = rowClassName || defaultRowClassName
 
   const fields = renderFields(item)
@@ -56,7 +56,7 @@ export function ListDetail<T>({
       <div className={finalRowClassName}>
         {/* Renderizar campos dinámicos */}
         {fields.map((field, index) => (
-          <div key={index} className={`${getColSpanClass(fieldSpans[index])} break-words`}>
+          <div key={index} className={`${getColSpanClass(fieldSpans[index])} min-w-0 overflow-hidden`}>
             {field}
           </div>
         ))}
@@ -72,7 +72,7 @@ export function ListDetail<T>({
                   onClick={action.onClick}
                   className={
                     action.className ||
-                    'p-1 text-gray-600 hover:bg-gray-50 rounded transition-colors'
+                    'p-1 text-surface-500 hover:bg-surface-100 rounded transition-colors'
                   }
                   title={action.title}
                 >
@@ -84,7 +84,7 @@ export function ListDetail<T>({
               {hasExpandContent && (
                 <button
                   onClick={handleExpandToggle}
-                  className="p-1 text-gray-600 hover:bg-gray-50 rounded transition-colors"
+                  className="p-1 text-surface-400 hover:text-surface-700 hover:bg-surface-100 rounded transition-colors"
                   title={expanded ? 'Contraer' : 'Expandir'}
                 >
                   {expanded ? (

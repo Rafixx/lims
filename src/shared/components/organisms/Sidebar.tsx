@@ -5,11 +5,13 @@ import {
   MenuItemBase,
   MenuItemWithChildren
 } from '@/shared/config/menuConfig'
-import { ChevronDown, ChevronRight, ChevronLeft } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronLeft, X } from 'lucide-react'
 
 interface SidebarProps {
   isCollapsed: boolean
   onToggleCollapse: () => void
+  isMobileOpen?: boolean
+  onMobileClose?: () => void
 }
 
 const MenuItem = ({ item, isCollapsed }: { item: MenuItemBase; isCollapsed: boolean }) => {
@@ -84,15 +86,42 @@ const CollapsibleMenuItem = ({
   )
 }
 
-export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
+export const Sidebar = ({
+  isCollapsed,
+  onToggleCollapse,
+  isMobileOpen = false,
+  onMobileClose
+}: SidebarProps) => {
   return (
     <aside
-      className={`${isCollapsed ? 'w-16' : 'w-64'} bg-info-100 shadow-soft h-full flex flex-col p-4 border-r border-surface-200 transition-all duration-300`}
+      className={[
+        // Base
+        'bg-info-100 shadow-soft flex flex-col p-4 border-r border-surface-200 transition-all duration-300',
+        // Desktop: siempre visible en el flujo normal, ancho variable
+        'md:relative md:translate-x-0 md:flex-shrink-0',
+        isCollapsed ? 'md:w-16' : 'md:w-64',
+        // Móvil: posición fija, se desliza desde la izquierda
+        'fixed inset-y-0 left-0 z-50 w-64 h-full',
+        isMobileOpen ? 'translate-x-0' : '-translate-x-full',
+        'md:translate-x-0'
+      ].join(' ')}
     >
-      <div className="flex items-center justify-end mb-4">
+      <div className={`flex items-center mb-4 ${isMobileOpen ? 'justify-between' : 'justify-end'}`}>
+        {/* Botón cerrar — solo en móvil cuando está abierto */}
+        {isMobileOpen && (
+          <button
+            onClick={onMobileClose}
+            className="md:hidden p-1.5 rounded-md hover:bg-white/50 text-surface-600 hover:text-surface-900 transition-colors"
+            aria-label="Cerrar menú"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
+
+        {/* Botón collapse — solo visible en desktop */}
         <button
           onClick={onToggleCollapse}
-          className="p-1.5 rounded-md hover:bg-white/50 text-surface-600 hover:text-surface-900 transition-colors"
+          className="hidden md:flex p-1.5 rounded-md hover:bg-white/50 text-surface-600 hover:text-surface-900 transition-colors"
           title={isCollapsed ? 'Expandir menú' : 'Colapsar menú'}
         >
           {isCollapsed ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
@@ -102,9 +131,21 @@ export const Sidebar = ({ isCollapsed, onToggleCollapse }: SidebarProps) => {
       <nav className="flex flex-col gap-2">
         {sidebarMenuStructure.map(item => {
           if ('isCollapsible' in item) {
-            return <CollapsibleMenuItem key={item.label} item={item} isCollapsed={isCollapsed} />
+            return (
+              <CollapsibleMenuItem
+                key={item.label}
+                item={item}
+                isCollapsed={isCollapsed && !isMobileOpen}
+              />
+            )
           } else {
-            return <MenuItem key={item.path} item={item} isCollapsed={isCollapsed} />
+            return (
+              <MenuItem
+                key={item.path}
+                item={item}
+                isCollapsed={isCollapsed && !isMobileOpen}
+              />
+            )
           }
         })}
       </nav>
