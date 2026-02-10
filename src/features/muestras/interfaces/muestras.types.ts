@@ -145,6 +145,39 @@ export type CodigoEpiResponse = {
   year: number
 }
 
+/** Respuesta del endpoint POST /muestras */
+export type CreateMuestraResult = {
+  items: Muestra[]
+  createdCount: number
+  mensaje: string
+}
+
+/** Par codigo_epi → cod_externo para importación */
+export type CodExternoPar = {
+  codigo_epi: string
+  cod_externo: string
+}
+
+/** Respuesta del endpoint POST /muestras/estudio/:estudio/cod-externo */
+export type ImportCodExternoResult = {
+  updated: number
+  mensaje: string
+}
+
+/** Fila agrupadora (padre) — muestras con el mismo estudio */
+export type MuestraGroup = {
+  isGrouped: true
+  key: string
+  parent: Muestra
+  children: Muestra[]
+}
+
+/** Fila standalone — muestra sin estudio o único en su estudio */
+export type MuestraStandalone = Muestra & { isGrouped: false }
+
+/** Unión de filas que renderiza la tabla */
+export type MuestraListItem = MuestraGroup | MuestraStandalone
+
 export type EMPTY_MUESTRA_FORM = {
   paciente: null
   solicitud: null

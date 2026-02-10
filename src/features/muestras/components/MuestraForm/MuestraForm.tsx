@@ -77,12 +77,21 @@ export const MuestraForm = ({
   // ✅ El aside solo se muestra si hay una prueba seleccionada (requerido para cargar técnicas)
   const asideVisible = Boolean(pruebaId || clienteId || pacienteId)
 
+  // El campo código externo sólo se muestra (y acepta valor) cuando:
+  // tipo = Tubo (!isMuestraGroup) y cantidad = 1 (o no especificada)
+  const showCodigoExterno = !isMuestraGroup && (cantidad === undefined || cantidad === 1)
+
   const tabs = useMemo(() => {
     const baseTabs = [
       {
         id: 'general',
         label: 'Datos principales',
-        content: <DatosGeneralesSection isDuplicating={isDuplicating} />
+        content: (
+          <DatosGeneralesSection
+            isDuplicating={isDuplicating}
+            showCodigoExterno={showCodigoExterno}
+          />
+        )
       }
     ]
 
@@ -95,7 +104,7 @@ export const MuestraForm = ({
     }
 
     return baseTabs
-  }, [isMuestraGroup, isDuplicating])
+  }, [isMuestraGroup, isDuplicating, showCodigoExterno])
 
   // Callback para capturar las técnicas seleccionadas
   const handleTecnicasChange = useCallback((tecnicas: { id_tecnica_proc: number }[]) => {
@@ -163,8 +172,13 @@ export const MuestraForm = ({
           ...(cantidad !== undefined && cantidad > 1 ? { cantidad } : {})
         }
 
-        await createMutation.mutateAsync(createData as Muestra)
-        notify('Muestra creada con éxito', 'success')
+        const result = await createMutation.mutateAsync(createData as Muestra)
+        notify(
+          result.createdCount > 1
+            ? `Se han creado ${result.createdCount} muestras con éxito`
+            : 'Muestra creada con éxito',
+          'success'
+        )
       }
 
       // Llamar al callback de éxito

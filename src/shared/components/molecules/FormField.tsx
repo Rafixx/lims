@@ -10,6 +10,8 @@ interface FormFieldProps {
   id: string
   label: string
   error?: string
+  /** Texto de ayuda informativo (distinto del error) */
+  hint?: string
   inputProps?: React.InputHTMLAttributes<HTMLInputElement>
   textareaProps?: React.TextareaHTMLAttributes<HTMLTextAreaElement>
   selectProps?: React.SelectHTMLAttributes<HTMLSelectElement>
@@ -24,6 +26,7 @@ export const FormField = ({
   id,
   label,
   error,
+  hint,
   type = 'input',
   inputProps,
   textareaProps,
@@ -74,7 +77,11 @@ export const FormField = ({
         </Select>
       )}
 
-      {error && <p className="text-xs text-danger-600 mt-1">{error}</p>}
+      {error ? (
+        <p className="text-xs text-danger-600 mt-1">{error}</p>
+      ) : hint ? (
+        <p className="text-xs text-surface-400 mt-1 italic">{hint}</p>
+      ) : null}
     </div>
   )
 }

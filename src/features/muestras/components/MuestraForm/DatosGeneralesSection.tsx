@@ -1,4 +1,5 @@
 // src/features/solicitudes/components/solicitudForm/DatosGeneralesSection.tsx
+import { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { FormField } from '@/shared/components/molecules/FormField'
 import { EntitySelect } from '@/shared/components/molecules/EntitySelect'
@@ -17,18 +18,31 @@ import { TimelineEventsSection } from './TimelineEventsSection'
 
 interface DatosGeneralesSectionProps {
   isDuplicating?: boolean
+  /** Sólo true cuando tipo=Tubo y cantidad=1; en cualquier otro caso oculta y vacía el campo */
+  showCodigoExterno?: boolean
 }
 
-export const DatosGeneralesSection = ({ isDuplicating = false }: DatosGeneralesSectionProps) => {
+export const DatosGeneralesSection = ({
+  isDuplicating = false,
+  showCodigoExterno = true
+}: DatosGeneralesSectionProps) => {
   const {
     control,
     register,
     watch,
+    setValue,
     formState: { errors }
   } = useFormContext<Muestra>()
 
   // Obtener el id_muestra actual para determinar si estamos editando
   const id_muestra = watch('id_muestra')
+
+  // Limpiar codigo_externo cuando el campo no debe mostrarse
+  useEffect(() => {
+    if (!showCodigoExterno) {
+      setValue('codigo_externo', '')
+    }
+  }, [showCodigoExterno, setValue])
 
   // Carga de datos - usando hooks existentes o temporales
   const { data: pruebas = [], isLoading: loadingPruebas } = usePruebas()
@@ -137,16 +151,20 @@ export const DatosGeneralesSection = ({ isDuplicating = false }: DatosGeneralesS
           />
 
           <FormField
-            id={`codigo_externo`}
+            id="codigo_externo"
             label="Código externo"
             inputProps={{
-              ...register(`codigo_externo`),
+              ...register('codigo_externo'),
               type: 'text',
-              disabled: isDuplicating
-              // placeholder: 'Ej: MUE-2024-001'
+              disabled: isDuplicating || !showCodigoExterno
             }}
-            error={errors.codigo_externo?.message}
-            required
+            error={showCodigoExterno ? errors.codigo_externo?.message : undefined}
+            hint={
+              !showCodigoExterno
+                ? 'Se asignará individualmente a cada muestra tras la creación'
+                : undefined
+            }
+            required={showCodigoExterno}
             className={muestraStyle}
           />
           <FormField

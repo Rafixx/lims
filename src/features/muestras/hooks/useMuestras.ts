@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query'
 import muestrasService from '../services/muestras.services'
-import { CodigoEpiResponse, Muestra, MuestraStats, Tecnica, TecnicaAgrupada } from '../interfaces/muestras.types'
+import { CodExternoPar, CodigoEpiResponse, CreateMuestraResult, ImportCodExternoResult, Muestra, MuestraStats, Tecnica, TecnicaAgrupada } from '../interfaces/muestras.types'
 import { STALE_TIME } from '@/shared/constants/constants'
 import tecnicaService from '../services/tecnica.service'
 
@@ -91,11 +91,11 @@ export const useMuestrasStats = () => {
 // MUTATIONS
 // ============================================
 
-// Hook para crear una nueva muestra
+// Hook para crear una nueva muestra (o múltiples tubos)
 export const useCreateMuestra = () => {
   const queryClient = useQueryClient()
 
-  return useMutation({
+  return useMutation<CreateMuestraResult, Error, Muestra>({
     mutationFn: (data: Muestra) => muestrasService.createMuestra(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['muestras'] })
@@ -112,6 +112,18 @@ export const useUpdateMuestra = () => {
       muestrasService.updateMuestra(id, data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['muestra', id] })
+      queryClient.invalidateQueries({ queryKey: ['muestras'] })
+    }
+  })
+}
+
+// Hook para importar códigos externos a muestras de un estudio desde CSV
+export const useImportCodExterno = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<ImportCodExternoResult, Error, { estudio: string; pares: CodExternoPar[] }>({
+    mutationFn: ({ estudio, pares }) => muestrasService.importCodExterno(estudio, pares),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['muestras'] })
     }
   })

@@ -14,10 +14,13 @@ import {
 } from '@/shared/utils/filterUtils'
 import { MuestraListHeader } from '../components/MuestraList/MuestraListHeader'
 import { MuestraListDetail } from '../components/MuestraList/MuestraListDetail'
+import { MuestraGroupRow } from '../components/MuestraList/MuestraGroupRow'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { Button } from '@/shared/components/molecules/Button'
 import { formatDate } from '@/shared/utils/helpers'
+import { groupMuestrasByEstudio } from '../utils/groupMuestras'
+import { MuestraGroup } from '../interfaces/muestras.types'
 
 // Configuración de columnas — spans deben sumar exactamente 12 (grid-cols-12)
 // 1+1+1+1+1+2+1+1+2+1 = 12 ✓
@@ -91,7 +94,7 @@ export const MuestrasPage = () => {
     }
   }
 
-  const sortedMuestras = useMemo(() => {
+  const sortedMuestras = useMemo<typeof muestrasFiltradas>(() => {
     if (!sortKey) return muestrasFiltradas
     return [...muestrasFiltradas].sort((a, b) => {
       let cmp = 0
@@ -131,6 +134,12 @@ export const MuestrasPage = () => {
       return sortDirection === 'asc' ? cmp : -cmp
     })
   }, [muestrasFiltradas, sortKey, sortDirection])
+
+  // Agrupar muestras ordenadas por estudio (memoizado para evitar recálculo innecesario)
+  const groupedItems = useMemo(
+    () => groupMuestrasByEstudio(sortedMuestras),
+    [sortedMuestras]
+  )
 
   const handleExportCSV = () => {
     const headers = [
@@ -251,15 +260,25 @@ export const MuestrasPage = () => {
             sortDirection={sortDirection}
             onSort={handleSort}
           />
-          {sortedMuestras.map((muestra: Muestra) => (
-            <MuestraListDetail
-              key={muestra.id_muestra}
-              muestra={muestra}
-              onEdit={m => navigate(`/muestras/${m.id_muestra}/editar`)}
-              onDelete={handleDelete}
-              fieldSpans={COLUMN_CONFIG.map(col => col.span)}
-            />
-          ))}
+          {groupedItems.map(item =>
+            (item as MuestraGroup).isGrouped === true ? (
+              <MuestraGroupRow
+                key={`group-${(item as MuestraGroup).key}`}
+                group={item as MuestraGroup}
+                onEdit={m => navigate(`/muestras/${m.id_muestra}/editar`)}
+                onDelete={handleDelete}
+                parentFieldSpans={COLUMN_CONFIG.map(col => col.span)}
+              />
+            ) : (
+              <MuestraListDetail
+                key={(item as Muestra).id_muestra}
+                muestra={item as Muestra}
+                onEdit={m => navigate(`/muestras/${m.id_muestra}/editar`)}
+                onDelete={handleDelete}
+                fieldSpans={COLUMN_CONFIG.map(col => col.span)}
+              />
+            )
+          )}
         </div>
       </div>
     </ListPage>

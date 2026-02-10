@@ -1,6 +1,9 @@
 import { apiClient } from '@/shared/services/apiClient'
 import {
+  CodExternoPar,
   CodigoEpiResponse,
+  CreateMuestraResult,
+  ImportCodExternoResult,
   Muestra,
   MuestraWithTecnicas,
   Tecnica,
@@ -30,8 +33,8 @@ class MuestrasService {
     return response.data
   }
 
-  async createMuestra(data: Muestra): Promise<Muestra> {
-    const response = await apiClient.post<Muestra>(this.basePath, data)
+  async createMuestra(data: Muestra): Promise<CreateMuestraResult> {
+    const response = await apiClient.post<CreateMuestraResult>(this.basePath, data)
     return response.data
   }
 
@@ -46,6 +49,14 @@ class MuestrasService {
 
   async getNextCodigoEpi(): Promise<CodigoEpiResponse> {
     const response = await apiClient.get<CodigoEpiResponse>(`${this.basePath}/codigo-epi`)
+    return response.data
+  }
+
+  async importCodExterno(estudio: string, pares: CodExternoPar[]): Promise<ImportCodExternoResult> {
+    const response = await apiClient.post<ImportCodExternoResult>(
+      `${this.basePath}/estudio/${encodeURIComponent(estudio)}/cod-externo`,
+      { pares }
+    )
     return response.data
   }
 }

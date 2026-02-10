@@ -1,5 +1,5 @@
 import { ReactNode, useMemo } from 'react'
-import { Edit, Trash2, Plus } from 'lucide-react'
+import { Edit, Trash2, Plus, Grid3X3 } from 'lucide-react'
 import { Muestra, Tecnica, TecnicaAgrupada } from '../../interfaces/muestras.types'
 import { useNavigate } from 'react-router-dom'
 import { useTecnicasAgrupadasByMuestra } from '../../hooks/useMuestras'
@@ -15,6 +15,8 @@ interface MuestraListDetailProps {
   onEdit: (muestra: Muestra) => void
   onDelete: (muestra: Muestra) => void
   fieldSpans: number[]
+  /** Modo hijo dentro de un grupo: muestra sólo códigos + estado + placa icon + acciones */
+  isChild?: boolean
 }
 
 // Configuración de columnas para las técnicas SIN resultados
@@ -56,7 +58,8 @@ export const MuestraListDetail = ({
   muestra,
   onEdit,
   onDelete,
-  fieldSpans
+  fieldSpans,
+  isChild = false
 }: MuestraListDetailProps) => {
   const navigate = useNavigate()
   const { tecnicas, isLoading } = useTecnicasAgrupadasByMuestra(muestra.id_muestra)
@@ -64,12 +67,53 @@ export const MuestraListDetail = ({
   // Determinar si son técnicas agrupadas o normales
   const isTecnicasAgrupadas = tecnicas.length > 0 && 'proceso_nombre' in tecnicas[0]
 
-  // 9 campos — orden idéntico al COLUMN_CONFIG de MuestrasPage:
-  // CódEXT(1) CódEPI(1) Cliente(1) Paciente(1) TipoMuestra(1) Prueba(2) Estudio(1) Recepción(1) Estado(2) Actions(1)
-  const renderFields = (): ReactNode[] => [
-    // [0] Código EXTERNO — span 1
+  // Icono de placa — visible en modo standalone y en modo hijo si tipo_array === true
+  const placaIcon = muestra.tipo_array === true ? (
+    <span
+      key={`placa-${muestra.id_muestra}`}
+      title="Muestra de tipo placa"
+      className="inline-flex items-center text-accent-600"
+    >
+      <Grid3X3 className="w-3.5 h-3.5" />
+    </span>
+  ) : (
+    <span key={`placa-${muestra.id_muestra}`} />
+  )
+
+  // Modo hijo (dentro de un grupo): layout compacto
+  // Spans: indent(2) cód_ext(2) cód_epi(2) placa(1) estado(4) actions(2) = 12 (gestionado por fieldSpans)
+  const renderChildFields = (): ReactNode[] => [
+    // [0] indent decorativo
+    <span key={`indent-${muestra.id_muestra}`} />,
+    // [1-2] Código EXT (2 spans)
     <span key={`ext-${muestra.id_muestra}`} className="block font-mono text-xs font-semibold text-primary-600 truncate" title={muestra.codigo_externo || ''}>
       {muestra.codigo_externo || '—'}
+    </span>,
+    // [3-4] Código EPI (2 spans)
+    <span key={`epi-${muestra.id_muestra}`} className="block font-mono text-xs font-semibold text-primary-700 truncate" title={muestra.codigo_epi || ''}>
+      {muestra.codigo_epi || '—'}
+    </span>,
+    // [5] Icono placa (1 span)
+    placaIcon,
+    // [6-9] Estado (4 spans)
+    <div key={`estado-${muestra.id_muestra}`} className="min-w-0">
+      {muestra.estadoInfo ? (
+        <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={true} />
+      ) : (
+        <span className="text-surface-300 text-xs">—</span>
+      )}
+    </div>
+  ]
+
+  // Modo standalone: 9 campos — orden idéntico al COLUMN_CONFIG de MuestrasPage:
+  // CódEXT(1) CódEPI(1) Cliente(1) Paciente(1) TipoMuestra(1) Prueba(2) Estudio(1) Recepción(1) Estado(2) Actions(1)
+  const renderStandaloneFields = (): ReactNode[] => [
+    // [0] Código EXTERNO — span 1 + icono placa si aplica
+    <span key={`ext-${muestra.id_muestra}`} className="flex items-center gap-1 font-mono text-xs font-semibold text-primary-600 truncate min-w-0" title={muestra.codigo_externo || ''}>
+      {muestra.codigo_externo || '—'}
+      {muestra.tipo_array === true ? (
+        <span title="Muestra de tipo placa"><Grid3X3 className="w-3 h-3 shrink-0 text-accent-600" /></span>
+      ) : null}
     </span>,
     // [1] Código EPI — span 1
     <span key={`epi-${muestra.id_muestra}`} className="block font-mono text-xs font-semibold text-primary-700 truncate" title={muestra.codigo_epi || ''}>
@@ -108,6 +152,8 @@ export const MuestraListDetail = ({
       )}
     </div>
   ]
+
+  const renderFields = isChild ? renderChildFields : renderStandaloneFields
 
   // Handler para duplicar muestra
   const handleDuplicate = () => {
