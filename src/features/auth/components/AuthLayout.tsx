@@ -36,14 +36,14 @@ export const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
         <div className="relative z-10">
           <div className="flex items-center gap-3">
             {/* <img src={iconUrl} alt="LIMS" className="h-10 w-10" /> */}
-            <span className="text-2xl font-bold text-white tracking-tight">LIMS</span>
+            {/* <span className="text-2xl font-bold text-white tracking-tight">LIMS</span> */}
           </div>
         </div>
 
         {/* Mensaje central */}
         <div className="relative z-10 max-w-md">
           <h2 className="text-3xl font-bold text-white leading-tight mb-4">
-            Sistema de Gestión de Laboratorio
+            Sistema de Gestión de Laboratorio Epigenético
           </h2>
           <p className="text-primary-300 text-lg leading-relaxed">
             Gestiona muestras, flujos de trabajo y resultados con trazabilidad completa.
@@ -70,7 +70,7 @@ export const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
 
         {/* Footer */}
         <div className="relative z-10">
-          <p className="text-primary-500 text-xs">Epidisease</p>
+          <p className="text-white text-xl">Epidisease</p>
         </div>
       </div>
 
