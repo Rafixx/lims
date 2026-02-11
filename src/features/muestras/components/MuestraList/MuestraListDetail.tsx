@@ -1,21 +1,22 @@
-import { ReactNode, useMemo } from 'react'
-import { Edit, Trash2, Plus, Grid3X3 } from 'lucide-react'
+import { ReactNode, useMemo, useState } from 'react'
+import { Edit, Trash2, Plus, Grid3X3, Upload, TestTube2 } from 'lucide-react'
 import { Muestra, Tecnica, TecnicaAgrupada } from '../../interfaces/muestras.types'
 import { useNavigate } from 'react-router-dom'
-import { useTecnicasAgrupadasByMuestra } from '../../hooks/useMuestras'
+import { useTecnicasAgrupadasByMuestra, useMuestraArray } from '../../hooks/useMuestras'
 import { TecnicaListHeader } from './TecnicaListHeader'
 import { TecnicaListDetail } from './TecnicaListDetail'
 import { TecnicaAgrupadaListDetail } from './TecnicaAgrupadaListDetail'
 import { ListDetail, ListDetailAction } from '@/shared/components/organisms/ListDetail'
 import { EstadoBadge } from '@/shared/components/atoms/EstadoBadge'
 import { formatDateTime } from '@/shared/utils/helpers'
+import { ImportArrayCodExternoModal } from './ImportArrayCodExternoModal'
 
 interface MuestraListDetailProps {
   muestra: Muestra
   onEdit: (muestra: Muestra) => void
   onDelete: (muestra: Muestra) => void
   fieldSpans: number[]
-  /** Modo hijo dentro de un grupo: muestra sólo códigos + estado + placa icon + acciones */
+  /** Modo hijo dentro de un grupo: layout compacto (cod_ext + cod_epi + estado + acciones) */
   isChild?: boolean
 }
 
@@ -40,19 +41,9 @@ const TECNICA_COLUMNS_WITH_RESULTS = [
   { label: 'Acciones', span: 1 }
 ]
 
-// const getEstadoBadgeColor = (estado: string): string => {
-//   const estadoColors: Record<string, string> = {
-//     PENDIENTE: 'bg-yellow-100 text-yellow-800',
-//     'EN PROCESO': 'bg-blue-100 text-blue-800',
-//     COMPLETADO: 'bg-green-100 text-green-800',
-//     CANCELADO: 'bg-red-100 text-red-800'
-//   }
-//   return estadoColors[estado] || 'bg-gray-100 text-gray-800'
-// }
-
 /**
- * Componente específico para renderizar el detalle de una Muestra
- * Wrapper sobre el componente genérico ListDetail
+ * Componente específico para renderizar el detalle de una Muestra.
+ * Wrapper sobre el componente genérico ListDetail.
  */
 export const MuestraListDetail = ({
   muestra,
@@ -62,40 +53,61 @@ export const MuestraListDetail = ({
   isChild = false
 }: MuestraListDetailProps) => {
   const navigate = useNavigate()
+  const [importArrayModalOpen, setImportArrayModalOpen] = useState(false)
   const { tecnicas, isLoading } = useTecnicasAgrupadasByMuestra(muestra.id_muestra)
+
+  // Para muestras tipo placa: obtener posiciones para saber si ya tienen todos los códigos
+  const { arrayPositions } = useMuestraArray(muestra.tipo_array === true ? muestra.id_muestra : undefined)
+  const allArrayPositionsHaveCodes =
+    arrayPositions.length > 0 && arrayPositions.every(p => !!p.codigo_externo)
 
   // Determinar si son técnicas agrupadas o normales
   const isTecnicasAgrupadas = tecnicas.length > 0 && 'proceso_nombre' in tecnicas[0]
 
-  // Icono de placa — visible en modo standalone y en modo hijo si tipo_array === true
-  const placaIcon = muestra.tipo_array === true ? (
-    <span
-      key={`placa-${muestra.id_muestra}`}
-      title="Muestra de tipo placa"
-      className="inline-flex items-center text-accent-600"
-    >
-      <Grid3X3 className="w-3.5 h-3.5" />
-    </span>
-  ) : (
-    <span key={`placa-${muestra.id_muestra}`} />
-  )
+  // Icono de tipo: Grid3X3 para PLACA, TestTube2 para TUBO
+  const typeIcon =
+    muestra.tipo_array === true ? (
+      <Grid3X3 className="w-3 h-3 shrink-0 text-accent-600" />
+    ) : (
+      <TestTube2 className="w-3 h-3 shrink-0 text-primary-400" />
+    )
 
-  // Modo hijo (dentro de un grupo): layout compacto
-  // Spans: indent(2) cód_ext(2) cód_epi(2) placa(1) estado(4) actions(2) = 12 (gestionado por fieldSpans)
+  // Modo hijo (dentro de un grupo): mismas columnas que el padre, pero sólo
+  // cod_ext + cod_epi + estado en los campos; el resto vacío.
+  // fieldSpans = parentFieldSpans = [1,1,1,1,1,2,1,1,1,2]
+  // renderChildFields → 9 elementos (el span de acciones es el último del array)
   const renderChildFields = (): ReactNode[] => [
-    // [0] indent decorativo
-    <span key={`indent-${muestra.id_muestra}`} />,
-    // [1-2] Código EXT (2 spans)
-    <span key={`ext-${muestra.id_muestra}`} className="block font-mono text-xs font-semibold text-primary-600 truncate" title={muestra.codigo_externo || ''}>
-      {muestra.codigo_externo || '—'}
-    </span>,
-    // [3-4] Código EPI (2 spans)
-    <span key={`epi-${muestra.id_muestra}`} className="block font-mono text-xs font-semibold text-primary-700 truncate" title={muestra.codigo_epi || ''}>
+    // [0] Cód EXT (span 1) — icono de tipo + código
+    <div key={`ext-${muestra.id_muestra}`} className="flex items-center gap-1 min-w-0">
+      {typeIcon}
+      <span
+        className="block font-mono text-xs font-semibold text-primary-600 truncate"
+        title={muestra.codigo_externo || ''}
+      >
+        {muestra.codigo_externo || '—'}
+      </span>
+    </div>,
+    // [1] Cód EPI (span 1)
+    <span
+      key={`epi-${muestra.id_muestra}`}
+      className="block font-mono text-xs font-semibold text-primary-700 truncate"
+      title={muestra.codigo_epi || ''}
+    >
       {muestra.codigo_epi || '—'}
     </span>,
-    // [5] Icono placa (1 span)
-    placaIcon,
-    // [6-9] Estado (4 spans)
+    // [2] Cliente (span 1) — vacío
+    <span key={`c2-${muestra.id_muestra}`} />,
+    // [3] Paciente (span 1) — vacío
+    <span key={`c3-${muestra.id_muestra}`} />,
+    // [4] TipoMuestra (span 1) — vacío
+    <span key={`c4-${muestra.id_muestra}`} />,
+    // [5] Prueba (span 2) — vacío
+    <span key={`c5-${muestra.id_muestra}`} />,
+    // [6] Estudio (span 1) — vacío
+    <span key={`c6-${muestra.id_muestra}`} />,
+    // [7] Recepción (span 1) — vacío
+    <span key={`c7-${muestra.id_muestra}`} />,
+    // [8] Estado (span 1)
     <div key={`estado-${muestra.id_muestra}`} className="min-w-0">
       {muestra.estadoInfo ? (
         <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={true} />
@@ -106,44 +118,74 @@ export const MuestraListDetail = ({
   ]
 
   // Modo standalone: 9 campos — orden idéntico al COLUMN_CONFIG de MuestrasPage:
-  // CódEXT(1) CódEPI(1) Cliente(1) Paciente(1) TipoMuestra(1) Prueba(2) Estudio(1) Recepción(1) Estado(2) Actions(1)
+  // CódEXT(1) CódEPI(1) Cliente(1) Paciente(1) TipoMuestra(1) Prueba(2) Estudio(1) Recepción(1) Estado(1) Actions(2)
   const renderStandaloneFields = (): ReactNode[] => [
-    // [0] Código EXTERNO — span 1 + icono placa si aplica
-    <span key={`ext-${muestra.id_muestra}`} className="flex items-center gap-1 font-mono text-xs font-semibold text-primary-600 truncate min-w-0" title={muestra.codigo_externo || ''}>
-      {muestra.codigo_externo || '—'}
-      {muestra.tipo_array === true ? (
-        <span title="Muestra de tipo placa"><Grid3X3 className="w-3 h-3 shrink-0 text-accent-600" /></span>
-      ) : null}
-    </span>,
-    // [1] Código EPI — span 1
-    <span key={`epi-${muestra.id_muestra}`} className="block font-mono text-xs font-semibold text-primary-700 truncate" title={muestra.codigo_epi || ''}>
+    // [0] Código EXTERNO (span 1) — icono de tipo + código
+    <div key={`ext-${muestra.id_muestra}`} className="flex items-center gap-1 min-w-0">
+      {typeIcon}
+      <span
+        className="font-mono text-xs font-semibold text-primary-600 truncate"
+        title={muestra.codigo_externo || ''}
+      >
+        {muestra.codigo_externo || '—'}
+      </span>
+    </div>,
+    // [1] Código EPI (span 1)
+    <span
+      key={`epi-${muestra.id_muestra}`}
+      className="block font-mono text-xs font-semibold text-primary-700 truncate"
+      title={muestra.codigo_epi || ''}
+    >
       {muestra.codigo_epi || '—'}
     </span>,
-    // [2] Cliente — span 1
-    <span key={`cliente-${muestra.solicitud?.cliente?.id}`} className="block text-xs text-surface-700 truncate" title={muestra.solicitud?.cliente?.nombre || ''}>
+    // [2] Cliente (span 1)
+    <span
+      key={`cliente-${muestra.solicitud?.cliente?.id}`}
+      className="block text-xs text-surface-700 truncate"
+      title={muestra.solicitud?.cliente?.nombre || ''}
+    >
       {muestra.solicitud?.cliente?.nombre || '—'}
     </span>,
-    // [3] Paciente — span 1
-    <span key={`paciente-${muestra.paciente?.id}`} className="block text-xs text-surface-800 font-medium truncate" title={muestra.paciente?.nombre || ''}>
+    // [3] Paciente (span 1)
+    <span
+      key={`paciente-${muestra.paciente?.id}`}
+      className="block text-xs text-surface-800 font-medium truncate"
+      title={muestra.paciente?.nombre || ''}
+    >
       {muestra.paciente?.nombre || '—'}
     </span>,
-    // [4] Tipo de muestra — span 1
-    <span key={`tipo-${muestra.tipo_muestra?.id}`} className="block text-xs text-surface-600 truncate" title={muestra.tipo_muestra?.tipo_muestra || ''}>
+    // [4] Tipo de muestra (span 1)
+    <span
+      key={`tipo-${muestra.tipo_muestra?.id}`}
+      className="block text-xs text-surface-600 truncate"
+      title={muestra.tipo_muestra?.tipo_muestra || ''}
+    >
       {muestra.tipo_muestra?.tipo_muestra || '—'}
     </span>,
-    // [5] Prueba — span 2
-    <span key={`prueba-${muestra.prueba?.id}`} className="block text-xs text-surface-700 truncate" title={muestra.prueba?.prueba || ''}>
+    // [5] Prueba (span 2)
+    <span
+      key={`prueba-${muestra.prueba?.id}`}
+      className="block text-xs text-surface-700 truncate"
+      title={muestra.prueba?.prueba || ''}
+    >
       {muestra.prueba?.prueba || '—'}
     </span>,
-    // [6] Estudio — span 1
-    <span key={`estudio-${muestra.id_muestra}`} className="block text-xs text-surface-600 truncate" title={muestra.estudio || ''}>
+    // [6] Estudio (span 1)
+    <span
+      key={`estudio-${muestra.id_muestra}`}
+      className="block text-xs text-surface-600 truncate"
+      title={muestra.estudio || ''}
+    >
       {muestra.estudio || '—'}
     </span>,
-    // [7] Fecha Recepción — span 1
-    <span key={`fecha-${muestra.id_muestra}`} className="block text-xs text-surface-500 font-mono whitespace-nowrap">
+    // [7] Fecha Recepción (span 1)
+    <span
+      key={`fecha-${muestra.id_muestra}`}
+      className="block text-xs text-surface-500 font-mono whitespace-nowrap"
+    >
       {formatDateTime(muestra.f_recepcion)}
     </span>,
-    // [8] Estado — span 2, badge con color del estado
+    // [8] Estado (span 1)
     <div key={`estado-${muestra.id_muestra}`} className="min-w-0">
       {muestra.estadoInfo ? (
         <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={true} />
@@ -160,8 +202,23 @@ export const MuestraListDetail = ({
     navigate(`/muestras/nueva?duplicar=${muestra.id_muestra}`)
   }
 
-  // Definir las acciones
+  // Acciones: Upload (sólo tipo_array), Duplicar, Editar, Eliminar
   const actions: ListDetailAction[] = [
+    ...(muestra.tipo_array === true
+      ? [
+          {
+            icon: <Upload className="w-4 h-4" />,
+            onClick: () => setImportArrayModalOpen(true),
+            title: allArrayPositionsHaveCodes
+              ? 'Todas las posiciones ya tienen código externo'
+              : 'Importar códigos externos de placa desde CSV',
+            disabled: allArrayPositionsHaveCodes,
+            className: allArrayPositionsHaveCodes
+              ? 'p-1 text-surface-300 cursor-not-allowed rounded transition-colors'
+              : 'p-1 text-accent-600 hover:bg-accent-50 rounded transition-colors'
+          }
+        ]
+      : []),
     {
       icon: <Plus className="w-4 h-4" />,
       onClick: handleDuplicate,
@@ -216,8 +273,8 @@ export const MuestraListDetail = ({
       ? TECNICA_COLUMNS_WITH_RESULTS
       : TECNICA_COLUMNS_WITHOUT_RESULTS
 
-  // Contenido expandido con las técnicas
-  const expandedContent = (
+  // Contenido expandido con las técnicas (sólo en modo standalone)
+  const expandedContent = isChild ? undefined : (
     <div className="space-y-2">
       {isLoading ? (
         <p className="text-sm text-surface-600">Cargando técnicas...</p>
@@ -250,13 +307,28 @@ export const MuestraListDetail = ({
     </div>
   )
 
+  // rowClassName para filas hijas: fondo ligeramente diferenciado
+  const childRowClassName =
+    'grid grid-cols-12 gap-2 px-3 py-2 border-b border-surface-100 hover:bg-surface-50/60 transition-colors items-center text-sm'
+
   return (
-    <ListDetail
-      item={muestra}
-      fieldSpans={fieldSpans}
-      renderFields={renderFields}
-      actions={actions}
-      expandedContent={expandedContent}
-    />
+    <>
+      <ListDetail
+        item={muestra}
+        fieldSpans={fieldSpans}
+        renderFields={renderFields}
+        actions={actions}
+        expandedContent={expandedContent}
+        rowClassName={isChild ? childRowClassName : ''}
+      />
+      {muestra.tipo_array === true && (
+        <ImportArrayCodExternoModal
+          isOpen={importArrayModalOpen}
+          onClose={() => setImportArrayModalOpen(false)}
+          muestraId={muestra.id_muestra}
+          codigoEpi={muestra.codigo_epi}
+        />
+      )}
+    </>
   )
 }

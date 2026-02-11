@@ -164,6 +164,19 @@ export type ImportCodExternoResult = {
   mensaje: string
 }
 
+/** Par posicion_placa → cod_externo para importación en muestras tipo array */
+export type ArrayCodExternoPar = {
+  posicion_placa: string
+  cod_externo: string
+  codigo_epi?: string
+}
+
+/** Respuesta del endpoint POST /muestras/:id/array/cod-externo */
+export type ImportArrayCodExternoResult = {
+  updated: number
+  mensaje: string
+}
+
 /** Fila agrupadora (padre) — muestras con el mismo estudio */
 export type MuestraGroup = {
   isGrouped: true

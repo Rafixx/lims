@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query'
 import muestrasService from '../services/muestras.services'
-import { CodExternoPar, CodigoEpiResponse, CreateMuestraResult, ImportCodExternoResult, Muestra, MuestraStats, Tecnica, TecnicaAgrupada } from '../interfaces/muestras.types'
+import { ArrayCodExternoPar, CodExternoPar, CodigoEpiResponse, CreateMuestraResult, ImportArrayCodExternoResult, ImportCodExternoResult, Muestra, MuestraArray, MuestraStats, Tecnica, TecnicaAgrupada } from '../interfaces/muestras.types'
 import { STALE_TIME } from '@/shared/constants/constants'
 import tecnicaService from '../services/tecnica.service'
 
@@ -124,6 +124,40 @@ export const useImportCodExterno = () => {
   return useMutation<ImportCodExternoResult, Error, { estudio: string; pares: CodExternoPar[] }>({
     mutationFn: ({ estudio, pares }) => muestrasService.importCodExterno(estudio, pares),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['muestras'] })
+    }
+  })
+}
+
+// Hook para obtener las posiciones de array de una muestra tipo placa
+export const useMuestraArray = (id?: number) => {
+  const { data, isLoading, error, refetch }: UseQueryResult<MuestraArray[], Error> = useQuery({
+    queryKey: ['muestra', id, 'array'],
+    queryFn: async () => muestrasService.getMuestraArray(id!),
+    staleTime: STALE_TIME,
+    enabled: !!id && id > 0
+  })
+
+  return {
+    arrayPositions: data || [],
+    isLoading,
+    error,
+    refetch
+  }
+}
+
+// Hook para importar códigos externos a las posiciones de una muestra tipo array
+export const useImportArrayCodExterno = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<
+    ImportArrayCodExternoResult,
+    Error,
+    { muestraId: number; pares: ArrayCodExternoPar[] }
+  >({
+    mutationFn: ({ muestraId, pares }) => muestrasService.importArrayCodExterno(muestraId, pares),
+    onSuccess: (_, { muestraId }) => {
+      queryClient.invalidateQueries({ queryKey: ['muestra', muestraId, 'array'] })
       queryClient.invalidateQueries({ queryKey: ['muestras'] })
     }
   })

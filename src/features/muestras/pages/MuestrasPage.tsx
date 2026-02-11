@@ -23,8 +23,8 @@ import { groupMuestrasByEstudio } from '../utils/groupMuestras'
 import { MuestraGroup } from '../interfaces/muestras.types'
 
 // Configuración de columnas — spans deben sumar exactamente 12 (grid-cols-12)
-// 1+1+1+1+1+2+1+1+2+1 = 12 ✓
-// Estado necesita span 2 para que el badge sea legible
+// 1+1+1+1+1+2+1+1+1+2 = 12 ✓
+// Acciones con span 2 para acomodar todos los botones (Upload, Duplicar, Editar, Eliminar)
 const COLUMN_CONFIG = [
   { label: 'Cód EXT', span: 1, sortKey: 'codigo_externo' },
   { label: 'Cód EPI', span: 1, sortKey: 'codigo_epi' },
@@ -34,8 +34,8 @@ const COLUMN_CONFIG = [
   { label: 'Prueba', span: 2, sortKey: 'prueba' },
   { label: 'Estudio', span: 1, sortKey: 'estudio' },
   { label: 'Recepción', span: 1, sortKey: 'f_recepcion' },
-  { label: 'Estado', span: 2, sortKey: 'estado' },
-  { label: '', span: 1 }
+  { label: 'Estado', span: 1, sortKey: 'estado' },
+  { label: '', span: 2 }
 ]
 
 // src/features/muestras/pages/MuestrasPage.tsx
@@ -136,10 +136,7 @@ export const MuestrasPage = () => {
   }, [muestrasFiltradas, sortKey, sortDirection])
 
   // Agrupar muestras ordenadas por estudio (memoizado para evitar recálculo innecesario)
-  const groupedItems = useMemo(
-    () => groupMuestrasByEstudio(sortedMuestras),
-    [sortedMuestras]
-  )
+  const groupedItems = useMemo(() => groupMuestrasByEstudio(sortedMuestras), [sortedMuestras])
 
   const handleExportCSV = () => {
     const headers = [

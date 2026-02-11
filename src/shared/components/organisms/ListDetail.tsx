@@ -7,6 +7,7 @@ export interface ListDetailAction {
   onClick: () => void
   title: string
   className?: string
+  disabled?: boolean
 }
 
 export interface ListDetailProps<T> {
@@ -70,6 +71,7 @@ export function ListDetail<T>({
                 <button
                   key={index}
                   onClick={action.onClick}
+                  disabled={action.disabled}
                   className={
                     action.className ||
                     'p-1 text-surface-500 hover:bg-surface-100 rounded transition-colors'
