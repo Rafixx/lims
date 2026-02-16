@@ -1,6 +1,5 @@
 // src/features/plantillaTecnica/components/TemplateRenderer/CalcNodeRenderer.tsx
 
-import { Label } from '@/shared/components/atoms/Label'
 import { Calculator } from 'lucide-react'
 import { CalcNode } from '../../interfaces/template.types'
 
@@ -10,20 +9,41 @@ interface Props {
 }
 
 export const CalcNodeRenderer = ({ node, value }: Props) => {
-  const displayValue =
-    value !== undefined ? (typeof value === 'number' ? value.toFixed(1) : value) : '—'
+  const hasValue = value !== undefined
+
+  const displayValue = hasValue
+    ? typeof value === 'number'
+      ? Number.isInteger(value)
+        ? value.toString()
+        : value.toFixed(2)
+      : String(value)
+    : null
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor={node.key} className="flex items-center gap-2">
-        <Calculator className="w-4 h-4 text-purple-600" />
-        {node.label}
-      </Label>
-      <div className="flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-200 rounded-md">
-        <span className="flex-1 text-purple-900 font-mono font-semibold">{displayValue}</span>
-        {node.unit && <span className="text-sm text-purple-600 font-medium">{node.unit}</span>}
+    <div className="flex items-center justify-between gap-3 px-3 py-1.5 rounded-md bg-primary-50 border border-primary-100">
+      {/* Etiqueta */}
+      <div className="flex items-center gap-1.5 min-w-0">
+        <Calculator className="w-3 h-3 text-primary-300 flex-shrink-0" />
+        <span className="text-xs text-surface-500 truncate leading-tight">{node.label}</span>
       </div>
-      <p className="text-xs text-gray-500 italic">Calculado: {node.expr.value}</p>
+
+      {/* Valor calculado */}
+      <div className="flex items-baseline gap-1 flex-shrink-0">
+        {hasValue ? (
+          <>
+            <span className="text-base font-bold font-mono tabular-nums text-primary-800 leading-none">
+              {displayValue}
+            </span>
+            {node.unit && (
+              <span className="text-xs font-semibold text-primary-400 uppercase tracking-wide">
+                {node.unit}
+              </span>
+            )}
+          </>
+        ) : (
+          <span className="text-xs text-surface-300 font-mono">—</span>
+        )}
+      </div>
     </div>
   )
 }

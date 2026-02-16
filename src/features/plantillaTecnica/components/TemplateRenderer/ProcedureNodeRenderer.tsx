@@ -1,6 +1,5 @@
 // src/features/plantillaTecnica/components/TemplateRenderer/ProcedureNodeRenderer.tsx
 
-import { Card } from '@/shared/components/molecules/Card'
 import { ClipboardList } from 'lucide-react'
 import { ProcedureNode } from '../../interfaces/template.types'
 
@@ -10,27 +9,29 @@ interface Props {
 
 export const ProcedureNodeRenderer = ({ node }: Props) => {
   return (
-    <Card className="p-6 bg-blue-50 border-blue-200">
-      <div className="flex items-start gap-3 mb-4">
-        <div className="p-2 bg-blue-100 rounded-lg">
-          <ClipboardList className="w-5 h-5 text-blue-600" />
-        </div>
-        <h3 className="text-lg font-semibold text-blue-900">{node.label}</h3>
+    <div className="rounded-lg border border-info-200 bg-info-50 overflow-hidden shadow-soft">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-4 py-2 bg-info-100 border-b border-info-200">
+        <ClipboardList className="w-3.5 h-3.5 text-info-600 flex-shrink-0" />
+        <h3 className="text-xs font-semibold text-info-800 uppercase tracking-wider">{node.label}</h3>
       </div>
 
-      <div className="space-y-3">
+      {/* Pasos del procedimiento */}
+      <div className="px-4 py-3 space-y-2">
         {node.steps.map((step, index) => (
-          <div key={index} className="flex gap-3">
-            <div className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+          <div key={index} className="flex gap-2.5 items-start">
+            <span className="flex-shrink-0 w-4 h-4 rounded-full bg-info-500 text-white text-xs font-bold flex items-center justify-center mt-0.5">
               {index + 1}
-            </div>
-            <div className="flex-1">
-              <div className="font-medium text-blue-900">{step.label}</div>
-              <div className="text-sm text-blue-700 mt-1">{step.text}</div>
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-info-900">{step.label}</p>
+              {step.text && step.text !== step.label && (
+                <p className="text-xs text-info-700 mt-0.5 leading-relaxed">{step.text}</p>
+              )}
             </div>
           </div>
         ))}
       </div>
-    </Card>
+    </div>
   )
 }

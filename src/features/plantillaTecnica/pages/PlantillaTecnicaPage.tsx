@@ -148,22 +148,30 @@ export const PlantillaTecnicaPage = () => {
       {/* Contenido Principal */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="space-y-8">
-          {/* Sección: Plantilla Dinámica (si existe) */}
-          {hasValidTemplate && (
-            <section>
-              <DynamicTemplateRenderer
-                template={template}
-                initialValues={savedValues}
-                onSave={handleSaveTemplateValues}
-                isSaving={saveValuesMutation.isPending}
-              />
-            </section>
-          )}
-
           {/* Sección: Técnicas del Worklist */}
           <section>
             <TecnicasList tecnicas={worklist.tecnicas} />
           </section>
+
+          {/* Grid principal: Cálculos (2/3) + Checklist (1/3) */}
+          <div className="grid grid-cols-3 gap-6 items-start">
+            {/* Cálculos dinámicos */}
+            <section className="col-span-2">
+              {hasValidTemplate && (
+                <DynamicTemplateRenderer
+                  template={template}
+                  initialValues={savedValues}
+                  onSave={handleSaveTemplateValues}
+                  isSaving={saveValuesMutation.isPending}
+                />
+              )}
+            </section>
+
+            {/* Checklist: Pasos del Protocolo */}
+            <section className="col-span-1 sticky top-6">
+              <PasosList pasos={plantillaTecnica.plantillaTecnica.dimPlantillaPasos || []} />
+            </section>
+          </div>
 
           {/* Grid de 2 columnas para Pipetas y Reactivos */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -177,11 +185,6 @@ export const PlantillaTecnicaPage = () => {
               <ReactivosList reactivos={plantillaTecnica.plantillaTecnica.dimReactivos} />
             </section>
           </div>
-
-          {/* Sección: Pasos del Protocolo */}
-          <section>
-            <PasosList pasos={plantillaTecnica.plantillaTecnica.dimPlantillaPasos || []} />
-          </section>
         </div>
       </div>
     </div>

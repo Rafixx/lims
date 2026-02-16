@@ -1,9 +1,8 @@
 // src/features/plantillaTecnica/components/TemplateRenderer/DynamicTemplateRenderer.tsx
 
 import { useState, useEffect, useMemo } from 'react'
-import { Card } from '@/shared/components/molecules/Card'
+import { Save, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/shared/components/molecules/Button'
-import { Save } from 'lucide-react'
 import { Template, TemplateValues, TemplateNode, CalcNode } from '../../interfaces/template.types'
 import { validateValues, mergeValues } from '../../utils/templateValidator'
 import { evaluateExpression } from '../../utils/expressionEvaluator'
@@ -29,65 +28,68 @@ export const DynamicTemplateRenderer = ({
   onSave,
   isSaving = false
 }: Props) => {
-  // Estado de valores (solo inputs)
   const [values, setValues] = useState<TemplateValues>(() => mergeValues(template, initialValues))
 
-  // Sincronizar cuando cambian los initialValues (al recargar worklist)
   useEffect(() => {
     setValues(mergeValues(template, initialValues))
   }, [template, initialValues])
 
-  // Validación en tiempo real
   const validation = useMemo(() => validateValues(template, values), [template, values])
 
-  // Calcular todos los nodos calc en tiempo real
   const calculatedValues = useMemo(() => {
     return calculateAllCalcs(template.nodes, values)
   }, [template.nodes, values])
 
-  // Handler para cambiar valores
   const handleChange = (key: string, value: number | string | boolean | undefined) => {
     setValues(prev => ({ ...prev, [key]: value }))
   }
 
-  // Handler para guardar
   const handleSave = async () => {
-    if (!validation.isValid) {
-      return
-    }
-
-    // Filtrar solo inputs (no guardar calcs ni otros)
+    if (!validation.isValid) return
     const inputValues = filterInputValues(template.nodes, values)
     await onSave(inputValues)
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      {/* <Card className="p-6 bg-gradient-to-r from-primary-50 to-accent-50 border-primary-200">
-        <h2 className="text-2xl font-bold text-primary-900">{template.title}</h2>
-        <p className="text-sm text-primary-600 mt-1">
-          Versión: {template.schemaVersion} | Alcance: {template.scope}
-        </p>
-      </Card> */}
+  const errorCount = Object.keys(validation.errors).length
 
-      {/* Nodos de la plantilla */}
-      {/* <div className="space-y-6"> */}
-      <div className="grid grid-cols-2 gap-6">
-        {template.nodes.map(node => (
-          <TemplateNodeRenderer
-            key={node.key}
-            node={node}
-            values={values}
-            calculatedValues={calculatedValues}
-            validation={validation}
-            onChange={handleChange}
-          />
-        ))}
+  return (
+    <div className="space-y-3">
+      {/* Nodos de la plantilla — groups y procedures ocupan ancho completo */}
+      <div className="grid grid-cols-2 gap-3">
+        {template.nodes.map(node => {
+          const isFullWidth = node.type === 'group' || node.type === 'procedure'
+          return (
+            <div key={node.key} className={isFullWidth ? 'col-span-2' : 'col-span-1'}>
+              <TemplateNodeRenderer
+                node={node}
+                values={values}
+                calculatedValues={calculatedValues}
+                validation={validation}
+                onChange={handleChange}
+              />
+            </div>
+          )
+        })}
       </div>
 
-      {/* Botón guardar */}
-      <div className="flex justify-end gap-4 pt-6 border-t">
+      {/* Footer: estado de validación + guardar */}
+      <div className="flex items-center justify-between pt-3 border-t border-surface-200">
+        <div className="flex items-center gap-2 text-sm">
+          {validation.isValid ? (
+            <>
+              <CheckCircle2 className="w-4 h-4 text-success-600" />
+              <span className="text-success-700">Todos los campos completados</span>
+            </>
+          ) : (
+            <>
+              <AlertCircle className="w-4 h-4 text-warning-500" />
+              <span className="text-surface-500">
+                {errorCount} {errorCount === 1 ? 'campo requerido' : 'campos requeridos'} sin completar
+              </span>
+            </>
+          )}
+        </div>
+
         <Button
           variant="primary"
           onClick={handleSave}
@@ -95,21 +97,9 @@ export const DynamicTemplateRenderer = ({
           className="flex items-center gap-2"
         >
           <Save className="w-4 h-4" />
-          {isSaving ? 'Guardando...' : 'Guardar Plantilla'}
+          {isSaving ? 'Guardando...' : 'Guardar'}
         </Button>
       </div>
-
-      {/* Errores de validación */}
-      {!validation.isValid && (
-        <Card className="p-4 bg-red-50 border-red-200">
-          <h3 className="text-sm font-semibold text-red-900 mb-2">Hay campos con errores:</h3>
-          <ul className="text-sm text-red-700 space-y-1">
-            {Object.entries(validation.errors).map(([key, error]) => (
-              <li key={key}>• {error}</li>
-            ))}
-          </ul>
-        </Card>
-      )}
     </div>
   )
 }
@@ -123,11 +113,9 @@ export const DynamicTemplateRenderer = ({
 function calculateAllCalcs(nodes: TemplateNode[], values: TemplateValues): TemplateValues {
   const calculated: TemplateValues = {}
 
-  // Recopilar todos los calcs
   const calcNodes: CalcNode[] = []
   collectCalcNodes(nodes, calcNodes)
 
-  // Resolver dependencias mediante múltiples pasadas (máximo 3)
   const MAX_PASSES = 3
   let pass = 0
   let hasChanges = true
@@ -136,19 +124,15 @@ function calculateAllCalcs(nodes: TemplateNode[], values: TemplateValues): Templ
     hasChanges = false
     pass++
 
-    // Valores disponibles = inputs + calcs ya calculados
     const allValues = { ...values, ...calculated }
 
     for (const calcNode of calcNodes) {
-      // Si ya tiene un valor válido, skip (ya resuelto)
       if (calculated[calcNode.key] !== undefined) {
         continue
       }
 
-      // Intentar calcular
       const result = evaluateExpression(calcNode.expr.value, allValues)
 
-      // Si se obtuvo un resultado válido, guardarlo
       if (result !== undefined) {
         calculated[calcNode.key] = result
         hasChanges = true
@@ -159,9 +143,6 @@ function calculateAllCalcs(nodes: TemplateNode[], values: TemplateValues): Templ
   return calculated
 }
 
-/**
- * Recopila recursivamente todos los nodos calc
- */
 function collectCalcNodes(nodes: TemplateNode[], acc: CalcNode[]): void {
   for (const node of nodes) {
     if (node.type === 'calc') {
@@ -172,9 +153,6 @@ function collectCalcNodes(nodes: TemplateNode[], acc: CalcNode[]): void {
   }
 }
 
-/**
- * Filtra solo valores de inputs (excluye calcs)
- */
 function filterInputValues(nodes: TemplateNode[], values: TemplateValues): TemplateValues {
   const inputKeys = new Set<string>()
   collectInputKeys(nodes, inputKeys)
@@ -189,9 +167,6 @@ function filterInputValues(nodes: TemplateNode[], values: TemplateValues): Templ
   return filtered
 }
 
-/**
- * Recopila recursivamente todas las keys de inputs
- */
 function collectInputKeys(nodes: TemplateNode[], acc: Set<string>): void {
   for (const node of nodes) {
     if (node.type === 'input') {

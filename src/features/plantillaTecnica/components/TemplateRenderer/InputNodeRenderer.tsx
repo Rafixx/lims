@@ -2,7 +2,7 @@
 
 import { Input } from '@/shared/components/molecules/Input'
 import { Label } from '@/shared/components/atoms/Label'
-import { InputNode, TemplateValues } from '../../interfaces/template.types'
+import { InputNode } from '../../interfaces/template.types'
 
 interface Props {
   node: InputNode
@@ -17,7 +17,6 @@ export const InputNodeRenderer = ({ node, value, error, onChange }: Props) => {
 
     switch (node.valueType) {
       case 'number':
-        // Permitir campo vacío o número
         if (rawValue === '') {
           onChange(node.key, undefined)
         } else {
@@ -38,33 +37,42 @@ export const InputNodeRenderer = ({ node, value, error, onChange }: Props) => {
     }
   }
 
+  const errorClass = error
+    ? 'border-danger-400 focus:ring-danger-400 focus:border-danger-400'
+    : ''
+
   const renderInput = () => {
     switch (node.valueType) {
       case 'number':
         return (
-          <div className="flex items-center gap-2">
+          // Número con unidad superpuesta a la derecha, valor alineado a la derecha
+          <div className="relative">
             <Input
               type="number"
               step="any"
               value={(value as number | string | undefined) ?? ''}
               onChange={handleChange}
-              className={`flex-1 ${error ? 'border-red-500' : ''}`}
+              className={`text-right tabular-nums ${node.unit ? 'pr-11' : ''} ${errorClass}`}
               placeholder={node.default !== undefined ? String(node.default) : ''}
             />
             {node.unit && (
-              <span className="text-sm text-gray-600 font-medium">{node.unit}</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-surface-400 pointer-events-none select-none">
+                {node.unit}
+              </span>
             )}
           </div>
         )
 
       case 'boolean':
         return (
-          <input
-            type="checkbox"
-            checked={Boolean(value)}
-            onChange={handleChange}
-            className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-          />
+          <div className="h-9 flex items-center">
+            <input
+              type="checkbox"
+              checked={Boolean(value)}
+              onChange={handleChange}
+              className="h-4 w-4 rounded border-surface-300 text-primary-600 focus:ring-primary-500"
+            />
+          </div>
         )
 
       case 'date':
@@ -73,7 +81,7 @@ export const InputNodeRenderer = ({ node, value, error, onChange }: Props) => {
             type="date"
             value={value ? String(value) : ''}
             onChange={handleChange}
-            className={error ? 'border-red-500' : ''}
+            className={errorClass}
           />
         )
 
@@ -84,7 +92,7 @@ export const InputNodeRenderer = ({ node, value, error, onChange }: Props) => {
             type="text"
             value={value ? String(value) : ''}
             onChange={handleChange}
-            className={error ? 'border-red-500' : ''}
+            className={errorClass}
             placeholder={node.default !== undefined ? String(node.default) : ''}
           />
         )
@@ -92,13 +100,13 @@ export const InputNodeRenderer = ({ node, value, error, onChange }: Props) => {
   }
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor={node.key}>
+    <div className="space-y-1">
+      <Label htmlFor={node.key} className="text-xs">
         {node.label}
-        {node.required && <span className="text-red-600 ml-1">*</span>}
+        {node.required && <span className="text-danger-500 ml-0.5">*</span>}
       </Label>
       {renderInput()}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-xs text-danger-600">{error}</p>}
     </div>
   )
 }
