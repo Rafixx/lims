@@ -11,37 +11,45 @@ interface Props {
 
 const localStyles = StyleSheet.create({
   container: {
-    marginBottom: 6,
-    flexDirection: 'row',
-    alignItems: 'baseline'
+    marginBottom: 4
   },
   label: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: colors.surface[700],
-    marginRight: 4
+    fontSize: 7,
+    color: colors.surface[500],
+    marginBottom: 1
+  },
+  valueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'flex-end'
   },
   value: {
     fontSize: 9,
-    color: colors.surface[900]
+    fontWeight: 'bold',
+    color: colors.surface[800]
   },
   unit: {
-    fontSize: 8,
-    color: colors.surface[600],
+    fontSize: 7,
+    color: colors.surface[400],
     marginLeft: 2
   }
 })
 
 export const InputNodePDF = ({ node, value }: Props) => {
-  const displayValue = value !== undefined && value !== null && value !== '' ? String(value) : '—'
+  const hasValue = value !== undefined && value !== null && value !== ''
+  const displayValue = hasValue ? String(value) : '—'
 
   return (
     <View style={localStyles.container}>
-      <Text style={localStyles.label}>{node.label}:</Text>
-      <Text style={localStyles.value}>{displayValue}</Text>
-      {node.unit && value !== undefined && value !== null && value !== '' && (
-        <Text style={localStyles.unit}>{node.unit}</Text>
-      )}
+      <Text style={localStyles.label}>
+        {node.label}{node.required ? ' *' : ''}
+      </Text>
+      <View style={localStyles.valueRow}>
+        <Text style={localStyles.value}>{displayValue}</Text>
+        {node.unit && hasValue && (
+          <Text style={localStyles.unit}>{node.unit}</Text>
+        )}
+      </View>
     </View>
   )
 }

@@ -1,9 +1,8 @@
 // src/features/plantillaTecnica/components/PDF/DynamicTemplatePDF.tsx
 
-import { View, Text, StyleSheet } from '@react-pdf/renderer'
+import { View, StyleSheet } from '@react-pdf/renderer'
 import { Template, TemplateValues, TemplateNode } from '../../interfaces/template.types'
 import { TemplateNodePDF } from './TemplateNodePDF'
-import { colors } from './styles'
 
 interface Props {
   template: Template
@@ -13,71 +12,79 @@ interface Props {
 
 const localStyles = StyleSheet.create({
   section: {
-    marginBottom: 20
+    marginBottom: 12
   },
-  grid2Cols: {
-    flexDirection: 'row'
+  pairRow: {
+    flexDirection: 'row',
+    marginBottom: 4
   },
-  gridColumnLeft: {
-    flex: 1,
-    marginRight: 16
+  pairLeft: {
+    width: '48%',
+    marginRight: '4%'
   },
-  gridColumnRight: {
-    flex: 1
-  },
-  sectionTitle: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: colors.surface[800],
-    marginBottom: 8
+  pairRight: {
+    width: '48%'
   }
 })
 
+type Row =
+  | { type: 'full'; node: TemplateNode }
+  | { type: 'pair'; nodes: TemplateNode[] }
+
 /**
- * Renderiza la plantilla dinámica en PDF
- * Muestra los nodos en grid de 2 columnas como en pantalla
+ * Renderiza la plantilla dinámica en PDF siguiendo el mismo layout que la pantalla:
+ * - Groups y procedures: ancho completo (su layout interno lo gestiona GroupNodePDF)
+ * - Inputs y calcs sueltos al top-level: en pares de 2 columnas
  */
 export const DynamicTemplatePDF = ({ template, values, calculatedValues }: Props) => {
-  const procedureAndInputNodes: TemplateNode[] = []
-  const calcNodes: TemplateNode[] = []
+  // Construir filas: grupos/procedimientos full-width, inputs/calcs en pares
+  const rows: Row[] = []
+  let buffer: TemplateNode[] = []
+
+  const flushBuffer = () => {
+    if (buffer.length === 0) return
+    for (let i = 0; i < buffer.length; i += 2) {
+      rows.push({ type: 'pair', nodes: buffer.slice(i, i + 2) })
+    }
+    buffer = []
+  }
 
   template.nodes.forEach(node => {
-    if (node.type === 'calc') {
-      calcNodes.push(node)
+    if (node.type === 'group' || node.type === 'procedure') {
+      flushBuffer()
+      rows.push({ type: 'full', node })
     } else {
-      procedureAndInputNodes.push(node)
+      buffer.push(node)
     }
   })
+  flushBuffer()
 
   return (
     <View style={localStyles.section}>
-      <View style={localStyles.grid2Cols}>
-        <View style={localStyles.gridColumnLeft}>
-          {procedureAndInputNodes.map(node => (
+      {rows.map((row, idx) => {
+        if (row.type === 'full') {
+          return (
             <TemplateNodePDF
-              key={node.key}
-              node={node}
+              key={row.node.key}
+              node={row.node}
               values={values}
               calculatedValues={calculatedValues}
             />
-          ))}
-        </View>
-        <View style={localStyles.gridColumnRight}>
-          {calcNodes.length > 0 && (
-            <>
-              <Text style={localStyles.sectionTitle}>Cálculos</Text>
-              {calcNodes.map(node => (
-                <TemplateNodePDF
-                  key={node.key}
-                  node={node}
-                  values={values}
-                  calculatedValues={calculatedValues}
-                />
-              ))}
-            </>
-          )}
-        </View>
-      </View>
+          )
+        }
+        return (
+          <View key={idx} style={localStyles.pairRow}>
+            <View style={localStyles.pairLeft}>
+              <TemplateNodePDF node={row.nodes[0]} values={values} calculatedValues={calculatedValues} />
+            </View>
+            {row.nodes[1] && (
+              <View style={localStyles.pairRight}>
+                <TemplateNodePDF node={row.nodes[1]} values={values} calculatedValues={calculatedValues} />
+              </View>
+            )}
+          </View>
+        )
+      })}
     </View>
   )
 }

@@ -10,30 +10,43 @@ interface Props {
 
 const localStyles = StyleSheet.create({
   container: {
-    marginBottom: 10
+    marginBottom: 8,
+    borderWidth: 0.5,
+    borderColor: colors.info[200],
+    borderStyle: 'solid',
+    borderRadius: 3
+  },
+  header: {
+    backgroundColor: colors.info[100],
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderBottomWidth: 0.5,
+    borderBottomColor: colors.info[200],
+    borderBottomStyle: 'solid'
   },
   title: {
-    fontSize: 10,
+    fontSize: 7,
     fontWeight: 'bold',
-    color: colors.surface[800],
-    marginBottom: 6
+    color: colors.surface[700],
+    textTransform: 'uppercase'
   },
   stepsList: {
-    paddingLeft: 0
+    paddingHorizontal: 6,
+    paddingVertical: 4
   },
   step: {
     flexDirection: 'row',
-    marginBottom: 3
+    marginBottom: 2
   },
   stepNumber: {
-    fontSize: 9,
+    fontSize: 7,
     fontWeight: 'bold',
-    color: colors.surface[600],
-    width: 18
+    color: colors.surface[500],
+    width: 12
   },
   stepText: {
-    fontSize: 9,
-    color: colors.surface[700],
+    fontSize: 7,
+    color: colors.surface[600],
     flex: 1,
     lineHeight: 1.3
   }
@@ -42,13 +55,15 @@ const localStyles = StyleSheet.create({
 export const ProcedureNodePDF = ({ node }: Props) => {
   return (
     <View style={localStyles.container}>
-      <Text style={localStyles.title}>{node.label}</Text>
+      <View style={localStyles.header}>
+        <Text style={localStyles.title}>{node.label}</Text>
+      </View>
       <View style={localStyles.stepsList}>
         {node.steps.map((step, index) => (
           <View key={index} style={localStyles.step}>
             <Text style={localStyles.stepNumber}>{index + 1}.</Text>
             <Text style={localStyles.stepText}>
-              {step.label && `${step.label}: `}
+              {step.label && step.text !== step.label ? `${step.label}: ` : ''}
               {step.text}
             </Text>
           </View>

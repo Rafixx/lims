@@ -22,6 +22,19 @@ interface PlantillaTecnicaPDFProps {
 }
 
 const localStyles = StyleSheet.create({
+  // Layout principal: Cálculos (2/3) + Checklist/Pasos (1/3)
+  mainGrid: {
+    flexDirection: 'row',
+    marginBottom: 16
+  },
+  calcColumn: {
+    width: '65%',
+    marginRight: 12
+  },
+  checklistColumn: {
+    width: '33%'
+  },
+  // Grid de 2 columnas para Pipetas y Reactivos
   grid2Cols: {
     flexDirection: 'row',
     marginBottom: 20
@@ -97,17 +110,24 @@ export const PlantillaTecnicaPDF = ({
           </View>
         </View>
 
-        {/* Sección: Plantilla Dinámica (si existe) */}
-        {template && templateValues && calculatedValues && (
-          <DynamicTemplatePDF
-            template={template}
-            values={templateValues}
-            calculatedValues={calculatedValues}
-          />
-        )}
-
         {/* Sección: Técnicas del Worklist */}
         <TecnicasListPDF tecnicas={tecnicas} />
+
+        {/* Grid principal: Cálculos (2/3) + Checklist/Pasos (1/3) */}
+        <View style={localStyles.mainGrid}>
+          <View style={localStyles.calcColumn}>
+            {template && templateValues && calculatedValues && (
+              <DynamicTemplatePDF
+                template={template}
+                values={templateValues}
+                calculatedValues={calculatedValues}
+              />
+            )}
+          </View>
+          <View style={localStyles.checklistColumn}>
+            <PasosListPDF pasos={pasos} />
+          </View>
+        </View>
 
         {/* Grid de 2 columnas para Pipetas y Reactivos */}
         <View style={localStyles.grid2Cols}>
@@ -118,9 +138,6 @@ export const PlantillaTecnicaPDF = ({
             <ReactivosListPDF reactivos={reactivos} />
           </View>
         </View>
-
-        {/* Sección: Pasos del Protocolo */}
-        <PasosListPDF pasos={pasos} />
 
         {/* Footer */}
         <View style={localStyles.footer} fixed>

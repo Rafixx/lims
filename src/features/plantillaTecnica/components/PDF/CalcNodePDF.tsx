@@ -11,36 +11,73 @@ interface Props {
 
 const localStyles = StyleSheet.create({
   container: {
-    marginBottom: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.primary[50],
+    borderWidth: 0.5,
+    borderColor: colors.primary[100],
+    borderStyle: 'solid',
+    borderRadius: 3,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    marginBottom: 3
+  },
+  labelContainer: {
+    flex: 1,
+    marginRight: 8
+  },
+  label: {
+    fontSize: 7,
+    color: colors.surface[500]
+  },
+  valueContainer: {
     flexDirection: 'row',
     alignItems: 'baseline'
   },
-  label: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: colors.surface[700],
-    marginRight: 4
-  },
   value: {
-    fontSize: 9,
-    color: colors.surface[900]
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: colors.primary[700]
+  },
+  valuePending: {
+    fontSize: 8,
+    color: colors.surface[300]
   },
   unit: {
-    fontSize: 8,
-    color: colors.surface[600],
+    fontSize: 7,
+    fontWeight: 'bold',
+    color: colors.primary[500],
     marginLeft: 2
   }
 })
 
 export const CalcNodePDF = ({ node, value }: Props) => {
-  const displayValue =
-    value !== undefined ? (typeof value === 'number' ? value.toFixed(1) : value) : '—'
+  const hasValue = value !== undefined
+
+  const displayValue = hasValue
+    ? typeof value === 'number'
+      ? Number.isInteger(value)
+        ? value.toString()
+        : value.toFixed(2)
+      : String(value)
+    : null
 
   return (
     <View style={localStyles.container}>
-      <Text style={localStyles.label}>{node.label}:</Text>
-      <Text style={localStyles.value}>{displayValue}</Text>
-      {node.unit && value !== undefined && <Text style={localStyles.unit}>{node.unit}</Text>}
+      <View style={localStyles.labelContainer}>
+        <Text style={localStyles.label}>{node.label}</Text>
+      </View>
+      <View style={localStyles.valueContainer}>
+        {hasValue ? (
+          <>
+            <Text style={localStyles.value}>{displayValue}</Text>
+            {node.unit && <Text style={localStyles.unit}>{node.unit}</Text>}
+          </>
+        ) : (
+          <Text style={localStyles.valuePending}>—</Text>
+        )}
+      </View>
     </View>
   )
 }
