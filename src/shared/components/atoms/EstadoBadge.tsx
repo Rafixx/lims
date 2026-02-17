@@ -20,6 +20,13 @@ interface EstadoBadgeProps {
   onClick?: () => void
 }
 
+// Estados con clase CSS definida en estados.css
+const KNOWN_CSS_ESTADOS = new Set([
+  'registrada', 'pendiente', 'recibida', 'en_proceso',
+  'completada', 'completada_tec', 'rechazada', 'cancelada',
+  'cancelada_tec', 'en_procesamiento', 'bloqueada'
+])
+
 // ================================
 // COMPONENTE PRINCIPAL
 // ================================
@@ -32,6 +39,10 @@ export const EstadoBadge: React.FC<EstadoBadgeProps> = ({
   className = '',
   onClick
 }) => {
+  // Slug para la clase CSS: minúsculas y espacios → guión bajo
+  const slug = estado.estado.toLowerCase().replace(/[\s-]+/g, '_')
+  const hasCssEstado = KNOWN_CSS_ESTADOS.has(slug)
+
   // Mapeo de tamaños
   const sizeClasses = {
     sm: 'text-xs px-2 py-0.5',
@@ -39,26 +50,19 @@ export const EstadoBadge: React.FC<EstadoBadgeProps> = ({
     lg: 'text-base px-3 py-1.5'
   }
 
-  // Generar clases basadas en el color del estado
   const getBadgeClasses = () => {
-    const baseClasses = 'inline-flex items-center gap-1 rounded-full font-medium transition-colors'
+    const base = 'inline-flex items-center gap-1 rounded-full font-medium transition-colors'
     const sizeClass = sizeClasses[size]
-
-    // Si el estado tiene color, usarlo
-    if (estado.color) {
-      // Convertir color hex a clases Tailwind o usar inline style
-      return `${baseClasses} ${sizeClass}`
-    }
-
-    // Fallback a colores por defecto
-    return `${baseClasses} ${sizeClass} bg-gray-100 text-gray-800`
+    // Clase de color de estados.css (estado-registrada, estado-completada, etc.)
+    const colorClass = `estado-${slug}`
+    // Fallback Tailwind solo cuando no hay clase CSS ni color de API
+    const fallback = !hasCssEstado && !estado.color ? 'bg-gray-100 text-gray-800' : ''
+    return [base, sizeClass, colorClass, fallback].filter(Boolean).join(' ')
   }
 
   // Obtener el icono dinámicamente basado en el estado
   const getIconComponent = () => {
     if (!showIcon) return null
-
-    // Usar CheckCircle para completados, Clock para pendientes, PlayCircle para en progreso
     if (estado.es_final) return Icons.CheckCircle
     if (estado.es_inicial) return Icons.Clock
     return Icons.PlayCircle
@@ -67,12 +71,16 @@ export const EstadoBadge: React.FC<EstadoBadgeProps> = ({
   const IconComponent = getIconComponent()
   const iconSize = size === 'sm' ? 12 : size === 'lg' ? 16 : 14
 
+  // Inline style solo como fallback para estados sin clase CSS definida
+  const inlineStyle =
+    !hasCssEstado && estado.color
+      ? { backgroundColor: `${estado.color}20`, color: estado.color }
+      : undefined
+
   const badgeElement = (
     <span
       className={`${getBadgeClasses()} ${onClick ? 'cursor-pointer hover:opacity-80' : ''} ${className}`}
-      style={
-        estado.color ? { backgroundColor: `${estado.color}20`, color: estado.color } : undefined
-      }
+      style={inlineStyle}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
