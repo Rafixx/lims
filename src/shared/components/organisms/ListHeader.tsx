@@ -5,6 +5,7 @@ export interface ListHeaderField {
   label: string
   span: number
   sortKey?: string // Clave para ordenar por este campo
+  className?: string
 }
 
 export interface ListHeaderProps {
@@ -44,7 +45,7 @@ export const ListHeader = ({
         const isActive = sortKey === field.sortKey
 
         return (
-          <div key={index} className={getColSpanClass(field.span)}>
+          <div key={index} className={[getColSpanClass(field.span), field.className].filter(Boolean).join(' ')}>
             {isSortable ? (
               <button
                 onClick={() => handleSort(field)}
