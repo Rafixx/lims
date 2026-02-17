@@ -57,6 +57,7 @@ export const MuestraForm = ({
 
   const { watch, handleSubmit, setValue } = methods
   const [activeTab, setActiveTab] = useState<string>('general')
+  const isEditing = Boolean(initialValues?.id_muestra && initialValues.id_muestra > 0)
   if (isMuestraGroup && !watch('tipo_array')) {
     setValue('tipo_array', true, { shouldDirty: false })
   }
@@ -99,12 +100,12 @@ export const MuestraForm = ({
       baseTabs.push({
         id: 'placa',
         label: 'Placa',
-        content: <MuestraGroupSection />
+        content: <MuestraGroupSection readOnly={isEditing} />
       })
     }
 
     return baseTabs
-  }, [isMuestraGroup, isDuplicating, showCodigoExterno])
+  }, [isMuestraGroup, isDuplicating, showCodigoExterno, isEditing])
 
   // Callback para capturar las técnicas seleccionadas
   const handleTecnicasChange = useCallback((tecnicas: { id_tecnica_proc: number }[]) => {
@@ -114,8 +115,10 @@ export const MuestraForm = ({
   const handleSubmitForm: SubmitHandler<Muestra> = async formValues => {
     try {
       setIsSubmitting(true)
-      if (formValues.tipo_array === true) {
-        // Validar que la configuración de placa esté completa
+      const isEditingForm = Boolean(formValues.id_muestra && formValues.id_muestra > 0)
+
+      if (formValues.tipo_array === true && !isEditingForm) {
+        // Validar que la configuración de placa esté completa (solo al crear)
         const { code, width, height, heightLetter } = formValues.array_config || {}
         if (!code || !width || !height || !heightLetter) {
           notify(
@@ -126,12 +129,10 @@ export const MuestraForm = ({
           setIsSubmitting(false)
           return
         }
-
-        // console.log('✅ [MuestraForm] Configuración de placa validada:', formValues.plate_config)
       }
 
-      // Validación de técnicas (solo si aplica)
-      if (isMuestraGroup && selectedTecnicas.length === 0) {
+      // Validación de técnicas (solo si aplica y no estamos editando)
+      if (isMuestraGroup && !isEditingForm && selectedTecnicas.length === 0) {
         notify(
           'Para muestras en grupo, debe seleccionar al menos una técnica en el aside lateral.',
           'warning'

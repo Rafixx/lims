@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { Trash2, Clock, BarChart3, CheckCircle, Edit } from 'lucide-react'
+import { Trash2, Clock, Edit } from 'lucide-react'
 import type { Worklist } from '../../interfaces/worklist.types'
 import { ListDetail, ListDetailAction } from '@/shared/components/organisms/ListDetail'
 import { formatDateShort } from '@/shared/utils/helpers'
@@ -12,124 +12,148 @@ interface WorkListListDetailProps {
   worklist: Worklist
   onEdit: (worklist: Worklist) => void
   onDelete: (id: number, nombre: string) => void
-  // onView: () => void
   fieldSpans: number[]
+  isLast?: boolean
 }
 
-/**
- * Componente específico para renderizar el detalle de un WorkList
- * Wrapper sobre el componente genérico ListDetail
- */
 export const WorkListListDetail = ({
   worklist,
   onEdit,
   onDelete,
-  // onView,
-  fieldSpans
+  fieldSpans,
+  isLast = false
 }: WorkListListDetailProps) => {
   const completadas =
-    worklist.tecnicas.filter(tecnica => tecnica.id_estado === ESTADO_TECNICA.COMPLETADA_TECNICA)
-      .length || 0
+    worklist.tecnicas.filter(t => t.id_estado === ESTADO_TECNICA.COMPLETADA_TECNICA).length || 0
   const total = worklist.tecnicas.length || 0
-  const completionPercentage = total > 0 ? Math.round((completadas / total) * 100) : 0
+  const pct = total > 0 ? Math.round((completadas / total) * 100) : 0
 
-  // Hook para obtener lotes pendientes
   const { data: lotesPendientesData } = useLotesPendientes(worklist.id_worklist)
   const lotesPendientes = lotesPendientesData?.pendientes || 0
 
-  // Definir los campos a renderizar
+  // Borde izquierdo según estado del worklist
+  const leftBorder =
+    lotesPendientes > 0
+      ? 'border-l-warning-400'
+      : pct === 100
+        ? 'border-l-success-500'
+        : pct > 0
+          ? 'border-l-primary-400'
+          : 'border-l-surface-200'
+
+  // Color de la barra de progreso
+  const barColor =
+    lotesPendientes > 0
+      ? 'bg-warning-400'
+      : pct === 100
+        ? 'bg-success-500'
+        : 'bg-primary-500'
+
+  const rowClassName = [
+    'group grid grid-cols-12 gap-2 pl-3 pr-3 py-3 border-l-4 transition-colors items-center text-sm',
+    leftBorder,
+    isLast ? '' : 'border-b border-surface-100',
+    'hover:bg-surface-50'
+  ].join(' ')
+
   const renderFields = (): ReactNode[] => [
-    // Nombre del WorkList con Badge de lotes pendientes
-    <div
-      key={worklist.id_worklist}
-      className="flex items-center gap-2"
-      //  onClick={onView}
-    >
-      <span className="text-gray-700">{worklist.nombre}</span>
+    // 1. Nombre — acción primaria de navegación
+    <div key="nombre" className="min-w-0">
+      <button
+        onClick={() => onEdit(worklist)}
+        className="font-medium text-surface-900 hover:text-primary-700 hover:underline text-left leading-snug w-full truncate transition-colors"
+        title={`Abrir "${worklist.nombre}"`}
+      >
+        {worklist.nombre}
+      </button>
       {lotesPendientes > 0 && (
-        <Badge variant="warning" size="sm">
-          {lotesPendientes} lote{lotesPendientes !== 1 ? 's' : ''}
-        </Badge>
+        <div className="mt-0.5">
+          <Badge variant="warning" size="sm">
+            {lotesPendientes} lote{lotesPendientes !== 1 ? 's' : ''} pendiente{lotesPendientes !== 1 ? 's' : ''}
+          </Badge>
+        </div>
       )}
     </div>,
-    // Técnica/Proceso
-    <span key={worklist.id_worklist} className="text-gray-700">
-      {worklist.tecnica_proc || '-'}
+
+    // 2. Técnica / Proceso
+    <span key="tecnica" className="text-surface-600 truncate text-xs leading-relaxed">
+      {worklist.tecnica_proc ?? <span className="text-surface-300">—</span>}
     </span>,
-    // Total de muestras con icono
-    <div key={worklist.id_worklist} className="flex items-center gap-2">
-      <BarChart3 size={16} className="text-gray-500" />
-      <span className="font-medium">{total}</span>
-    </div>,
-    // Completadas con icono
-    <div key={worklist.id_worklist} className="flex items-center gap-2">
-      <CheckCircle size={16} className="text-green-600" />
-      <span className="font-medium text-green-700">{completadas}</span>
-    </div>,
-    // Barra de progreso
-    <div key={worklist.id_worklist} className="space-y-1">
-      <div className="w-full bg-gray-200 rounded-full h-2">
+
+    // 3. Avance: "X / Y" + barra
+    <div key="avance" className="space-y-1.5">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-sm font-semibold text-surface-700 tabular-nums">
+          {completadas}
+          <span className="font-normal text-surface-400"> / {total}</span>
+        </span>
+        <span className="text-xs text-surface-400 tabular-nums">{pct}%</span>
+      </div>
+      <div className="w-full bg-surface-100 rounded-full h-1.5 overflow-hidden">
         <div
-          className="bg-green-600 h-2 rounded-full transition-all duration-300"
-          style={{ width: `${completionPercentage}%` }}
+          className={`${barColor} h-1.5 rounded-full transition-all duration-500`}
+          style={{ width: `${pct}%` }}
         />
       </div>
-      <div className="text-xs text-gray-500 text-center">{completionPercentage}%</div>
     </div>,
-    // Fecha de creación con icono
-    <div key={worklist.id_worklist} className="flex items-center gap-1 text-sm text-gray-500">
-      <Clock size={14} />
-      <span>{formatDateShort(worklist.create_dt)}</span>
+
+    // 4. Fecha
+    <div key="fecha" className="flex items-center gap-1 text-xs text-surface-400">
+      <Clock size={12} className="flex-shrink-0" />
+      <span className="truncate">{formatDateShort(worklist.create_dt)}</span>
     </div>
   ]
 
-  // Definir las acciones
   const actions: ListDetailAction[] = [
     {
-      icon: <Edit className="w-4 h-4" />,
+      icon: <Edit className="w-3.5 h-3.5" />,
       onClick: () => onEdit(worklist),
-      title: 'Editar',
-      className: 'p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors'
+      title: 'Editar lista',
+      className:
+        'p-1.5 text-surface-300 group-hover:text-surface-500 hover:!text-primary-600 hover:bg-primary-50 rounded transition-colors'
     },
-
     {
-      icon: <Trash2 className="w-4 h-4" />,
+      icon: <Trash2 className="w-3.5 h-3.5" />,
       onClick: () => onDelete(worklist.id_worklist, worklist.nombre),
-      title: 'Eliminar',
-      className: 'p-1 text-red-600 hover:bg-red-50 rounded transition-colors'
+      title: 'Eliminar lista',
+      className:
+        'p-1.5 text-surface-300 group-hover:text-surface-500 hover:!text-danger-600 hover:bg-danger-50 rounded transition-colors'
     }
   ]
 
-  // Contenido expandido con las técnicas
   const expandedContent = (
-    <div className="space-y-2">
+    <div className="space-y-1">
       {worklist.tecnicas && worklist.tecnicas.length > 0 ? (
-        <div className="space-y-1">
-          <h4 className="font-semibold text-sm text-gray-700 mb-2">
+        <>
+          <p className="text-xs font-semibold text-surface-500 mb-2 uppercase tracking-wide">
             Técnicas ({worklist.tecnicas.length})
-          </h4>
+          </p>
           {worklist.tecnicas.map((tecnica, index) => (
             <div
               key={index}
-              className="flex items-center justify-between px-3 py-2 bg-white border border-gray-200 rounded text-sm"
+              className="flex items-center justify-between px-3 py-2 bg-white border border-surface-100 rounded-lg text-sm"
             >
-              <div className="flex items-center gap-3">
-                <span className="text-gray-500 font-mono text-xs">#{index + 1}</span>
-                <span className="font-medium">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-surface-300 font-mono text-xs w-6 shrink-0 text-right">
+                  {index + 1}
+                </span>
+                <span className="font-medium text-surface-800 truncate">
                   {tecnica.muestra?.codigo_epi || tecnica.muestra?.codigo_externo || 'Sin código'}
                 </span>
                 {tecnica.tecnico_resp && (
-                  <span className="text-xs text-gray-500">👤 {tecnica.tecnico_resp.nombre}</span>
+                  <span className="text-xs text-surface-400 shrink-0">
+                    {tecnica.tecnico_resp.nombre}
+                  </span>
                 )}
               </div>
-              <div>
-                {tecnica.estadoInfo && <IndicadorEstado estado={tecnica.estadoInfo} size="small" />}
-              </div>
+              {tecnica.estadoInfo && (
+                <IndicadorEstado estado={tecnica.estadoInfo} size="small" />
+              )}
             </div>
           ))}
-        </div>
+        </>
       ) : (
-        <p className="text-sm text-gray-600">No hay técnicas asociadas a este worklist.</p>
+        <p className="text-sm text-surface-400">No hay técnicas asociadas a esta lista.</p>
       )}
     </div>
   )
@@ -141,6 +165,7 @@ export const WorkListListDetail = ({
       renderFields={renderFields}
       actions={actions}
       expandedContent={expandedContent}
+      rowClassName={rowClassName}
     />
   )
 }

@@ -219,11 +219,11 @@ export const CreateMuestraPage = () => {
         <Card className="bg-white shadow-sm">
           <div className="p-6">
             <MuestraForm
-              key={`${muestraId || 'new'}-${isMuestraGroup}-${isDuplicating}`}
+              key={`${muestraId || 'new'}-${isEditing && muestra ? Boolean(muestra.tipo_array) : isMuestraGroup}-${isDuplicating}`}
               initialValues={initialFormValues}
               onSuccess={handleSuccess}
               onCancel={handleCancel}
-              isMuestraGroup={isMuestraGroup}
+              isMuestraGroup={isEditing && muestra ? Boolean(muestra.tipo_array) : isMuestraGroup}
               generatedCodigos={formGeneratedCodigos}
               isDuplicating={isDuplicating}
               cantidad={!isEditing && !isDuplicating && !isMuestraGroup ? cantidad : undefined}

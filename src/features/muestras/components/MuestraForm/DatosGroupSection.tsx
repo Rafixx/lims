@@ -24,7 +24,11 @@ const isValidHeightLetter = (letter: string): boolean => {
   return /^[A-Z]$/i.test(letter)
 }
 
-export const MuestraGroupSection = () => {
+interface MuestraGroupSectionProps {
+  readOnly?: boolean
+}
+
+export const MuestraGroupSection = ({ readOnly = false }: MuestraGroupSectionProps) => {
   const { setValue, watch } = useFormContext<Muestra>()
 
   // Observar los valores actuales del formulario
@@ -98,6 +102,9 @@ export const MuestraGroupSection = () => {
   }, [arrayCode, arrayCodeError, width, widthError, heightLetter, heightError])
 
   useEffect(() => {
+    // En modo lectura no modificamos array_config (los datos vienen del servidor)
+    if (readOnly) return
+
     if (isFormValid) {
       const arrayData = {
         code: arrayCode,
@@ -106,14 +113,12 @@ export const MuestraGroupSection = () => {
         height: heightNumber,
         totalPositions
       }
-
-      // console.log('✅ [DatosGroupSection] Guardando configuración automáticamente:', arrayData)
       setValue('array_config', arrayData, { shouldValidate: true, shouldDirty: true })
     } else {
       // Si los datos no son válidos, limpiar array_config
       setValue('array_config', null, { shouldValidate: true, shouldDirty: true })
     }
-  }, [isFormValid, arrayCode, width, heightLetter, heightNumber, totalPositions, setValue])
+  }, [readOnly, isFormValid, arrayCode, width, heightLetter, heightNumber, totalPositions, setValue])
 
   // Handler para selección de preset
   const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -159,15 +164,21 @@ export const MuestraGroupSection = () => {
               Configuración de la Placa
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">
-              Define el código y las dimensiones de la placa de muestras
+              {readOnly
+                ? 'La configuración de la placa no puede modificarse una vez creada'
+                : 'Define el código y las dimensiones de la placa de muestras'}
             </p>
           </div>
-          {isFormValid && (
+          {readOnly ? (
+            <div className="flex items-center gap-1.5 bg-surface-100 text-surface-600 px-3 py-1.5 rounded-full text-xs font-medium">
+              <span className="hidden sm:inline">Solo lectura</span>
+            </div>
+          ) : isFormValid ? (
             <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-xs font-medium">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Guardado</span>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Layout Responsivo: 2 columnas en lg+, 1 columna en xs/md */}
@@ -183,11 +194,17 @@ export const MuestraGroupSection = () => {
                 id="plateCode"
                 type="text"
                 value={arrayCode}
-                onChange={e => setArrayCode(e.target.value.toUpperCase())}
+                onChange={e => !readOnly && setArrayCode(e.target.value.toUpperCase())}
                 placeholder="p. ej., PLACA001ABC"
                 maxLength={25}
-                className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                  arrayCodeError ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                disabled={readOnly}
+                readOnly={readOnly}
+                className={`w-full px-3 py-2 text-sm border rounded-lg transition-colors ${
+                  readOnly
+                    ? 'border-gray-200 bg-surface-50 text-surface-600 cursor-default'
+                    : arrayCodeError
+                      ? 'border-red-500 bg-red-50'
+                      : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                 }`}
                 aria-invalid={!!arrayCodeError}
                 aria-describedby={arrayCodeError ? 'arrayCode-error' : 'arrayCode-help'}
@@ -216,7 +233,12 @@ export const MuestraGroupSection = () => {
                 id="preset"
                 value={selectedPreset}
                 onChange={handlePresetChange}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                disabled={readOnly}
+                className={`w-full px-3 py-2 text-sm border rounded-lg transition-colors ${
+                  readOnly
+                    ? 'border-gray-200 bg-surface-50 text-surface-600 cursor-default'
+                    : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                }`}
               >
                 <option value="">Manual</option>
                 {PLATE_PRESETS.map(preset => (
@@ -241,8 +263,14 @@ export const MuestraGroupSection = () => {
                 onChange={handleWidthChange}
                 placeholder="10"
                 maxLength={2}
-                className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                  widthError ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                disabled={readOnly}
+                readOnly={readOnly}
+                className={`w-full px-3 py-2 text-sm border rounded-lg transition-colors ${
+                  readOnly
+                    ? 'border-gray-200 bg-surface-50 text-surface-600 cursor-default'
+                    : widthError
+                      ? 'border-red-500 bg-red-50'
+                      : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                 }`}
                 aria-invalid={!!widthError}
                 aria-describedby={widthError ? 'width-error' : 'width-help'}
@@ -274,8 +302,14 @@ export const MuestraGroupSection = () => {
                 onChange={handleHeightChange}
                 placeholder="D"
                 maxLength={1}
-                className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors uppercase ${
-                  heightError ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                disabled={readOnly}
+                readOnly={readOnly}
+                className={`w-full px-3 py-2 text-sm border rounded-lg transition-colors uppercase ${
+                  readOnly
+                    ? 'border-gray-200 bg-surface-50 text-surface-600 cursor-default'
+                    : heightError
+                      ? 'border-red-500 bg-red-50'
+                      : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                 }`}
                 aria-invalid={!!heightError}
                 aria-describedby={heightError ? 'height-error' : 'height-help'}
