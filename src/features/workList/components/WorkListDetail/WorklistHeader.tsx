@@ -71,22 +71,6 @@ export const WorklistHeader = ({
           Iniciar Técnicas
         </Button>
 
-        {/* Botón: Importar Resultados */}
-        <Button
-          variant="soft"
-          onClick={onImport}
-          className="flex items-center gap-2"
-          disabled={!permissions.canImportResults}
-          title={
-            !permissions.canImportResults
-              ? getDisabledTooltip('canImportResults', currentState)
-              : 'Importar resultados desde fuente de datos'
-          }
-        >
-          <Import size={16} />
-          Importar resultados
-        </Button>
-
         {/* Botón: Plantilla Técnica */}
         <Button
           variant="soft"
@@ -101,6 +85,22 @@ export const WorklistHeader = ({
         >
           <LayoutTemplate size={16} />
           Plantilla técnica
+        </Button>
+
+        {/* Botón: Importar Resultados */}
+        <Button
+          variant="soft"
+          onClick={onImport}
+          className="flex items-center gap-2"
+          disabled={!permissions.canImportResults}
+          title={
+            !permissions.canImportResults
+              ? getDisabledTooltip('canImportResults', currentState)
+              : 'Importar resultados desde fuente de datos'
+          }
+        >
+          <Import size={16} />
+          Importar resultados
         </Button>
 
         {/* Botón: Lotes */}
