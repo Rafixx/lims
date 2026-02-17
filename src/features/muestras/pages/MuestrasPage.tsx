@@ -35,7 +35,7 @@ const COLUMN_CONFIG = [
   { label: 'Estudio', span: 1, sortKey: 'estudio' },
   { label: 'Recepción', span: 1, sortKey: 'f_recepcion' },
   { label: 'Estado', span: 1, sortKey: 'estado' },
-  { label: '', span: 2 }
+  { label: 'Acciones', span: 2 }
 ]
 
 // src/features/muestras/pages/MuestrasPage.tsx
