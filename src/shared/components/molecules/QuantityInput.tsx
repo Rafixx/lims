@@ -1,5 +1,6 @@
 // src/shared/components/molecules/QuantityInput.tsx
 
+import { useState, useEffect } from 'react'
 import { Minus, Plus } from 'lucide-react'
 
 export type QuantityInputProps = {
@@ -22,17 +23,54 @@ export const QuantityInput = ({
   value,
   onChange,
   min = 1,
-  max = 99,
+  max = 9999,
   label,
   className = ''
 }: QuantityInputProps) => {
-  const handleDecrement = () => onChange(clamp(value - 1, min, max))
-  const handleIncrement = () => onChange(clamp(value + 1, min, max))
+  // Estado interno para permitir edición libre (incluido campo vacío)
+  const [inputValue, setInputValue] = useState(String(value))
+
+  // Sincronizar estado interno cuando el prop value cambia externamente
+  useEffect(() => {
+    setInputValue(String(value))
+  }, [value])
+
+  const handleDecrement = () => {
+    const newValue = clamp(value - 1, min, max)
+    onChange(newValue)
+    setInputValue(String(newValue))
+  }
+
+  const handleIncrement = () => {
+    const newValue = clamp(value + 1, min, max)
+    onChange(newValue)
+    setInputValue(String(newValue))
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, '')
-    if (raw === '') return
-    onChange(clamp(parseInt(raw, 10), min, max))
+    const raw = e.target.value.replace(/\D/g, '') // Solo dígitos
+
+    // Permitir campo vacío temporalmente
+    setInputValue(raw)
+
+    // Si hay un valor válido, actualizarlo
+    if (raw !== '') {
+      const numValue = parseInt(raw, 10)
+      if (!isNaN(numValue)) {
+        onChange(clamp(numValue, min, max))
+      }
+    }
+  }
+
+  const handleBlur = () => {
+    // Al perder el foco, si el campo está vacío, restaurar al mínimo
+    if (inputValue === '' || inputValue === '0') {
+      onChange(min)
+      setInputValue(String(min))
+    } else {
+      // Asegurar que el valor mostrado coincide con el valor real
+      setInputValue(String(value))
+    }
   }
 
   return (
@@ -55,11 +93,12 @@ export const QuantityInput = ({
         <input
           type="text"
           inputMode="numeric"
-          value={value}
+          value={inputValue}
           onChange={handleInputChange}
+          onBlur={handleBlur}
           aria-label={label ?? 'Cantidad'}
-          className="w-10 h-9 text-center text-sm font-semibold text-surface-800 bg-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-400 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          maxLength={2}
+          className="w-16 h-9 text-center text-sm font-semibold text-surface-800 bg-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-400 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          maxLength={4}
         />
         <button
           type="button"

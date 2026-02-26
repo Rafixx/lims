@@ -61,12 +61,6 @@ export const TimelineEventsSection = () => {
       const year = date.getFullYear()
       if (year < 2000 || year > 2100) return false
 
-      // Excluir fecha por defecto del sistema: 26 de septiembre de 2025, 02:00
-      const defaultDate = new Date('2025-09-26T02:00:00')
-      if (Math.abs(date.getTime() - defaultDate.getTime()) < 60000) {
-        return false
-      }
-
       return true
     } catch {
       return false

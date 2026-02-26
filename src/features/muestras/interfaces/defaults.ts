@@ -1,33 +1,41 @@
 import { Muestra } from './muestras.types'
 import { ESTADO_MUESTRA } from '@/shared/interfaces/estados.types'
 
-export const DEFAULT_MUESTRA: Muestra = {
-  id_muestra: 0,
-  codigo_epi: '',
-  codigo_externo: '',
-  f_toma: '2025-09-26T00:00:00.000Z',
-  f_recepcion: '2025-09-26T00:00:00.000Z',
-  f_destruccion: '2025-09-26T00:00:00.000Z',
-  f_devolucion: '2025-09-26T00:00:00.000Z',
-  id_estado: ESTADO_MUESTRA.REGISTRADA_MUESTRA,
-  tipo_array: false,
-  array_config: null,
-  paciente: {
-    id: 0,
-    nombre: '',
-    sip: '',
-    direccion: ''
-  },
-  solicitud: {
-    id_solicitud: 0,
-    // id_cliente: 0,
-    f_creacion: '2025-09-26T00:00:00.000Z',
-    f_entrada: '2025-09-26T00:00:00.000Z',
-    f_compromiso: '2025-09-26T00:00:00.000Z',
-    f_entrega: '2025-09-26T00:00:00.000Z',
-    f_resultado: '2025-09-26T00:00:00.000Z',
-    condiciones_envio: 'Condiciones 1',
-    tiempo_hielo: 'Tiempo 1',
+/**
+ * Obtiene los valores por defecto para una nueva muestra.
+ * Esta función se ejecuta cada vez que se necesita crear una muestra nueva,
+ * asegurando que las fechas sean siempre actuales.
+ */
+export const getDefaultMuestra = (): Muestra => {
+  const now = new Date().toISOString()
+
+  return {
+    id_muestra: 0,
+    codigo_epi: '',
+    codigo_externo: '',
+    f_toma: '', // Usuario establece cuándo se tomó la muestra
+    f_recepcion: now, // Fecha actual: cuándo entra al laboratorio
+    f_destruccion: '', // Futuro: cuándo se destruirá
+    f_devolucion: '', // Futuro: cuándo se devolverá
+    id_estado: ESTADO_MUESTRA.REGISTRADA_MUESTRA,
+    tipo_array: false,
+    array_config: null,
+    paciente: {
+      id: 0,
+      nombre: '',
+      sip: '',
+      direccion: ''
+    },
+    solicitud: {
+      id_solicitud: 0,
+      // id_cliente: 0,
+      f_creacion: now, // Fecha actual: cuándo se crea la solicitud
+      f_entrada: '', // Usuario establece fecha de entrada
+      f_compromiso: '', // Usuario establece fecha compromiso
+      f_entrega: '', // Usuario establece fecha entrega
+      f_resultado: '', // Futuro: cuándo se entregan resultados
+      condiciones_envio: 'Condiciones 1',
+      tiempo_hielo: 'Tiempo 1',
     cliente: {
       id: 0,
       nombre: '',
@@ -67,6 +75,14 @@ export const DEFAULT_MUESTRA: Muestra = {
   },
   estadoInfo: undefined
 }
+}
+
+/**
+ * Valor por defecto constante para compatibilidad con código existente.
+ * NOTA: Las fechas aquí serán las del momento de carga del módulo.
+ * Para obtener fechas actuales, usar getDefaultMuestra() en su lugar.
+ */
+export const DEFAULT_MUESTRA: Muestra = getDefaultMuestra()
 
 // {
 // "id_muestra": 102,

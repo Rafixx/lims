@@ -207,7 +207,7 @@ export const CreateMuestraPage = () => {
                     value={cantidad}
                     onChange={setCantidad}
                     min={1}
-                    max={99}
+                    max={9999}
                   />
                 ) : null}
               </div>

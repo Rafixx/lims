@@ -7,7 +7,7 @@ import { Tabs } from '@/shared/components/molecules/Tabs'
 import { Button } from '@/shared/components/molecules/Button'
 import { SendIcon } from 'lucide-react'
 import { Muestra } from '../../interfaces/muestras.types'
-import { DEFAULT_MUESTRA } from '../../interfaces/defaults'
+import { getDefaultMuestra } from '../../interfaces/defaults'
 import { useCreateMuestra, useUpdateMuestra } from '../../hooks/useMuestras'
 import { MuestraGroupSection } from './DatosGroupSection'
 
@@ -39,9 +39,9 @@ export const MuestraForm = ({
   isDuplicating = false,
   cantidad
 }: Props) => {
-  // Combinar DEFAULT_MUESTRA con códigos generados si existen
+  // Combinar valores por defecto con códigos generados si existen
   const defaultValues = useMemo(() => {
-    const base = initialValues || DEFAULT_MUESTRA
+    const base = initialValues || getDefaultMuestra()
     if (generatedCodigos && !initialValues) {
       return {
         ...base,

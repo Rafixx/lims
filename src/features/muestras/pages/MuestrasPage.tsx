@@ -63,6 +63,21 @@ export const MuestrasPage = () => {
           muestra.paciente?.nombre
         ])
       },
+      numeroEstudio: {
+        type: 'search' as const,
+        defaultValue: '',
+        filterFn: createMultiFieldSearchFilter<Muestra>(muestra => [muestra.estudio])
+      },
+      id_tipo_muestra: {
+        type: 'select' as const,
+        defaultValue: null,
+        filterFn: createNumericExactFilter<Muestra>(muestra => muestra.tipo_muestra?.id)
+      },
+      id_prueba: {
+        type: 'select' as const,
+        defaultValue: null,
+        filterFn: createNumericExactFilter<Muestra>(muestra => muestra.prueba?.id)
+      },
       id_estado: {
         type: 'select' as const,
         defaultValue: null,
@@ -212,6 +227,9 @@ export const MuestrasPage = () => {
     <MuestraFilter
       filters={{
         busqueda: filters.busqueda as string,
+        numeroEstudio: filters.numeroEstudio as string,
+        id_tipo_muestra: filters.id_tipo_muestra as number | null,
+        id_prueba: filters.id_prueba as number | null,
         id_estado: filters.id_estado as number | null,
         soloHoy: filters.soloHoy as boolean
       }}
