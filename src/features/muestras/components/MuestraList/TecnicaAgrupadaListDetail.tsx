@@ -29,10 +29,11 @@ export const TecnicaAgrupadaListDetail = ({
   const [isExpanded, setIsExpanded] = useState(false)
 
   // Cargar técnicas del grupo solo cuando está expandido
-  const { tecnicas, isLoading: isLoadingTecnicas, error: errorTecnicas } = useTecnicasFromGroup(
-    tecnicaAgrupada.primera_tecnica_id,
-    isExpanded
-  )
+  const {
+    tecnicas,
+    isLoading: isLoadingTecnicas,
+    error: errorTecnicas
+  } = useTecnicasFromGroup(tecnicaAgrupada.primera_tecnica_id, isExpanded)
 
   // Log para debugging
   if (isExpanded) {
