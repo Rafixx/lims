@@ -1,5 +1,5 @@
 import { ReactNode, useMemo, useState } from 'react'
-import { Edit, Trash2, Plus, Grid3X3, Upload, TestTube2 } from 'lucide-react'
+import { Edit, Trash2, Plus, Grid3X3, Upload, TestTube2, ChevronDown, ChevronRight } from 'lucide-react'
 import { Muestra, Tecnica, TecnicaAgrupada } from '../../interfaces/muestras.types'
 import { useNavigate } from 'react-router-dom'
 import { useTecnicasAgrupadasByMuestra, useMuestraArray } from '../../hooks/useMuestras'
@@ -54,6 +54,8 @@ export const MuestraListDetail = ({
 }: MuestraListDetailProps) => {
   const navigate = useNavigate()
   const [importArrayModalOpen, setImportArrayModalOpen] = useState(false)
+  // Estado de expansión gestionado aquí (no en ListDetail) para poder colocar el chevron en field[0]
+  const [expanded, setExpanded] = useState(false)
   const { tecnicas, isLoading } = useTecnicasAgrupadasByMuestra(muestra.id_muestra)
 
   // Para muestras tipo placa: obtener posiciones para saber si ya tienen todos los códigos
@@ -120,9 +122,23 @@ export const MuestraListDetail = ({
   // Modo standalone: 9 campos — orden idéntico al COLUMN_CONFIG de MuestrasPage:
   // CódEXT(1) CódEPI(1) Cliente(1) Paciente(1) TipoMuestra(1) Prueba(2) Estudio(1) Recepción(1) Estado(1) Actions(2)
   const renderStandaloneFields = (): ReactNode[] => [
-    // [0] Código EXTERNO (span 1) — icono de tipo + código
+    // [0] Código EXTERNO (span 1) — icono de tipo + chevron expand + código
+    // Chevron va justo después del typeIcon para consistencia con MuestraGroupRow (Layers → chevron)
     <div key={`ext-${muestra.id_muestra}`} className="flex items-center gap-1 min-w-0">
       {typeIcon}
+      <button
+        type="button"
+        onClick={() => setExpanded(v => !v)}
+        className="p-0.5 shrink-0 rounded text-surface-400 hover:text-surface-700 hover:bg-surface-100 transition-colors"
+        aria-label={expanded ? 'Contraer técnicas' : 'Expandir técnicas'}
+        title={expanded ? 'Contraer' : 'Expandir'}
+      >
+        {expanded ? (
+          <ChevronDown className="w-3 h-3" />
+        ) : (
+          <ChevronRight className="w-3 h-3" />
+        )}
+      </button>
       <span
         className="font-mono text-xs font-semibold text-primary-600 truncate"
         title={muestra.codigo_externo || ''}
@@ -318,9 +334,18 @@ export const MuestraListDetail = ({
         fieldSpans={fieldSpans}
         renderFields={renderFields}
         actions={actions}
-        expandedContent={expandedContent}
+        // expandedContent omitido intencionalmente: el chevron vive en field[0] (junto al typeIcon),
+        // no en la columna de acciones, para consistencia con MuestraGroupRow.
         rowClassName={isChild ? childRowClassName : ''}
       />
+
+      {/* Contenido expandido — sólo en modo standalone, gestionado con estado local */}
+      {!isChild && expanded && expandedContent && (
+        <div className="px-4 pb-4 border-t border-surface-200 bg-surface-50">
+          <div className="mt-2">{expandedContent}</div>
+        </div>
+      )}
+
       {muestra.tipo_array === true && (
         <ImportArrayCodExternoModal
           isOpen={importArrayModalOpen}

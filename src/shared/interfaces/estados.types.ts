@@ -1,25 +1,31 @@
 // ============ ESTADOS DE TECNICA ============
+// IDs oficiales de dim_estados (entidad = 'TECNICA')
 export const ESTADO_TECNICA = {
-  PENDIENTE: 8,
+  PENDIENTE: 8,         // CREADA en dim_estados
   ASIGNADA: 9,
   EN_PROCESO: 10,
-  EN_REVISION: 11,
+  EN_REVISION: 11,      // inactiva
   COMPLETADA_TECNICA: 12,
   CANCELADA_TECNICA: 13,
-  PAUSADA: 14,
-  REINTENTANDO: 15
+  PAUSADA: 14,          // ERROR_TECNICA en dim_estados
+  REINTENTANDO: 15,
+  EXTERNALIZADA: 16,
+  ENVIADA_EXT: 17,
+  RECIBIDA_EXT: 18
 } as const
 
 // ============ ESTADOS DE MUESTRA ============
+// IDs oficiales de dim_estados (entidad = 'MUESTRA')
 export const ESTADO_MUESTRA = {
-  REGISTRADA_MUESTRA: 16,
-  EN_ESPERA: 17,
-  EN_ANALISIS: 18,
-  ANALISIS_COMPLETADO: 19,
-  VALIDADA: 20,
-  RECHAZADA_MUESTRA: 21,
-  ARCHIVADA: 22,
-  DESTRUIDA: 23
+  REGISTRADA: 1,
+  RECIBIDA: 2,          // inactiva
+  EN_PROCESO: 3,
+  COMPLETADA: 4,
+  RECHAZADA: 5,
+  EN_REVISION: 6,       // inactiva
+  COMPLETADA_ERROR: 7,
+  // Alias para compatibilidad con código existente
+  REGISTRADA_MUESTRA: 1
 } as const
 
 /**

@@ -54,7 +54,13 @@ export const createExactFilter = <T>(getFieldValue: (item: T) => string | undefi
 }
 
 /**
- * Función de filtro genérica para comparación exacta de números
+ * Función de filtro genérica para comparación exacta de números.
+ * Usa Number() para manejar tanto numbers como strings numéricos (ej. "3" vs 3),
+ * lo que previene fallos silenciosos si la API serializa ids como strings.
+ *
+ * @example
+ * // Uso recomendado: preferir estadoInfo?.id como campo primario
+ * createNumericExactFilter<Muestra>(m => m.estadoInfo?.id ?? m.id_estado)
  */
 export const createNumericExactFilter = <T>(
   getFieldValue: (item: T) => number | undefined | null
@@ -62,10 +68,13 @@ export const createNumericExactFilter = <T>(
   return (item: T, filterValue: unknown): boolean => {
     if (filterValue === null || filterValue === undefined) return true
 
-    const value = filterValue as number
-    const itemValue = getFieldValue(item)
+    const numFilter = Number(filterValue)
+    if (Number.isNaN(numFilter)) return true // valor de filtro inválido → no filtrar
 
-    return itemValue === value
+    const itemValue = getFieldValue(item)
+    if (itemValue === null || itemValue === undefined) return false
+
+    return Number(itemValue) === numFilter
   }
 }
 

@@ -81,7 +81,11 @@ export const MuestrasPage = () => {
       id_estado: {
         type: 'select' as const,
         defaultValue: null,
-        filterFn: createNumericExactFilter<Muestra>(muestra => muestra.id_estado)
+        // Priorizar estadoInfo?.id (campo que siempre devuelve la API con el JOIN)
+        // y caer en id_estado como fallback por si se usa sin JOIN.
+        filterFn: createNumericExactFilter<Muestra>(
+          muestra => muestra.estadoInfo?.id ?? muestra.id_estado
+        )
       },
       soloHoy: {
         type: 'toggle' as const,
