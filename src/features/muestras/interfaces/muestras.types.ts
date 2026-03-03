@@ -177,6 +177,12 @@ export type ImportArrayCodExternoResult = {
   mensaje: string
 }
 
+/** Respuesta del endpoint POST /tecnicas/grupo/:primeraTecnicaId/cancelar */
+export type CancelarGrupoResult = {
+  canceladas: number
+  tecnica_ids: number[]
+}
+
 /** Fila agrupadora (padre) — muestras con el mismo estudio */
 export type MuestraGroup = {
   isGrouped: true

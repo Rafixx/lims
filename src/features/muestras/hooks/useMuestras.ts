@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query'
 import muestrasService from '../services/muestras.services'
-import { ArrayCodExternoPar, CodExternoPar, CodigoEpiResponse, CreateMuestraResult, ImportArrayCodExternoResult, ImportCodExternoResult, Muestra, MuestraArray, MuestraStats, Tecnica, TecnicaAgrupada } from '../interfaces/muestras.types'
+import { ArrayCodExternoPar, CancelarGrupoResult, CodExternoPar, CodigoEpiResponse, CreateMuestraResult, ImportArrayCodExternoResult, ImportCodExternoResult, Muestra, MuestraArray, MuestraStats, Tecnica, TecnicaAgrupada } from '../interfaces/muestras.types'
 import { STALE_TIME } from '@/shared/constants/constants'
 import tecnicaService from '../services/tecnica.service'
 
@@ -267,6 +267,24 @@ export const useTecnicasPendientesExternalizacion = () => {
     error,
     refetch
   }
+}
+
+/**
+ * Hook para cancelar atómicamente todas las técnicas de un grupo.
+ * Llama a POST /tecnicas/grupo/:primeraTecnicaId/cancelar en una sola transacción.
+ * Invalida las queries de técnicas agrupadas de la muestra para forzar refresco.
+ */
+export const useCancelarGrupoTecnicas = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<CancelarGrupoResult, Error, { primeraTecnicaId: number; muestraId: number }>({
+    mutationFn: ({ primeraTecnicaId }) => tecnicaService.cancelarGrupo(primeraTecnicaId),
+    onSuccess: (_, { muestraId }) => {
+      queryClient.invalidateQueries({ queryKey: ['muestra', muestraId, 'tecnicas-agrupadas'] })
+      queryClient.invalidateQueries({ queryKey: ['muestra', muestraId, 'tecnicas'] })
+      queryClient.invalidateQueries({ queryKey: ['muestras'] })
+    }
+  })
 }
 
 /**

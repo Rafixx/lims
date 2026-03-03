@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/services/apiClient'
-import { Tecnica, TecnicaAgrupada } from '../interfaces/muestras.types'
+import { CancelarGrupoResult, Tecnica, TecnicaAgrupada } from '../interfaces/muestras.types'
 
 /**
  * Servicio para la gestión de técnicas
@@ -8,18 +8,26 @@ class TecnicaService {
   private readonly basePath = '/tecnicas'
 
   /**
-   * Elimina/cancela una técnica
-   * @param tecnicaId - ID de la técnica a eliminar
-   * @returns Promise que se resuelve cuando la operación es exitosa
+   * Elimina/cancela una técnica individual
    */
   async deleteTecnica(tecnicaId: number): Promise<void> {
     await apiClient.post(`${this.basePath}/deleteTecnica`, { id_tecnica: tecnicaId })
   }
 
   /**
+   * Cancela atómicamente todas las técnicas de un grupo en una sola transacción.
+   * Sustituye el patrón getTecnicaIdsFromGroup + N×deleteTecnica.
+   * @param primeraTecnicaId - ID de cualquier técnica del grupo (identifica el grupo)
+   */
+  async cancelarGrupo(primeraTecnicaId: number): Promise<CancelarGrupoResult> {
+    const response = await apiClient.post<CancelarGrupoResult>(
+      `${this.basePath}/grupo/${primeraTecnicaId}/cancelar`
+    )
+    return response.data
+  }
+
+  /**
    * Obtiene técnicas agrupadas o normales según el tipo de muestra
-   * @param muestraId - ID de la muestra
-   * @returns Promise con técnicas completas (tipo normal) o agrupadas (tipo array)
    */
   async getTecnicasAgrupadasByMuestra(muestraId: number): Promise<Tecnica[] | TecnicaAgrupada[]> {
     const response = await apiClient.get<Tecnica[] | TecnicaAgrupada[]>(
@@ -29,36 +37,15 @@ class TecnicaService {
   }
 
   /**
-   * Obtiene los IDs de todas las técnicas de un grupo (técnica agrupada)
-   * @param primeraTecnicaId - ID de la primera técnica del grupo
-   * @returns Promise con array de IDs de técnicas
-   */
-  async getTecnicaIdsFromGroup(primeraTecnicaId: number): Promise<number[]> {
-    const response = await apiClient.get<{ tecnica_ids: number[] }>(
-      `${this.basePath}/grupo/${primeraTecnicaId}/ids`
-    )
-    return response.data.tecnica_ids
-  }
-
-  /**
-   * Obtiene las técnicas completas de un grupo (técnica agrupada)
-   * @param primeraTecnicaId - ID de la primera técnica del grupo
-   * @returns Promise con array de técnicas con su información completa
+   * Obtiene las técnicas completas de un grupo (para mostrar el detalle expandido)
    */
   async getTecnicasFromGroup(primeraTecnicaId: number): Promise<Tecnica[]> {
-    const response = await apiClient.get<Tecnica[]>(
-      `${this.basePath}/grupo/${primeraTecnicaId}`
-    )
+    const response = await apiClient.get<Tecnica[]>(`${this.basePath}/grupo/${primeraTecnicaId}`)
     return response.data
   }
 
   /**
    * Obtiene técnicas pendientes de externalización
-   * Requisitos:
-   * - id_worklist = null
-   * - estado no final
-   * - Incluye información de muestra y array si aplica
-   * @returns Promise con array de técnicas pendientes
    */
   async getTecnicasPendientesExternalizacion(): Promise<Tecnica[]> {
     const response = await apiClient.get<{ success: boolean; data: Tecnica[] }>(

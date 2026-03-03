@@ -5,8 +5,7 @@ import { ListDetail } from '@/shared/components/organisms/ListDetail'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
-import { useDeleteTecnica, useTecnicasFromGroup } from '../../hooks/useMuestras'
-import tecnicaService from '../../services/tecnica.service'
+import { useCancelarGrupoTecnicas, useTecnicasFromGroup } from '../../hooks/useMuestras'
 
 interface TecnicaAgrupadaListDetailProps {
   tecnicaAgrupada: TecnicaAgrupada
@@ -24,8 +23,7 @@ export const TecnicaAgrupadaListDetail = ({
 }: TecnicaAgrupadaListDetailProps) => {
   const { confirm } = useConfirmation()
   const { notify } = useNotification()
-  const deleteTecnicaMutation = useDeleteTecnica()
-  const [isDeleting, setIsDeleting] = useState(false)
+  const cancelarGrupoMutation = useCancelarGrupoTecnicas()
   const [isExpanded, setIsExpanded] = useState(false)
 
   // Cargar técnicas del grupo solo cuando está expandido
@@ -50,11 +48,11 @@ export const TecnicaAgrupadaListDetail = ({
   const hasPendingTechniques = tecnicaAgrupada.pendientes > 0
   const canDelete = !hasWorklistAssigned && hasPendingTechniques
 
-  // Handler para eliminar/cancelar grupo de técnicas
+  // Handler para cancelar el grupo de técnicas — una sola llamada atómica al backend
   const handleDeleteGrupo = async () => {
     if (!canDelete) {
       notify(
-        'No se pueden eliminar técnicas que ya están asignadas a un worklist o externalizadas',
+        'No se pueden cancelar técnicas que ya están asignadas a un worklist o externalizadas',
         'warning'
       )
       return
@@ -62,7 +60,7 @@ export const TecnicaAgrupadaListDetail = ({
 
     const confirmed = await confirm({
       title: 'Cancelar grupo de técnicas',
-      message: `¿Estás seguro de que deseas cancelar todas las técnicas del proceso "${tecnicaAgrupada.proceso_nombre}"? Esta acción cambiará el estado a CANCELADA y eliminará ${tecnicaAgrupada.pendientes} técnicas.`,
+      message: `¿Estás seguro de que deseas cancelar todas las técnicas del proceso "${tecnicaAgrupada.proceso_nombre}"? Se cancelarán ${tecnicaAgrupada.pendientes} técnicas (estado → CANCELADA).`,
       confirmText: 'Sí, cancelar',
       cancelText: 'No',
       type: 'danger'
@@ -70,28 +68,16 @@ export const TecnicaAgrupadaListDetail = ({
 
     if (!confirmed) return
 
-    setIsDeleting(true)
     try {
-      // Obtener los IDs de todas las técnicas del grupo
-      const tecnicaIds = await tecnicaService.getTecnicaIdsFromGroup(
-        tecnicaAgrupada.primera_tecnica_id
-      )
-
-      // Eliminar cada técnica del grupo
-      const deletePromises = tecnicaIds.map(tecnicaId =>
-        deleteTecnicaMutation.mutateAsync({
-          tecnicaId,
-          muestraId
-        })
-      )
-
-      await Promise.all(deletePromises)
-      notify(`${tecnicaIds.length} técnicas canceladas correctamente`, 'success')
+      const resultado = await cancelarGrupoMutation.mutateAsync({
+        primeraTecnicaId: tecnicaAgrupada.primera_tecnica_id,
+        muestraId
+      })
+      notify(`${resultado.canceladas} técnicas canceladas correctamente`, 'success')
     } catch (error) {
       console.error('Error cancelando grupo de técnicas:', error)
-      notify('Error al cancelar el grupo de técnicas', 'error')
-    } finally {
-      setIsDeleting(false)
+      const message = error instanceof Error ? error.message : 'Error desconocido'
+      notify(`Error al cancelar el grupo: ${message}`, 'error')
     }
   }
 
@@ -179,12 +165,12 @@ export const TecnicaAgrupadaListDetail = ({
       {canDelete ? (
         <button
           onClick={handleDeleteGrupo}
-          disabled={isDeleting}
+          disabled={cancelarGrupoMutation.isPending}
           className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           title="Cancelar grupo de técnicas"
           aria-label={`Cancelar grupo ${tecnicaAgrupada.proceso_nombre}`}
         >
-          {isDeleting ? (
+          {cancelarGrupoMutation.isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
             <Trash2 className="w-4 h-4" />
