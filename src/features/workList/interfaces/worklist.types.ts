@@ -1,5 +1,6 @@
 import { Resultado } from '@/features/muestras/interfaces/muestras.types'
 import { DimEstado } from '@/shared/interfaces/estados.types'
+import type { TemplateValues } from '@/features/plantillaTecnica/interfaces/template.types'
 
 export interface Worklist {
   id_worklist: number
@@ -49,6 +50,7 @@ export interface Tecnica {
     nombre: string
   }
   resultados?: Resultado[]
+  datos_plantilla?: TemplateValues
 }
 
 export interface MuestraArray {

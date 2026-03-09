@@ -13,11 +13,13 @@ import { usePlantillaTecnica } from '../hooks/usePlantillaTecnica'
 import {
   useTemplate,
   useWorklistTemplateValues,
-  useSaveWorklistTemplateValues
+  useSaveWorklistTemplateValues,
+  useSaveTecnicaTemplateValues
 } from '../hooks/useTemplate'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { validateTemplate } from '../utils/templateValidator'
 import { TemplateValues, TemplateNode, CalcNode } from '../interfaces/template.types'
+import type { SavePar } from '../components/TecnicasTemplateTable'
 import { evaluateExpression } from '../utils/expressionEvaluator'
 
 /**
@@ -43,8 +45,11 @@ export const PlantillaTecnicaPage = () => {
   // Cargar valores guardados del worklist
   const { data: savedValues, isLoading: isLoadingValues } = useWorklistTemplateValues(worklistId)
 
-  // Mutación para guardar valores
+  // Mutación para guardar valores (scope WORKLIST)
   const saveValuesMutation = useSaveWorklistTemplateValues()
+
+  // Mutación para guardar valores por técnica (scope TECNICA)
+  const saveTecnicaMutation = useSaveTecnicaTemplateValues()
 
   const isLoading = isLoadingWorklist || isLoadingPlantilla || isLoadingTemplate || isLoadingValues
 
@@ -115,7 +120,7 @@ export const PlantillaTecnicaPage = () => {
     )
   }
 
-  // Handler para guardar valores de plantilla dinámica
+  // Handler para guardar valores de plantilla dinámica (scope WORKLIST)
   const handleSaveTemplateValues = async (
     values: Record<string, number | string | boolean | undefined>
   ) => {
@@ -128,6 +133,26 @@ export const PlantillaTecnicaPage = () => {
     } catch (error) {
       notify('Error al guardar valores de plantilla', 'error')
       throw error
+    }
+  }
+
+  // Handler para guardar valores de plantilla por técnica en lote (scope TECNICA)
+  const handleSaveTecnicaValues = async (pares: SavePar[]) => {
+    try {
+      await Promise.all(
+        pares.map(({ tecnicaId, values }) =>
+          saveTecnicaMutation.mutateAsync({ tecnicaId, values })
+        )
+      )
+      notify(
+        pares.length === 1
+          ? 'Valores guardados correctamente'
+          : `${pares.length} filas guardadas correctamente`,
+        'success'
+      )
+    } catch {
+      notify('Error al guardar los valores', 'error')
+      throw new Error('Error al guardar los valores de plantilla')
     }
   }
 
@@ -148,27 +173,39 @@ export const PlantillaTecnicaPage = () => {
       {/* Contenido Principal */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="space-y-8">
-          {/* Sección: Técnicas del Worklist */}
+          {/* Sección: Técnicas del Worklist
+              — scope TECNICA: tabla con entrada de datos integrada
+              — scope WORKLIST/PLANTILLA: tabla de resultados estándar */}
           <section>
-            <TecnicasList tecnicas={worklist.tecnicas} />
+            <TecnicasList
+              tecnicas={worklist.tecnicas}
+              templateTecnica={hasValidTemplate && template.scope === 'TECNICA' ? template : undefined}
+              onSaveTecnicaValues={handleSaveTecnicaValues}
+              isSavingTecnica={saveTecnicaMutation.isPending}
+            />
           </section>
 
-          {/* Grid principal: Cálculos (2/3) + Checklist (1/3) */}
+          {/* Grid principal: Cálculos (2/3) + Checklist (1/3)
+              Solo se muestra el renderer de cálculos para scope WORKLIST/PLANTILLA */}
           <div className="grid grid-cols-3 gap-6 items-start">
-            {/* Cálculos dinámicos */}
-            <section className="col-span-2">
-              {hasValidTemplate && (
+            {/* Cálculos dinámicos — solo para scope WORKLIST/PLANTILLA */}
+            {hasValidTemplate && template.scope !== 'TECNICA' && (
+              <section className="col-span-2">
                 <DynamicTemplateRenderer
                   template={template}
                   initialValues={savedValues}
                   onSave={handleSaveTemplateValues}
                   isSaving={saveValuesMutation.isPending}
                 />
-              )}
-            </section>
+              </section>
+            )}
 
             {/* Checklist: Pasos del Protocolo */}
-            <section className="col-span-1 sticky top-6">
+            <section
+              className={`sticky top-6 ${
+                hasValidTemplate && template.scope !== 'TECNICA' ? 'col-span-1' : 'col-span-3'
+              }`}
+            >
               <PasosList pasos={plantillaTecnica.plantillaTecnica.dimPlantillaPasos || []} />
             </section>
           </div>

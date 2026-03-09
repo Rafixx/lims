@@ -7,7 +7,7 @@
 
 export type ValueType = 'number' | 'string' | 'boolean' | 'date'
 
-export type Scope = 'PLANTILLA' | 'TECNICA'
+export type Scope = 'WORKLIST' | 'PLANTILLA' | 'TECNICA'
 
 /**
  * Step dentro de un procedimiento

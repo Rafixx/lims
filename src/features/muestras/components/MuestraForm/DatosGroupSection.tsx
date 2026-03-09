@@ -6,11 +6,11 @@ import { AlertCircle, CheckCircle2, Grid3x3 } from 'lucide-react'
 
 // Definición de presets comunes para placas de laboratorio
 const PLATE_PRESETS = [
-  { label: '12×12 (144 posiciones)', width: 12, heightLetter: 'L' },
-  { label: '10×5 (50 posiciones)', width: 10, heightLetter: 'E' },
-  { label: '7×9 (63 posiciones)', width: 7, heightLetter: 'I' },
-  { label: '8×12 (96 posiciones)', width: 8, heightLetter: 'L' },
-  { label: '16×24 (384 posiciones)', width: 16, heightLetter: 'X' }
+  // { label: '12×12 (144 posiciones)', width: 12, heightLetter: 'L' },
+  // { label: '10×5 (50 posiciones)', width: 10, heightLetter: 'E' },
+  // { label: '7×9 (63 posiciones)', width: 7, heightLetter: 'I' },
+  { label: '12x8 (96 posiciones)', width: 12, heightLetter: 'H' }
+  // { label: '16×24 (384 posiciones)', width: 16, heightLetter: 'X' }
 ] as const
 
 // Utilidades para conversión letra ↔ número
@@ -118,7 +118,16 @@ export const MuestraGroupSection = ({ readOnly = false }: MuestraGroupSectionPro
       // Si los datos no son válidos, limpiar array_config
       setValue('array_config', null, { shouldValidate: true, shouldDirty: true })
     }
-  }, [readOnly, isFormValid, arrayCode, width, heightLetter, heightNumber, totalPositions, setValue])
+  }, [
+    readOnly,
+    isFormValid,
+    arrayCode,
+    width,
+    heightLetter,
+    heightNumber,
+    totalPositions,
+    setValue
+  ])
 
   // Handler para selección de preset
   const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -380,6 +389,8 @@ export const MuestraGroupSection = ({ readOnly = false }: MuestraGroupSectionPro
                           const col = index % parseInt(width, 10)
                           const rowLetter = String.fromCharCode(65 + row) // A, B, C...
                           const colNumber = col + 1
+                          const colPadded = String(colNumber).padStart(2, '0')
+                          const posLabel = `${rowLetter}${colPadded}`
 
                           return (
                             <div
@@ -389,14 +400,14 @@ export const MuestraGroupSection = ({ readOnly = false }: MuestraGroupSectionPro
                                 minWidth: parseInt(width, 10) > 20 ? '16px' : '20px',
                                 maxWidth: '32px'
                               }}
-                              title={`Posición ${rowLetter}${colNumber}`}
+                              title={`Posición ${posLabel}`}
                             >
                               <span
                                 className={`text-blue-400 font-mono font-semibold select-none ${
                                   parseInt(width, 10) > 12 ? 'text-[6px]' : 'text-[8px]'
                                 } group-hover:text-blue-600 transition-colors`}
                               >
-                                {parseInt(width, 10) > 16 ? '·' : `${rowLetter}${colNumber}`}
+                                {parseInt(width, 10) > 16 ? '·' : posLabel}
                               </span>
                             </div>
                           )

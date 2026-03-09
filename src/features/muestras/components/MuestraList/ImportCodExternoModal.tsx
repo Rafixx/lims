@@ -26,8 +26,8 @@ import type { CodExternoPar, Muestra } from '../../interfaces/muestras.types'
 // ---------------------------------------------------------------------------
 const downloadTemplate = (estudio: string, muestras: Muestra[]) => {
   const BOM = '\uFEFF'
-  const header = 'codigo_epi,cod_externo'
-  const rows = muestras.map(m => `${m.codigo_epi ?? ''},`)
+  const header = 'codigo_epi,cod_externo,observaciones'
+  const rows = muestras.map(m => `${m.codigo_epi ?? ''},,`)
   const csv = [header, ...rows].join('\n')
 
   const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' })
@@ -43,7 +43,7 @@ const downloadTemplate = (estudio: string, muestras: Muestra[]) => {
 
 // ---------------------------------------------------------------------------
 // Parseo de CSV
-// Requiere columna cod_externo. Lee también codigo_epi si está presente.
+// Requiere columna cod_externo. Lee también codigo_epi y observaciones si están presentes.
 // Filtra filas donde cod_externo está vacío (asignación parcial).
 // ---------------------------------------------------------------------------
 const parseCsv = (text: string): CodExternoPar[] => {
@@ -58,6 +58,7 @@ const parseCsv = (text: string): CodExternoPar[] => {
   if (extIdx === -1) throw new Error('El CSV no contiene la columna "cod_externo"')
 
   const epiIdx = headers.findIndex(h => h === 'codigo_epi')
+  const obsIdx = headers.findIndex(h => h === 'observaciones')
 
   return lines
     .slice(1)
@@ -65,7 +66,8 @@ const parseCsv = (text: string): CodExternoPar[] => {
       const cells = line.split(delimiter).map(unquote)
       return {
         codigo_epi: epiIdx >= 0 ? (cells[epiIdx] ?? '') : '',
-        cod_externo: cells[extIdx] ?? ''
+        cod_externo: cells[extIdx] ?? '',
+        observaciones: obsIdx >= 0 ? (cells[obsIdx] ?? '') || undefined : undefined
       }
     })
     .filter(par => par.cod_externo !== '')
@@ -151,12 +153,11 @@ export const ImportCodExternoModal = ({ isOpen, onClose, estudio, muestras }: Pr
         <div className="rounded-lg border border-surface-200 bg-surface-50 p-4">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-sm font-medium text-surface-900">
-                Paso 1 — Descarga la plantilla
-              </p>
+              <p className="text-sm font-medium text-surface-900">Paso 1 — Descarga la plantilla</p>
               <p className="mt-0.5 text-xs text-surface-500">
-                CSV con los {totalMuestras} códigos EPI del estudio y la columna{' '}
-                <code className="rounded bg-surface-200 px-1 font-mono">cod_externo</code> vacía
+                CSV con los {totalMuestras} códigos EPI del estudio y las columnas{' '}
+                <code className="rounded bg-surface-200 px-1 font-mono">cod_externo</code> y{' '}
+                <code className="rounded bg-surface-200 px-1 font-mono">observaciones</code> vacías
                 para rellenar.
               </p>
             </div>
@@ -203,12 +204,15 @@ export const ImportCodExternoModal = ({ isOpen, onClose, estudio, muestras }: Pr
             {/* Tabla de previsualización */}
             <div className="overflow-hidden rounded-lg border border-surface-200">
               {/* Cabecera */}
-              <div className="grid grid-cols-2 gap-x-2 border-b border-surface-200 bg-surface-100 px-3 py-1.5">
+              <div className="grid grid-cols-3 gap-x-2 border-b border-surface-200 bg-surface-100 px-3 py-1.5">
                 <span className="text-xs font-semibold uppercase tracking-wide text-surface-500">
                   Cód EPI
                 </span>
                 <span className="text-xs font-semibold uppercase tracking-wide text-surface-500">
                   Cód Externo
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-wide text-surface-500">
+                  Observaciones
                 </span>
               </div>
               {/* Filas (scroll si hay muchas) */}
@@ -216,13 +220,16 @@ export const ImportCodExternoModal = ({ isOpen, onClose, estudio, muestras }: Pr
                 {parsedPares.map((par, idx) => (
                   <div
                     key={idx}
-                    className="grid grid-cols-2 gap-x-2 border-b border-surface-100 px-3 py-1.5 last:border-b-0 hover:bg-surface-50"
+                    className="grid grid-cols-3 gap-x-2 border-b border-surface-100 px-3 py-1.5 last:border-b-0 hover:bg-surface-50"
                   >
                     <span className="truncate font-mono text-xs text-surface-600">
                       {par.codigo_epi || <span className="italic text-surface-300">—</span>}
                     </span>
                     <span className="truncate font-mono text-xs font-semibold text-primary-700">
                       {par.cod_externo}
+                    </span>
+                    <span className="truncate text-xs text-surface-500">
+                      {par.observaciones || <span className="italic text-surface-300">—</span>}
                     </span>
                   </div>
                 ))}

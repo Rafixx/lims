@@ -59,6 +59,23 @@ class TemplateService {
   }
 
   /**
+   * Guarda los valores de inputs en una técnica individual (scope TECNICA)
+   * Los valores se almacenan en tecnicas.datos_plantilla
+   * @param tecnicaId ID de la técnica
+   * @param values Valores de inputs a persistir
+   */
+  async saveTecnicaTemplateValues(tecnicaId: number, values: TemplateValues): Promise<void> {
+    try {
+      await apiClient.put(`/tecnicas/${tecnicaId}/template-values`, {
+        datos_plantilla: values
+      })
+    } catch (error) {
+      console.error('Error al guardar valores de plantilla en técnica:', error)
+      throw error
+    }
+  }
+
+  /**
    * Obtiene los valores guardados de inputs de un worklist
    * Los valores vienen de worklist.json_data.template_values
    * @param worklistId ID del worklist

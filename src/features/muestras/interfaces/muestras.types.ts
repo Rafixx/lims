@@ -156,6 +156,7 @@ export type CreateMuestraResult = {
 export type CodExternoPar = {
   codigo_epi: string
   cod_externo: string
+  observaciones?: string
 }
 
 /** Respuesta del endpoint POST /muestras/estudio/:estudio/cod-externo */
@@ -169,6 +170,7 @@ export type ArrayCodExternoPar = {
   posicion_placa: string
   cod_externo: string
   codigo_epi?: string
+  observaciones?: string
 }
 
 /** Respuesta del endpoint POST /muestras/:id/array/cod-externo */

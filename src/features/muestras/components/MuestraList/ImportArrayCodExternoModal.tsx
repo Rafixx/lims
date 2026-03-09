@@ -27,10 +27,8 @@ import type { ArrayCodExternoPar, MuestraArray } from '../../interfaces/muestras
 // ---------------------------------------------------------------------------
 const downloadTemplate = (muestraId: number, arrayPositions: MuestraArray[]) => {
   const BOM = '\uFEFF'
-  const header = 'posicion_placa,codigo_epi,cod_externo'
-  const rows = arrayPositions.map(
-    pos => `${pos.posicion_placa ?? ''},${pos.codigo_epi ?? ''},`
-  )
+  const header = 'posicion_placa,codigo_epi,cod_externo,observaciones'
+  const rows = arrayPositions.map(pos => `${pos.posicion_placa ?? ''},${pos.codigo_epi ?? ''},,`)
   const csv = [header, ...rows].join('\n')
 
   const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' })
@@ -47,7 +45,7 @@ const downloadTemplate = (muestraId: number, arrayPositions: MuestraArray[]) => 
 // ---------------------------------------------------------------------------
 // Parseo de CSV
 // Requiere columna posicion_placa y cod_externo.
-// Lee también codigo_epi si está presente.
+// Lee también codigo_epi y observaciones si están presentes.
 // Filtra filas donde cod_externo está vacío (asignación parcial).
 // ---------------------------------------------------------------------------
 const parseCsv = (text: string): ArrayCodExternoPar[] => {
@@ -65,6 +63,7 @@ const parseCsv = (text: string): ArrayCodExternoPar[] => {
   if (extIdx === -1) throw new Error('El CSV no contiene la columna "cod_externo"')
 
   const epiIdx = headers.findIndex(h => h === 'codigo_epi')
+  const obsIdx = headers.findIndex(h => h === 'observaciones')
 
   return lines
     .slice(1)
@@ -73,7 +72,8 @@ const parseCsv = (text: string): ArrayCodExternoPar[] => {
       return {
         posicion_placa: cells[posIdx] ?? '',
         cod_externo: cells[extIdx] ?? '',
-        codigo_epi: epiIdx >= 0 ? (cells[epiIdx] ?? '') : undefined
+        codigo_epi: epiIdx >= 0 ? (cells[epiIdx] ?? '') : undefined,
+        observaciones: obsIdx >= 0 ? (cells[obsIdx] ?? '') || undefined : undefined
       }
     })
     .filter(par => par.cod_externo !== '' && par.posicion_placa !== '')
@@ -96,7 +96,9 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
   const [parsedPares, setParsedPares] = useState<ArrayCodExternoPar[]>([])
   const [parseError, setParseError] = useState<string>('')
   const { notify } = useNotification()
-  const { arrayPositions, isLoading: isLoadingArray } = useMuestraArray(isOpen ? muestraId : undefined)
+  const { arrayPositions, isLoading: isLoadingArray } = useMuestraArray(
+    isOpen ? muestraId : undefined
+  )
   const importMutation = useImportArrayCodExterno()
 
   const totalPosiciones = arrayPositions.length
@@ -154,32 +156,25 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
     : `Importar Códigos Externos — Placa #${muestraId}`
 
   return (
-    <Modal
-      isOpen={isOpen}
-      title={title}
-      onClose={handleClose}
-      widthClass="max-w-lg"
-    >
+    <Modal isOpen={isOpen} title={title} onClose={handleClose} widthClass="max-w-lg">
       <div className="space-y-5">
         {/* Paso 1: descargar plantilla */}
         <div className="rounded-lg border border-surface-200 bg-surface-50 p-4">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-sm font-medium text-surface-900">
-                Paso 1 — Descarga la plantilla
-              </p>
+              <p className="text-sm font-medium text-surface-900">Paso 1 — Descarga la plantilla</p>
               <p className="mt-0.5 text-xs text-surface-500">
                 {isLoadingArray ? (
                   'Cargando posiciones...'
                 ) : totalPosiciones > 0 ? (
                   <>
                     CSV con las {totalPosiciones} posiciones de la placa (
-                    <code className="rounded bg-surface-200 px-1 font-mono">posicion_placa</code>{' '}
-                    +{' '}
-                    <code className="rounded bg-surface-200 px-1 font-mono">codigo_epi</code>) y la
-                    columna{' '}
-                    <code className="rounded bg-surface-200 px-1 font-mono">cod_externo</code>{' '}
-                    vacía para rellenar.
+                    <code className="rounded bg-surface-200 px-1 font-mono">posicion_placa</code> +{' '}
+                    <code className="rounded bg-surface-200 px-1 font-mono">codigo_epi</code>) y las
+                    columnas{' '}
+                    <code className="rounded bg-surface-200 px-1 font-mono">cod_externo</code> y{' '}
+                    <code className="rounded bg-surface-200 px-1 font-mono">observaciones</code>{' '}
+                    vacías para rellenar.
                   </>
                 ) : (
                   'Esta placa no tiene posiciones registradas.'
@@ -230,7 +225,7 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
             {/* Tabla de previsualización */}
             <div className="overflow-hidden rounded-lg border border-surface-200">
               {/* Cabecera */}
-              <div className="grid grid-cols-3 gap-x-2 border-b border-surface-200 bg-surface-100 px-3 py-1.5">
+              <div className="grid grid-cols-4 gap-x-2 border-b border-surface-200 bg-surface-100 px-3 py-1.5">
                 <span className="text-xs font-semibold uppercase tracking-wide text-surface-500">
                   Posición
                 </span>
@@ -240,13 +235,16 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
                 <span className="text-xs font-semibold uppercase tracking-wide text-surface-500">
                   Cód Externo
                 </span>
+                <span className="text-xs font-semibold uppercase tracking-wide text-surface-500">
+                  Observaciones
+                </span>
               </div>
               {/* Filas (scroll si hay muchas) */}
               <div className="max-h-44 overflow-y-auto">
                 {parsedPares.map((par, idx) => (
                   <div
                     key={idx}
-                    className="grid grid-cols-3 gap-x-2 border-b border-surface-100 px-3 py-1.5 last:border-b-0 hover:bg-surface-50"
+                    className="grid grid-cols-4 gap-x-2 border-b border-surface-100 px-3 py-1.5 last:border-b-0 hover:bg-surface-50"
                   >
                     <span className="truncate font-mono text-xs font-semibold text-accent-700">
                       {par.posicion_placa}
@@ -256,6 +254,9 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
                     </span>
                     <span className="truncate font-mono text-xs font-semibold text-primary-700">
                       {par.cod_externo}
+                    </span>
+                    <span className="truncate text-xs text-surface-500">
+                      {par.observaciones || <span className="italic text-surface-300">—</span>}
                     </span>
                   </div>
                 ))}

@@ -30,6 +30,21 @@ export const useWorklistTemplateValues = (worklistId: number) => {
 }
 
 /**
+ * Hook para guardar valores de plantilla en una técnica individual (scope TECNICA)
+ */
+export const useSaveTecnicaTemplateValues = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ tecnicaId, values }: { tecnicaId: number; values: TemplateValues }) =>
+      templateService.saveTecnicaTemplateValues(tecnicaId, values),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['worklist'] })
+    }
+  })
+}
+
+/**
  * Hook para guardar valores de plantilla en un worklist
  */
 export const useSaveWorklistTemplateValues = () => {
