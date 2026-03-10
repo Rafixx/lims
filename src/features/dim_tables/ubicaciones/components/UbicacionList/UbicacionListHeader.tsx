@@ -1,9 +1,9 @@
-import { ListHeader, ListHeaderField } from '@/shared/components/organisms/ListHeader'
+import { ListHeader, ListHeaderField, ListHeaderProps } from '@/shared/components/organisms/ListHeader'
 
-export interface UbicacionListHeaderProps {
+export interface UbicacionListHeaderProps extends Pick<ListHeaderProps, 'sortKey' | 'sortDirection' | 'onSort'> {
   fieldList: ListHeaderField[]
 }
 
-export const UbicacionListHeader = ({ fieldList }: UbicacionListHeaderProps) => {
-  return <ListHeader fieldList={fieldList} />
+export const UbicacionListHeader = ({ fieldList, sortKey, sortDirection, onSort }: UbicacionListHeaderProps) => {
+  return <ListHeader fieldList={fieldList} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
 }

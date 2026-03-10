@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, UserPlus } from 'lucide-react'
 import { createUser } from '@/shared/services/userUser'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { getErrorMessage } from '@/shared/utils/errorUtils'
 import { Button } from '@/shared/components/molecules/Button'
 import { Input } from '@/shared/components/molecules/Input'
 import { Label } from '@/shared/components/atoms/Label'
@@ -15,7 +16,12 @@ const registerSchema = z.object({
   nombre: z.string().min(2, 'Nombre requerido'),
   username: z.string().min(2, 'Username requerido'),
   email: z.string().email({ message: 'Email inválido' }),
-  password: z.string().min(6, 'Contraseña mínima de 6 caracteres'),
+  password: z
+    .string()
+    .min(8, 'Mínimo 8 caracteres')
+    .regex(/[A-Z]/, 'Debe contener al menos una mayúscula')
+    .regex(/[a-z]/, 'Debe contener al menos una minúscula')
+    .regex(/[0-9]/, 'Debe contener al menos un número'),
   id_rol: z.coerce.number().min(1, 'Rol obligatorio')
 })
 
@@ -33,10 +39,10 @@ export const RegisterPage = () => {
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      nombre: 'Demo Admin',
-      username: 'demo',
-      email: 'demo@lims.com',
-      password: '123456',
+      nombre: '',
+      username: '',
+      email: '',
+      password: '',
       id_rol: 1
     }
   })
@@ -46,8 +52,8 @@ export const RegisterPage = () => {
       await createUser(data)
       notify('Usuario creado correctamente', 'success')
       navigate('/login')
-    } catch {
-      notify('Error al crear usuario', 'error')
+    } catch (error) {
+      notify(getErrorMessage(error, 'Error al crear usuario'), 'error')
     }
   }
 
@@ -105,7 +111,7 @@ export const RegisterPage = () => {
             <Input
               id="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Mín. 8 caracteres, mayúscula, número"
               autoComplete="new-password"
               className="pr-10"
               {...register('password')}
@@ -127,12 +133,15 @@ export const RegisterPage = () => {
         {/* Rol */}
         <div>
           <Label htmlFor="id_rol">Rol</Label>
-          <Input
+          <select
             id="id_rol"
-            type="number"
-            placeholder="ID del rol (ej. 1)"
             {...register('id_rol')}
-          />
+            className="w-full px-3 py-2 border border-surface-200 rounded-md bg-white text-surface-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+          >
+            <option value={1}>Administrador</option>
+            <option value={2}>Técnico</option>
+            <option value={3}>Visualizador</option>
+          </select>
           {errors.id_rol && (
             <p className="text-xs text-danger-600 mt-1">{errors.id_rol.message}</p>
           )}

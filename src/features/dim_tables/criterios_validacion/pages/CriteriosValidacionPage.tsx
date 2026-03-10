@@ -3,6 +3,7 @@ import { FilterContainer } from '@/shared/components/organisms/Filters/FilterCon
 import { ListPage } from '@/shared/components/organisms/ListPage'
 import { useCriteriosValidacion, useDeleteCriterioValidacion } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
+import { useSortAndPaginate } from '@/shared/hooks/useSortAndPaginate'
 import { CriterioValidacion } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
@@ -13,10 +14,11 @@ import {
 } from '../components/CriterioValidacionList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { Pagination } from '@/shared/components/molecules/Pagination'
 
 const CRITERIO_VALIDACION_COLUMNS = [
-  { label: 'Código', span: 4 },
-  { label: 'Descripción', span: 6 },
+  { label: 'Código', span: 4, sortKey: 'codigo' },
+  { label: 'Descripción', span: 6, sortKey: 'descripcion' },
   { label: '', span: 2 }
 ]
 
@@ -48,6 +50,9 @@ export const CriteriosValidacionPage = () => {
     updateFilter,
     clearFilters
   } = useListFilters<CriterioValidacion>(criterios || [], filterConfig)
+
+  const { sortKey, sortDirection, onSort, page, setPage, pageSize, setPageSize, totalPages, paginatedItems } =
+    useSortAndPaginate(criteriosFiltrados, { defaultSortKey: 'codigo' })
 
   const handlers = {
     onNew: () => navigate('/criterios-validacion/nuevo'),
@@ -108,8 +113,8 @@ export const CriteriosValidacionPage = () => {
       }}
     >
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <CriterioValidacionListHeader fieldList={CRITERIO_VALIDACION_COLUMNS} />
-        {criteriosFiltrados.map((criterio: CriterioValidacion) => (
+        <CriterioValidacionListHeader fieldList={CRITERIO_VALIDACION_COLUMNS} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+        {paginatedItems.map((criterio: CriterioValidacion) => (
           <CriterioValidacionListDetail
             key={criterio.id}
             criterio={criterio}
@@ -118,6 +123,7 @@ export const CriteriosValidacionPage = () => {
             fieldSpans={CRITERIO_VALIDACION_COLUMNS.map(col => col.span)}
           />
         ))}
+        <Pagination page={page} totalPages={totalPages} totalItems={criteriosFiltrados.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
       </div>
     </ListPage>
   )

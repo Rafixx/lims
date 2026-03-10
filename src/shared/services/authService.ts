@@ -8,13 +8,20 @@ export interface LoginPayload {
 
 export interface LoginResponse {
   token: string
+  user: {
+    id_usuario: number
+    username: string
+    nombre: string
+    email: string
+    rol_name: string
+  }
 }
 
 export const login = async (data: LoginPayload): Promise<LoginResponse> => {
   const response = await apiClient.post<LoginResponse>('/login', data)
   return response.data
 }
-export const logout = async (): Promise<void> => {
-  await apiClient.post('/logout')
+
+export const logout = (): void => {
   localStorage.removeItem(TOKEN_KEY)
 }

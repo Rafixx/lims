@@ -35,7 +35,10 @@ test('realiza login y redirige a dashboard', async () => {
     'signature'
   ].join('.')
 
-  mockedLogin.mockResolvedValue({ token: fakeToken })
+  mockedLogin.mockResolvedValue({
+    token: fakeToken,
+    user: { id_usuario: 1, username: 'demo', nombre: 'Demo', email: 'demo@lims.com', rol_name: 'admin' }
+  })
 
   renderWithProviders(<LoginPage />)
 

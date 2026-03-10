@@ -3,6 +3,7 @@ import { FilterContainer } from '@/shared/components/organisms/Filters/FilterCon
 import { ListPage } from '@/shared/components/organisms/ListPage'
 import { usePlantillaPasos, useDeletePlantillaPaso } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
+import { useSortAndPaginate } from '@/shared/hooks/useSortAndPaginate'
 import { PlantillaPasos } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
@@ -10,11 +11,12 @@ import { useNavigate } from 'react-router-dom'
 import { PlantillaPasoListHeader, PlantillaPasoListDetail } from '../components/PlantillaPasoList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { Pagination } from '@/shared/components/molecules/Pagination'
 
 const PLANTILLA_PASO_COLUMNS = [
-  { label: 'Orden', span: 2 },
-  { label: 'Código', span: 3 },
-  { label: 'Descripción', span: 5 },
+  { label: 'Orden', span: 2, sortKey: 'orden' },
+  { label: 'Código', span: 3, sortKey: 'codigo' },
+  { label: 'Descripción', span: 5, sortKey: 'descripcion' },
   { label: '', span: 2 }
 ]
 
@@ -47,6 +49,9 @@ export const PlantillasPasosPage = () => {
     updateFilter,
     clearFilters
   } = useListFilters<PlantillaPasos>(pasos || [], filterConfig)
+
+  const { sortKey, sortDirection, onSort, page, setPage, pageSize, setPageSize, totalPages, paginatedItems } =
+    useSortAndPaginate(pasosFiltrados, { defaultSortKey: 'orden' })
 
   const handleDelete = async (paso: PlantillaPasos) => {
     try {
@@ -100,8 +105,8 @@ export const PlantillasPasosPage = () => {
       }}
     >
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <PlantillaPasoListHeader fieldList={PLANTILLA_PASO_COLUMNS} />
-        {pasosFiltrados.map((paso: PlantillaPasos) => (
+        <PlantillaPasoListHeader fieldList={PLANTILLA_PASO_COLUMNS} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+        {paginatedItems.map((paso: PlantillaPasos) => (
           <PlantillaPasoListDetail
             key={paso.id}
             paso={paso}
@@ -110,6 +115,7 @@ export const PlantillasPasosPage = () => {
             fieldSpans={PLANTILLA_PASO_COLUMNS.map(col => col.span)}
           />
         ))}
+        <Pagination page={page} totalPages={totalPages} totalItems={pasosFiltrados.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
       </div>
     </ListPage>
   )

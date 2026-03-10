@@ -4,6 +4,7 @@ import * as z from 'zod'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, LogIn } from 'lucide-react'
+import axios from 'axios'
 import { login as loginApi } from '@/shared/services/authService'
 import { useUser } from '@/shared/contexts/UserContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
@@ -13,8 +14,8 @@ import { Label } from '@/shared/components/atoms/Label'
 import { AuthLayout } from '../components/AuthLayout'
 
 const loginSchema = z.object({
-  username: z.string().min(2, 'Username requerido'),
-  password: z.string().min(6, 'Contraseña mínima de 6 caracteres')
+  username: z.string().min(1, 'Usuario requerido'),
+  password: z.string().min(1, 'Contraseña requerida')
 })
 
 type LoginFormValues = z.infer<typeof loginSchema>
@@ -31,7 +32,7 @@ export const LoginPage = () => {
     formState: { errors, isSubmitting }
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { username: 'demo', password: '123456' }
+    defaultValues: { username: '', password: '' }
   })
 
   const onSubmit = async (data: LoginFormValues) => {
@@ -39,8 +40,16 @@ export const LoginPage = () => {
       const { token } = await loginApi(data)
       login(token)
       navigate('/dashboard')
-    } catch {
-      notify('Credenciales inválidas', 'error')
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 429) {
+          notify('Demasiados intentos. Inténtalo más tarde.', 'error')
+        } else {
+          notify('Credenciales incorrectas', 'error')
+        }
+      } else {
+        notify('Error de conexión', 'error')
+      }
     }
   }
 

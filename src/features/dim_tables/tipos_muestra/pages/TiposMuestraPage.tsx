@@ -3,6 +3,7 @@ import { FilterContainer } from '@/shared/components/organisms/Filters/FilterCon
 import { ListPage } from '@/shared/components/organisms/ListPage'
 import { useTiposMuestra, useDeleteTipoMuestra } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
+import { useSortAndPaginate } from '@/shared/hooks/useSortAndPaginate'
 import { TipoMuestra } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
@@ -10,10 +11,11 @@ import { useNavigate } from 'react-router-dom'
 import { TipoMuestraListHeader, TipoMuestraListDetail } from '../components/TipoMuestraList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { Pagination } from '@/shared/components/molecules/Pagination'
 
 const TIPO_MUESTRA_COLUMNS = [
-  { label: 'Código', span: 4 },
-  { label: 'Tipo de Muestra', span: 6 },
+  { label: 'Código', span: 4, sortKey: 'cod_tipo_muestra' },
+  { label: 'Tipo de Muestra', span: 6, sortKey: 'tipo_muestra' },
   { label: '', span: 2 }
 ]
 
@@ -69,6 +71,9 @@ export const TiposMuestraPage = () => {
     clearFilters
   } = useListFilters<TipoMuestra>(tiposMuestra || [], filterConfig)
 
+  const { sortKey, sortDirection, onSort, page, setPage, pageSize, setPageSize, totalPages, paginatedItems } =
+    useSortAndPaginate(tiposMuestraFiltrados, { defaultSortKey: 'cod_tipo_muestra' })
+
   const handlers = {
     onNew: () => navigate('/tipos-muestra/nuevo')
   }
@@ -102,8 +107,8 @@ export const TiposMuestraPage = () => {
       }}
     >
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <TipoMuestraListHeader fieldList={TIPO_MUESTRA_COLUMNS} />
-        {tiposMuestraFiltrados.map((tipoMuestra: TipoMuestra) => (
+        <TipoMuestraListHeader fieldList={TIPO_MUESTRA_COLUMNS} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+        {paginatedItems.map((tipoMuestra: TipoMuestra) => (
           <TipoMuestraListDetail
             key={tipoMuestra.id}
             tipoMuestra={tipoMuestra}
@@ -112,6 +117,7 @@ export const TiposMuestraPage = () => {
             fieldSpans={TIPO_MUESTRA_COLUMNS.map(col => col.span)}
           />
         ))}
+        <Pagination page={page} totalPages={totalPages} totalItems={tiposMuestraFiltrados.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
       </div>
     </ListPage>
   )

@@ -3,6 +3,7 @@ import { FilterContainer } from '@/shared/components/organisms/Filters/FilterCon
 import { ListPage } from '@/shared/components/organisms/ListPage'
 import { usePacientes, useDeletePaciente } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
+import { useSortAndPaginate } from '@/shared/hooks/useSortAndPaginate'
 import { Paciente } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
@@ -10,11 +11,12 @@ import { useNavigate } from 'react-router-dom'
 import { PacienteListHeader, PacienteListDetail } from '../components/PacienteList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { Pagination } from '@/shared/components/molecules/Pagination'
 
 const PACIENTE_COLUMNS = [
-  { label: 'Nombre', span: 4 },
-  { label: 'SIP', span: 2 },
-  { label: 'Dirección', span: 4 },
+  { label: 'Nombre', span: 4, sortKey: 'nombre' },
+  { label: 'SIP', span: 2, sortKey: 'sip' },
+  { label: 'Dirección', span: 4, sortKey: 'direccion' },
   { label: '', span: 2 }
 ]
 
@@ -47,6 +49,9 @@ export const PacientesPage = () => {
     updateFilter,
     clearFilters
   } = useListFilters<Paciente>(pacientes || [], filterConfig)
+
+  const { sortKey, sortDirection, onSort, page, setPage, pageSize, setPageSize, totalPages, paginatedItems } =
+    useSortAndPaginate(pacientesFiltrados, { defaultSortKey: 'nombre' })
 
   const handleDelete = async (paciente: Paciente) => {
     try {
@@ -100,8 +105,8 @@ export const PacientesPage = () => {
       }}
     >
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <PacienteListHeader fieldList={PACIENTE_COLUMNS} />
-        {pacientesFiltrados.map((paciente: Paciente) => (
+        <PacienteListHeader fieldList={PACIENTE_COLUMNS} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+        {paginatedItems.map((paciente: Paciente) => (
           <PacienteListDetail
             key={paciente.id}
             paciente={paciente}
@@ -110,6 +115,7 @@ export const PacientesPage = () => {
             fieldSpans={PACIENTE_COLUMNS.map(col => col.span)}
           />
         ))}
+        <Pagination page={page} totalPages={totalPages} totalItems={pacientesFiltrados.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
       </div>
     </ListPage>
   )

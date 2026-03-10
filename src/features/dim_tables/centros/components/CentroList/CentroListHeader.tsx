@@ -1,6 +1,6 @@
-import { ListHeader, ListHeaderField } from '@/shared/components/organisms/ListHeader'
+import { ListHeader, ListHeaderField, ListHeaderProps } from '@/shared/components/organisms/ListHeader'
 
-export interface CentroListHeaderProps {
+export interface CentroListHeaderProps extends Pick<ListHeaderProps, 'sortKey' | 'sortDirection' | 'onSort'> {
   fieldList: ListHeaderField[]
 }
 
@@ -8,6 +8,6 @@ export interface CentroListHeaderProps {
  * Componente específico para el header de la lista de Centros
  * Wrapper sobre el componente genérico ListHeader
  */
-export const CentroListHeader = ({ fieldList }: CentroListHeaderProps) => {
-  return <ListHeader fieldList={fieldList} />
+export const CentroListHeader = ({ fieldList, sortKey, sortDirection, onSort }: CentroListHeaderProps) => {
+  return <ListHeader fieldList={fieldList} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
 }

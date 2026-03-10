@@ -1,9 +1,9 @@
 import { ListHeader, ListHeaderField, ListHeaderProps } from '@/shared/components/organisms/ListHeader'
 
-export interface ClienteListHeaderProps extends Pick<ListHeaderProps, 'sortKey' | 'sortDirection' | 'onSort'> {
+interface UsuarioListHeaderProps extends Pick<ListHeaderProps, 'sortKey' | 'sortDirection' | 'onSort'> {
   fieldList: ListHeaderField[]
 }
 
-export const ClienteListHeader = ({ fieldList, sortKey, sortDirection, onSort }: ClienteListHeaderProps) => {
+export const UsuarioListHeader = ({ fieldList, sortKey, sortDirection, onSort }: UsuarioListHeaderProps) => {
   return <ListHeader fieldList={fieldList} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
 }

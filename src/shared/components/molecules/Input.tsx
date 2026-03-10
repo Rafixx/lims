@@ -3,11 +3,11 @@ import { useState, useEffect } from 'react'
 
 export const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => {
   const { className, type, value, onFocus, onChange, ...restProps } = props
-  const [localValue, setLocalValue] = useState(value)
+  const [localValue, setLocalValue] = useState(value ?? '')
 
   // Sincronizar con el valor externo
   useEffect(() => {
-    setLocalValue(value)
+    setLocalValue(value ?? '')
   }, [value])
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {

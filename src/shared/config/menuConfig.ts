@@ -17,7 +17,8 @@ import {
   FlaskConical,
   LucideIcon,
   Share2,
-  Microscope
+  Microscope,
+  ShieldCheck
 } from 'lucide-react'
 
 // Tipos para la nueva estructura de menú
@@ -148,6 +149,12 @@ export const configMenuItems: MenuItemWithChildren = {
       label: 'Técnicas de Procesamiento',
       icon: Microscope,
       description: 'Gestión de técnicas de procesamiento'
+    },
+    {
+      path: '/usuarios',
+      label: 'Usuarios y Roles',
+      icon: ShieldCheck,
+      description: 'Gestión de usuarios y permisos del sistema'
     }
   ]
 }

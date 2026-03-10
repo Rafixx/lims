@@ -3,6 +3,7 @@ import { FilterContainer } from '@/shared/components/organisms/Filters/FilterCon
 import { ListPage } from '@/shared/components/organisms/ListPage'
 import { useReactivos, useDeleteReactivo } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
+import { useSortAndPaginate } from '@/shared/hooks/useSortAndPaginate'
 import { Reactivo } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
@@ -10,11 +11,12 @@ import { useNavigate } from 'react-router-dom'
 import { ReactivoListHeader, ReactivoListDetail } from '../components/ReactivoList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { Pagination } from '@/shared/components/molecules/Pagination'
 
 const REACTIVO_COLUMNS = [
-  { label: 'Referencia', span: 2 },
-  { label: 'Reactivo', span: 3 },
-  { label: 'Lote', span: 2 },
+  { label: 'Referencia', span: 2, sortKey: 'num_referencia' },
+  { label: 'Reactivo', span: 3, sortKey: 'reactivo' },
+  { label: 'Lote', span: 2, sortKey: 'lote' },
   { label: 'Volumen', span: 3 },
   { label: '', span: 2 }
 ]
@@ -70,6 +72,9 @@ export const ReactivosPage = () => {
     clearFilters
   } = useListFilters<Reactivo>(reactivos || [], filterConfig)
 
+  const { sortKey, sortDirection, onSort, page, setPage, pageSize, setPageSize, totalPages, paginatedItems } =
+    useSortAndPaginate(reactivosFiltrados, { defaultSortKey: 'reactivo' })
+
   const handlers = {
     onNew: () => navigate('/reactivos/nuevo')
   }
@@ -103,8 +108,8 @@ export const ReactivosPage = () => {
       }}
     >
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <ReactivoListHeader fieldList={REACTIVO_COLUMNS} />
-        {reactivosFiltrados.map((reactivo: Reactivo) => (
+        <ReactivoListHeader fieldList={REACTIVO_COLUMNS} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+        {paginatedItems.map((reactivo: Reactivo) => (
           <ReactivoListDetail
             key={reactivo.id}
             reactivo={reactivo}
@@ -113,6 +118,7 @@ export const ReactivosPage = () => {
             fieldSpans={REACTIVO_COLUMNS.map(col => col.span)}
           />
         ))}
+        <Pagination page={page} totalPages={totalPages} totalItems={reactivosFiltrados.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
       </div>
     </ListPage>
   )

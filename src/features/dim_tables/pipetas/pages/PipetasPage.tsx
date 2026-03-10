@@ -3,6 +3,7 @@ import { FilterContainer } from '@/shared/components/organisms/Filters/FilterCon
 import { ListPage } from '@/shared/components/organisms/ListPage'
 import { usePipetas, useDeletePipeta } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
+import { useSortAndPaginate } from '@/shared/hooks/useSortAndPaginate'
 import { Pipeta } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
@@ -10,11 +11,12 @@ import { useNavigate } from 'react-router-dom'
 import { PipetaListHeader, PipetaListDetail } from '../components/PipetaList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { Pagination } from '@/shared/components/molecules/Pagination'
 
 const PIPETA_COLUMNS = [
-  { label: 'Código', span: 3 },
-  { label: 'Modelo', span: 4 },
-  { label: 'Zona', span: 3 },
+  { label: 'Código', span: 3, sortKey: 'codigo' },
+  { label: 'Modelo', span: 4, sortKey: 'modelo' },
+  { label: 'Zona', span: 3, sortKey: 'zona' },
   { label: '', span: 2 }
 ]
 
@@ -47,6 +49,9 @@ export const PipetasPage = () => {
     updateFilter,
     clearFilters
   } = useListFilters<Pipeta>(pipetas || [], filterConfig)
+
+  const { sortKey, sortDirection, onSort, page, setPage, pageSize, setPageSize, totalPages, paginatedItems } =
+    useSortAndPaginate(pipetasFiltradas, { defaultSortKey: 'codigo' })
 
   const handleDelete = async (pipeta: Pipeta) => {
     try {
@@ -100,8 +105,8 @@ export const PipetasPage = () => {
       }}
     >
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <PipetaListHeader fieldList={PIPETA_COLUMNS} />
-        {pipetasFiltradas.map((pipeta: Pipeta) => (
+        <PipetaListHeader fieldList={PIPETA_COLUMNS} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+        {paginatedItems.map((pipeta: Pipeta) => (
           <PipetaListDetail
             key={pipeta.id}
             pipeta={pipeta}
@@ -110,6 +115,7 @@ export const PipetasPage = () => {
             fieldSpans={PIPETA_COLUMNS.map(col => col.span)}
           />
         ))}
+        <Pagination page={page} totalPages={totalPages} totalItems={pipetasFiltradas.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
       </div>
     </ListPage>
   )

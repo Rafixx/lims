@@ -3,6 +3,7 @@ import { FilterContainer } from '@/shared/components/organisms/Filters/FilterCon
 import { ListPage } from '@/shared/components/organisms/ListPage'
 import { useCentros, useDeleteCentro } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
+import { useSortAndPaginate } from '@/shared/hooks/useSortAndPaginate'
 import { Centro } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
@@ -10,11 +11,12 @@ import { useNavigate } from 'react-router-dom'
 import { CentroListHeader, CentroListDetail } from '../components/CentroList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { Pagination } from '@/shared/components/molecules/Pagination'
 
 // Configuración de columnas para Centros
 const CENTRO_COLUMNS = [
-  { label: 'Código', span: 3 },
-  { label: 'Descripción', span: 7 },
+  { label: 'Código', span: 3, sortKey: 'codigo' },
+  { label: 'Descripción', span: 7, sortKey: 'descripcion' },
   { label: '', span: 2 }
 ]
 
@@ -46,6 +48,9 @@ export const CentrosPage = () => {
     updateFilter,
     clearFilters
   } = useListFilters<Centro>(centros || [], filterConfig)
+
+  const { sortKey, sortDirection, onSort, page, setPage, pageSize, setPageSize, totalPages, paginatedItems } =
+    useSortAndPaginate(centrosFiltrados, { defaultSortKey: 'codigo' })
 
   const handlers = {
     onNew: () => navigate('/centros/nuevo'),
@@ -104,8 +109,8 @@ export const CentrosPage = () => {
       }}
     >
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <CentroListHeader fieldList={CENTRO_COLUMNS} />
-        {centrosFiltrados.map((centro: Centro) => (
+        <CentroListHeader fieldList={CENTRO_COLUMNS} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+        {paginatedItems.map((centro: Centro) => (
           <CentroListDetail
             key={centro.id}
             centro={centro}
@@ -114,6 +119,7 @@ export const CentrosPage = () => {
             fieldSpans={CENTRO_COLUMNS.map(col => col.span)}
           />
         ))}
+        <Pagination page={page} totalPages={totalPages} totalItems={centrosFiltrados.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
       </div>
     </ListPage>
   )

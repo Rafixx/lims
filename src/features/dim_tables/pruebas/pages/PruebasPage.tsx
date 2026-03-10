@@ -3,6 +3,7 @@ import { FilterContainer } from '@/shared/components/organisms/Filters/FilterCon
 import { ListPage } from '@/shared/components/organisms/ListPage'
 import { usePruebas, useDeletePrueba } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
+import { useSortAndPaginate } from '@/shared/hooks/useSortAndPaginate'
 import { Prueba } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
@@ -10,10 +11,11 @@ import { useNavigate } from 'react-router-dom'
 import { PruebaListHeader, PruebaListDetail } from '../components/PruebaList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { Pagination } from '@/shared/components/molecules/Pagination'
 
 const PRUEBA_COLUMNS = [
-  { label: 'Código', span: 4 },
-  { label: 'Prueba', span: 6 },
+  { label: 'Código', span: 4, sortKey: 'cod_prueba' },
+  { label: 'Prueba', span: 6, sortKey: 'prueba' },
   { label: '', span: 2 }
 ]
 
@@ -63,6 +65,9 @@ export const PruebasPage = () => {
     clearFilters
   } = useListFilters<Prueba>(pruebas || [], filterConfig)
 
+  const { sortKey, sortDirection, onSort, page, setPage, pageSize, setPageSize, totalPages, paginatedItems } =
+    useSortAndPaginate(pruebasFiltradas, { defaultSortKey: 'cod_prueba' })
+
   const handlers = {
     onNew: () => navigate('/pruebas/nueva')
   }
@@ -95,8 +100,8 @@ export const PruebasPage = () => {
       }}
     >
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <PruebaListHeader fieldList={PRUEBA_COLUMNS} />
-        {pruebasFiltradas.map((prueba: Prueba) => (
+        <PruebaListHeader fieldList={PRUEBA_COLUMNS} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+        {paginatedItems.map((prueba: Prueba) => (
           <PruebaListDetail
             key={prueba.id}
             prueba={prueba}
@@ -105,6 +110,7 @@ export const PruebasPage = () => {
             fieldSpans={PRUEBA_COLUMNS.map(col => col.span)}
           />
         ))}
+        <Pagination page={page} totalPages={totalPages} totalItems={pruebasFiltradas.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
       </div>
     </ListPage>
   )

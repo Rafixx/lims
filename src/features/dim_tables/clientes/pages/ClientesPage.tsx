@@ -3,6 +3,7 @@ import { FilterContainer } from '@/shared/components/organisms/Filters/FilterCon
 import { ListPage } from '@/shared/components/organisms/ListPage'
 import { useClientes, useDeleteCliente } from '@/shared/hooks/useDim_tables'
 import { useListFilters } from '@/shared/hooks/useListFilters'
+import { useSortAndPaginate } from '@/shared/hooks/useSortAndPaginate'
 import { Cliente } from '@/shared/interfaces/dim_tables.types'
 import { createMultiFieldSearchFilter } from '@/shared/utils/filterUtils'
 import { useMemo } from 'react'
@@ -10,12 +11,13 @@ import { useNavigate } from 'react-router-dom'
 import { ClienteListHeader, ClienteListDetail } from '../components/ClienteList'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
+import { Pagination } from '@/shared/components/molecules/Pagination'
 
 const CLIENTE_COLUMNS = [
-  { label: 'Nombre', span: 3 },
-  { label: 'Razón Social', span: 3 },
-  { label: 'NIF', span: 2 },
-  { label: 'Dirección', span: 2 },
+  { label: 'Nombre', span: 3, sortKey: 'nombre' },
+  { label: 'Razón Social', span: 3, sortKey: 'razon_social' },
+  { label: 'NIF', span: 2, sortKey: 'nif' },
+  { label: 'Dirección', span: 2, sortKey: 'direccion' },
   { label: '', span: 2 }
 ]
 
@@ -49,6 +51,9 @@ export const ClientesPage = () => {
     updateFilter,
     clearFilters
   } = useListFilters<Cliente>(clientes || [], filterConfig)
+
+  const { sortKey, sortDirection, onSort, page, setPage, pageSize, setPageSize, totalPages, paginatedItems } =
+    useSortAndPaginate(clientesFiltrados, { defaultSortKey: 'nombre' })
 
   const handlers = {
     onNew: () => navigate('/clientes/nuevo'),
@@ -105,8 +110,8 @@ export const ClientesPage = () => {
       }}
     >
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <ClienteListHeader fieldList={CLIENTE_COLUMNS} />
-        {clientesFiltrados.map((cliente: Cliente) => (
+        <ClienteListHeader fieldList={CLIENTE_COLUMNS} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+        {paginatedItems.map((cliente: Cliente) => (
           <ClienteListDetail
             key={cliente.id}
             cliente={cliente}
@@ -115,6 +120,7 @@ export const ClientesPage = () => {
             fieldSpans={CLIENTE_COLUMNS.map(col => col.span)}
           />
         ))}
+        <Pagination page={page} totalPages={totalPages} totalItems={clientesFiltrados.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={setPageSize} />
       </div>
     </ListPage>
   )

@@ -52,6 +52,8 @@ import { LotesPage } from '@/features/tecnicasReactivos'
 import { ExternalizacionesPage } from '@/features/externalizaciones/pages/ExternalizacionesPage'
 import { EditExternalizacionPage } from '@/features/externalizaciones/pages/EditExternalizacionPage'
 import { RegistroMasivoPage } from '@/features/muestras/pages/RegistroMasivoPage'
+import { UsuariosPage } from '@/features/configuracion/usuarios/pages/UsuariosPage'
+import { CreateUsuarioPage } from '@/features/configuracion/usuarios/pages/CreateUsuarioPage'
 
 export const router = createBrowserRouter(
   [
@@ -122,7 +124,11 @@ export const router = createBrowserRouter(
         { path: 'plantillas-pasos/:id/editar', element: <EditPlantillaPasoPage /> },
         { path: 'tecnicas-proc', element: <TecnicasProcPage /> },
         { path: 'tecnicas-proc/nueva', element: <CreateTecnicaProcPage /> },
-        { path: 'tecnicas-proc/:id/editar', element: <EditTecnicaProcPage /> }
+        { path: 'tecnicas-proc/:id/editar', element: <EditTecnicaProcPage /> },
+
+        { path: 'usuarios', element: <UsuariosPage /> },
+        { path: 'usuarios/nuevo', element: <CreateUsuarioPage /> },
+        { path: 'usuarios/:id/editar', element: <CreateUsuarioPage /> }
       ]
     }
   ],

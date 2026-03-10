@@ -1,9 +1,9 @@
-import { ListHeader, ListHeaderField } from '@/shared/components/organisms/ListHeader'
+import { ListHeader, ListHeaderField, ListHeaderProps } from '@/shared/components/organisms/ListHeader'
 
-interface MaquinaListHeaderProps {
+interface MaquinaListHeaderProps extends Pick<ListHeaderProps, 'sortKey' | 'sortDirection' | 'onSort'> {
   fieldList: ListHeaderField[]
 }
 
-export const MaquinaListHeader = ({ fieldList }: MaquinaListHeaderProps) => {
-  return <ListHeader fieldList={fieldList} />
+export const MaquinaListHeader = ({ fieldList, sortKey, sortDirection, onSort }: MaquinaListHeaderProps) => {
+  return <ListHeader fieldList={fieldList} sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
 }
