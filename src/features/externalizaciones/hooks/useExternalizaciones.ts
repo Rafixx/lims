@@ -236,6 +236,36 @@ export const useEnviarExternalizaciones = () => {
 }
 
 /**
+ * Hook para marcar un grupo de externalizaciones como recibidas en paralelo
+ * Útil para placas (tipo_array) donde todas las posiciones se reciben a la vez
+ */
+export const useMarcarGrupoComoRecibida = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      ids,
+      data
+    }: {
+      ids: number[]
+      data: { f_recepcion: string; observaciones?: string }
+    }) => {
+      const results = await Promise.allSettled(
+        ids.map(id => externalizacionesService.marcarComoRecibida(id, data))
+      )
+      const ok = results.filter(r => r.status === 'fulfilled').length
+      const ko = results.filter(r => r.status === 'rejected').length
+      return { ok, ko, total: ids.length }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['externalizaciones'] })
+      queryClient.invalidateQueries({ queryKey: ['muestras'] })
+      queryClient.invalidateQueries({ queryKey: ['tecnicasPorMuestra'] })
+    }
+  })
+}
+
+/**
  * Hook para marcar una externalización como recibida
  * Cambia el estado de la técnica a RECIBIDA_EXT (id_estado = 18)
  */

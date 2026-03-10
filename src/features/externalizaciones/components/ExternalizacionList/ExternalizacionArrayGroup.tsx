@@ -7,7 +7,6 @@ import {
   Trash2,
   Calendar,
   User,
-  Building,
   Package,
   CheckCircle
 } from 'lucide-react'
@@ -15,6 +14,7 @@ import { Externalizacion } from '../../interfaces/externalizaciones.types'
 import { formatDate } from '@/shared/utils/helpers'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { MarcarRecibidaModal } from '../MarcarRecibidaModal'
+import { MarcarGrupoRecibidaModal } from '../MarcarGrupoRecibidaModal'
 
 type ExternalizacionArrayGroupProps = {
   externalizaciones: Externalizacion[]
@@ -35,6 +35,7 @@ export const ExternalizacionArrayGroup = ({
 }: ExternalizacionArrayGroupProps) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [showMarcarRecibidaModal, setShowMarcarRecibidaModal] = useState(false)
+  const [showMarcarGrupoRecibidaModal, setShowMarcarGrupoRecibidaModal] = useState(false)
   const [selectedExternalizacion, setSelectedExternalizacion] = useState<Externalizacion | null>(
     null
   )
@@ -51,6 +52,11 @@ export const ExternalizacionArrayGroup = ({
   const someSelected = allIds.some(id => selectedIds.has(id))
   const selectedCount = allIds.filter(id => selectedIds.has(id)).length
 
+  // IDs en estado ENVIADA_EXT (17) — son las marcables como recibidas
+  const enviadas = externalizaciones.filter(ext => ext.tecnica?.id_estado === 17)
+  const enviadasIds = enviadas.map(ext => ext.id_externalizacion)
+  const hayEnviadas = enviadas.length > 0
+
   const handleGroupCheckboxChange = (checked: boolean) => {
     onSelectChange?.(allIds, checked)
   }
@@ -65,82 +71,138 @@ export const ExternalizacionArrayGroup = ({
     setSelectedExternalizacion(null)
   }
 
+  const descripcionGrupo = `${muestra?.estudio || muestra?.codigo_epi || '-'} — ${tecnicaProc?.tecnica_proc || '-'}${codigoPlaca ? ` (${codigoPlaca})` : ''}`
+
   return (
     <div className="border border-primary-200 rounded-lg bg-primary-50/30 overflow-hidden">
-      {/* Header colapsable */}
-      <div className="flex items-center gap-3 p-4">
-        {showCheckbox && (
-          <input
-            type="checkbox"
-            checked={allSelected}
-            ref={input => {
-              if (input) {
-                input.indeterminate = someSelected && !allSelected
-              }
-            }}
-            onChange={e => handleGroupCheckboxChange(e.target.checked)}
-            className="w-4 h-4 text-primary-600 rounded focus:ring-2 focus:ring-primary-500"
-          />
-        )}
-
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-2 flex-1 hover:opacity-80 transition-opacity text-left"
-        >
-          {isExpanded ? (
-            <ChevronDown className="w-4 h-4 text-primary-600 flex-shrink-0" />
-          ) : (
-            <ChevronRight className="w-4 h-4 text-primary-600 flex-shrink-0" />
+      {/* Header del grupo — alineado con grid-cols-12 del ListHeader */}
+      <div className="grid grid-cols-12 gap-3 px-4 py-3 items-center">
+        {/* col-span-1: checkbox + expand */}
+        <div className="col-span-1 flex items-center gap-1">
+          {showCheckbox && (
+            <input
+              type="checkbox"
+              checked={allSelected}
+              ref={input => {
+                if (input) {
+                  input.indeterminate = someSelected && !allSelected
+                }
+              }}
+              onChange={e => handleGroupCheckboxChange(e.target.checked)}
+              className="w-4 h-4 text-primary-600 rounded focus:ring-2 focus:ring-primary-500"
+            />
           )}
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-1 hover:bg-primary-100 rounded transition-colors"
+            aria-label={isExpanded ? 'Contraer grupo' : 'Expandir grupo'}
+          >
+            {isExpanded ? (
+              <ChevronDown className="w-4 h-4 text-primary-600" />
+            ) : (
+              <ChevronRight className="w-4 h-4 text-primary-600" />
+            )}
+          </button>
+        </div>
 
-          <Grid3x3 className="w-4 h-4 text-primary-600 flex-shrink-0" />
-
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold text-surface-900 flex items-center gap-2 flex-wrap">
-              <span className="bg-primary-100 text-primary-800 px-2 py-0.5 rounded text-xs font-medium">
-                PLACA
-              </span>
-              <span>
-                {muestra?.estudio} - {tecnicaProc?.tecnica_proc}
-              </span>
-            </div>
-            <div className="text-sm text-surface-600 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-              {codigoPlaca && (
-                <span className="font-mono bg-white px-2 py-0.5 rounded">{codigoPlaca}</span>
-              )}
-              <span>Código: {muestra?.codigo_epi || muestra?.codigo_externo}</span>
-              <span>•</span>
-              <span>{externalizaciones.length} posiciones</span>
-              {selectedCount > 0 && (
-                <>
-                  <span>•</span>
-                  <span className="text-primary-600 font-medium">
-                    {selectedCount} seleccionada{selectedCount !== 1 ? 's' : ''}
-                  </span>
-                </>
-              )}
-              {/* Información adicional común */}
-              {firstExt.agencia && (
-                <>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <Building className="w-3 h-3" />
-                    {firstExt.agencia}
-                  </span>
-                </>
-              )}
-              {firstExt.f_envio && (
-                <>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    {formatDate(firstExt.f_envio)}
-                  </span>
-                </>
-              )}
-            </div>
+        {/* col-span-2: Muestra */}
+        <div className="col-span-2">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <Grid3x3 className="w-3.5 h-3.5 text-primary-600 flex-shrink-0" />
+            <span className="bg-primary-100 text-primary-800 px-1.5 py-0.5 rounded text-xs font-medium">
+              PLACA
+            </span>
           </div>
-        </button>
+          <div className="text-sm font-semibold text-surface-800 truncate">
+            {muestra?.codigo_epi || muestra?.codigo_externo || '-'}
+          </div>
+          {codigoPlaca && (
+            <div className="font-mono text-xs text-surface-500 truncate">{codigoPlaca}</div>
+          )}
+        </div>
+
+        {/* col-span-2: Técnica + posiciones */}
+        <div className="col-span-2">
+          <div className="text-sm text-surface-700 truncate font-medium">
+            {tecnicaProc?.tecnica_proc || '-'}
+          </div>
+          <div className="text-xs text-surface-500">
+            {externalizaciones.length} posición{externalizaciones.length !== 1 ? 'es' : ''}
+            {selectedCount > 0 && (
+              <span className="ml-1 text-primary-600 font-medium">({selectedCount} sel.)</span>
+            )}
+          </div>
+        </div>
+
+        {/* col-span-2: Agencia / Centro */}
+        <div className="col-span-2">
+          {firstExt.agencia ? (
+            <div className="text-sm text-surface-700 font-medium truncate">{firstExt.agencia}</div>
+          ) : (
+            <span className="text-sm text-surface-400">-</span>
+          )}
+          {firstExt.centro && (
+            <div className="text-xs text-surface-500 truncate">
+              {firstExt.centro.descripcion || firstExt.centro.codigo}
+            </div>
+          )}
+        </div>
+
+        {/* col-span-2: F. Envío */}
+        <div className="col-span-2">
+          {firstExt.f_envio ? (
+            <div className="flex items-center gap-1 text-sm text-surface-700">
+              <Calendar className="w-3 h-3 text-surface-400" />
+              {formatDate(firstExt.f_envio)}
+            </div>
+          ) : (
+            <span className="text-sm text-surface-400">-</span>
+          )}
+        </div>
+
+        {/* col-span-2: Estado (resumen del grupo) */}
+        <div className="col-span-2">
+          <div className="flex flex-wrap gap-1">
+            {(() => {
+              const pendientes = externalizaciones.filter(e => e.tecnica?.id_estado === 16).length
+              const enviadas = externalizaciones.filter(e => e.tecnica?.id_estado === 17).length
+              const recibidas = externalizaciones.filter(e => e.tecnica?.id_estado === 18).length
+              return (
+                <>
+                  {pendientes > 0 && (
+                    <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-surface-100 text-surface-700">
+                      {pendientes} ext.
+                    </span>
+                  )}
+                  {enviadas > 0 && (
+                    <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-info-100 text-info-700">
+                      {enviadas} env.
+                    </span>
+                  )}
+                  {recibidas > 0 && (
+                    <span className="inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-success-100 text-success-700">
+                      {recibidas} rec.
+                    </span>
+                  )}
+                </>
+              )
+            })()}
+          </div>
+        </div>
+
+        {/* col-span-1: Acciones del grupo */}
+        <div className="col-span-1 flex justify-end">
+          {hayEnviadas && (
+            <button
+              onClick={() => setShowMarcarGrupoRecibidaModal(true)}
+              className="p-1.5 text-success-600 hover:bg-success-50 rounded transition-colors"
+              title={`Marcar ${enviadas.length} posición${enviadas.length !== 1 ? 'es' : ''} como recibidas`}
+              aria-label="Marcar todo el grupo como recibido"
+            >
+              <CheckCircle className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Lista de externalizaciones individuales (expandida) */}
@@ -308,7 +370,7 @@ export const ExternalizacionArrayGroup = ({
         </div>
       )}
 
-      {/* Modal para marcar como recibida */}
+      {/* Modal para marcar una posición individual como recibida */}
       {showMarcarRecibidaModal && selectedExternalizacion && (
         <MarcarRecibidaModal
           externalizacion={selectedExternalizacion}
@@ -317,6 +379,16 @@ export const ExternalizacionArrayGroup = ({
             setSelectedExternalizacion(null)
           }}
           onSuccess={handleMarcarRecibidaSuccess}
+        />
+      )}
+
+      {/* Modal para marcar todo el grupo como recibido */}
+      {showMarcarGrupoRecibidaModal && (
+        <MarcarGrupoRecibidaModal
+          ids={enviadasIds}
+          descripcion={descripcionGrupo}
+          onClose={() => setShowMarcarGrupoRecibidaModal(false)}
+          onSuccess={() => setShowMarcarGrupoRecibidaModal(false)}
         />
       )}
     </div>

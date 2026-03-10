@@ -7,6 +7,15 @@ import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationCo
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { useCancelarGrupoTecnicas, useTecnicasFromGroup } from '../../hooks/useMuestras'
 
+// Mapeo de contadores del grupo → badge visual para la columna Estado
+const ESTADO_BADGES = [
+  { key: 'pendientes' as const, label: 'Pendiente', colorClass: 'bg-surface-100 text-surface-700' },
+  { key: 'asignadas' as const, label: 'Asignada', colorClass: 'bg-info-100 text-info-700' },
+  { key: 'en_proceso' as const, label: 'En proceso', colorClass: 'bg-warning-100 text-warning-700' },
+  { key: 'completadas' as const, label: 'Completada', colorClass: 'bg-success-100 text-success-700' },
+  { key: 'resultado_erroneo' as const, label: 'Con error', colorClass: 'bg-danger-100 text-danger-700' }
+]
+
 interface TecnicaAgrupadaListDetailProps {
   tecnicaAgrupada: TecnicaAgrupada
   fieldSpans: number[]
@@ -149,12 +158,20 @@ export const TecnicaAgrupadaListDetail = ({
       )}
     </span>,
 
-    // Estado (si aplica - mostrar el estado más común o general)
-    <IndicadorEstado
-      key={`estado-${tecnicaAgrupada.proceso_nombre}`}
-      estado={tecnicaAgrupada.estadoInfo}
-      size="small"
-    />,
+    // Estado — mostrar los estados únicos derivados de los contadores del grupo
+    <div key={`estado-${tecnicaAgrupada.proceso_nombre}`} className="flex flex-wrap gap-0.5">
+      {ESTADO_BADGES.filter(e => tecnicaAgrupada[e.key] > 0).map(e => (
+        <span
+          key={e.key}
+          className={`inline-block px-1.5 py-0.5 rounded text-xs font-medium ${e.colorClass}`}
+        >
+          {e.label}
+        </span>
+      ))}
+      {ESTADO_BADGES.every(e => tecnicaAgrupada[e.key] === 0) && (
+        <span className="text-xs text-surface-400">—</span>
+      )}
+    </div>,
 
     // Acciones - Eliminar
     <div
