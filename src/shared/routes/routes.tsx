@@ -51,6 +51,7 @@ import { EditTecnicaProcPage } from '@/features/dim_tables/tecnicas_proc/pages/E
 import { LotesPage } from '@/features/tecnicasReactivos'
 import { ExternalizacionesPage } from '@/features/externalizaciones/pages/ExternalizacionesPage'
 import { EditExternalizacionPage } from '@/features/externalizaciones/pages/EditExternalizacionPage'
+import { RegistroMasivoPage } from '@/features/muestras/pages/RegistroMasivoPage'
 
 export const router = createBrowserRouter(
   [
@@ -79,6 +80,7 @@ export const router = createBrowserRouter(
 
         { path: 'muestras', element: <MuestrasPage /> },
         { path: 'muestras/nueva', element: <CreateMuestraPage /> },
+        { path: 'muestras/registro-masivo', element: <RegistroMasivoPage /> },
         { path: 'muestras/:id/editar', element: <CreateMuestraPage /> },
 
         { path: 'externalizaciones', element: <ExternalizacionesPage /> },

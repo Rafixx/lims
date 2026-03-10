@@ -6,7 +6,7 @@ import { MuestraFilter } from '../components/MuestraFilter'
 import { ListPage } from '../../../shared/components/organisms/ListPage'
 import { useListFilters } from '@/shared/hooks/useListFilters'
 import { MuestraStatsComponent } from '../components/MuestraStats'
-import { FileSpreadsheet, PlusCircle } from 'lucide-react'
+import { FileSpreadsheet, Layers, PlusCircle } from 'lucide-react'
 import {
   createNumericExactFilter,
   createTodayFilter,
@@ -258,10 +258,16 @@ export const MuestrasPage = () => {
       renderStats={renderStats}
       renderFilters={renderFilters}
       customActions={
-        <Button variant="secondary" onClick={handleExportCSV}>
-          <FileSpreadsheet className="w-4 h-4" />
-          Exportar CSV
-        </Button>
+        <>
+          <Button variant="soft" onClick={() => navigate('/muestras/registro-masivo')}>
+            <Layers className="w-4 h-4" />
+            Registro masivo
+          </Button>
+          <Button variant="secondary" onClick={handleExportCSV}>
+            <FileSpreadsheet className="w-4 h-4" />
+            Exportar CSV
+          </Button>
+        </>
       }
       config={{
         newButtonText: 'Nueva Muestra',

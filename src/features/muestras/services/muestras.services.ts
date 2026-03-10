@@ -12,6 +12,7 @@ import {
   Tecnica,
   MuestraStats
 } from '../interfaces/muestras.types'
+import { RegistroMasivoRequest, RegistroMasivoResult } from '../interfaces/registroMasivo.types'
 
 class MuestrasService {
   private readonly basePath = '/muestras'
@@ -75,6 +76,14 @@ class MuestrasService {
     const response = await apiClient.post<ImportArrayCodExternoResult>(
       `${this.basePath}/${id}/array/cod-externo`,
       { pares }
+    )
+    return response.data
+  }
+
+  async registroMasivo(data: RegistroMasivoRequest): Promise<RegistroMasivoResult> {
+    const response = await apiClient.post<RegistroMasivoResult>(
+      `${this.basePath}/registro-masivo`,
+      data
     )
     return response.data
   }
