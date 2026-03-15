@@ -163,6 +163,19 @@ export const useImportArrayCodExterno = () => {
   })
 }
 
+// Hook para actualizar en bloque todas las muestras de un estudio (registro masivo)
+export const useBulkUpdateByEstudio = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ estudio, data }: { estudio: string; data: Partial<Muestra> }) =>
+      muestrasService.bulkUpdateByEstudio(estudio, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['muestras'] })
+    }
+  })
+}
+
 // Hook para eliminar una muestra
 export const useDeleteMuestra = () => {
   const queryClient = useQueryClient()

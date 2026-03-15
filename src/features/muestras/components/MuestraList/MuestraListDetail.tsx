@@ -18,6 +18,10 @@ interface MuestraListDetailProps {
   fieldSpans: number[]
   /** Modo hijo dentro de un grupo: layout compacto (cod_ext + cod_epi + estado + acciones) */
   isChild?: boolean
+  /** Permite expandir técnicas incluso en modo hijo (e.g. placas dentro de un grupo) */
+  childCanExpand?: boolean
+  /** Oculta los botones Editar y Duplicar (para hijas de grupo masivo) */
+  hideEditAndDuplicate?: boolean
 }
 
 // Configuración de columnas para las técnicas SIN resultados
@@ -50,7 +54,9 @@ export const MuestraListDetail = ({
   onEdit,
   onDelete,
   fieldSpans,
-  isChild = false
+  isChild = false,
+  childCanExpand = false,
+  hideEditAndDuplicate = false
 }: MuestraListDetailProps) => {
   const navigate = useNavigate()
   const [importArrayModalOpen, setImportArrayModalOpen] = useState(false)
@@ -79,9 +85,24 @@ export const MuestraListDetail = ({
   // fieldSpans = parentFieldSpans = [1,1,1,1,1,2,1,1,1,2]
   // renderChildFields → 9 elementos (el span de acciones es el último del array)
   const renderChildFields = (): ReactNode[] => [
-    // [0] Cód EXT (span 1) — icono de tipo + código
+    // [0] Cód EXT (span 1) — icono de tipo + (chevron si childCanExpand) + código
     <div key={`ext-${muestra.id_muestra}`} className="flex items-center gap-1 min-w-0">
       {typeIcon}
+      {childCanExpand && (
+        <button
+          type="button"
+          onClick={() => setExpanded(v => !v)}
+          className="p-0.5 shrink-0 rounded text-surface-400 hover:text-surface-700 hover:bg-surface-100 transition-colors"
+          aria-label={expanded ? 'Contraer técnicas' : 'Expandir técnicas'}
+          title={expanded ? 'Contraer' : 'Expandir'}
+        >
+          {expanded ? (
+            <ChevronDown className="w-3 h-3" />
+          ) : (
+            <ChevronRight className="w-3 h-3" />
+          )}
+        </button>
+      )}
       <span
         className="block font-mono text-xs font-semibold text-primary-600 truncate"
         title={muestra.codigo_externo || ''}
@@ -218,7 +239,7 @@ export const MuestraListDetail = ({
     navigate(`/muestras/nueva?duplicar=${muestra.id_muestra}`)
   }
 
-  // Acciones: Upload (sólo tipo_array), Duplicar, Editar, Eliminar
+  // Acciones: Upload (sólo tipo_array), Duplicar (si no hideEditAndDuplicate), Editar (si no hideEditAndDuplicate), Eliminar
   const actions: ListDetailAction[] = [
     ...(muestra.tipo_array === true
       ? [
@@ -235,18 +256,22 @@ export const MuestraListDetail = ({
           }
         ]
       : []),
-    {
-      icon: <Plus className="w-4 h-4" />,
-      onClick: handleDuplicate,
-      title: 'Nueva prueba para esta muestra',
-      className: 'p-1 text-success-600 hover:bg-success-50 rounded transition-colors'
-    },
-    {
-      icon: <Edit className="w-4 h-4" />,
-      onClick: () => onEdit(muestra),
-      title: 'Editar',
-      className: 'p-1 text-primary-600 hover:bg-primary-50 rounded transition-colors'
-    },
+    ...(!hideEditAndDuplicate
+      ? [
+          {
+            icon: <Plus className="w-4 h-4" />,
+            onClick: handleDuplicate,
+            title: 'Nueva prueba para esta muestra',
+            className: 'p-1 text-success-600 hover:bg-success-50 rounded transition-colors'
+          },
+          {
+            icon: <Edit className="w-4 h-4" />,
+            onClick: () => onEdit(muestra),
+            title: 'Editar',
+            className: 'p-1 text-primary-600 hover:bg-primary-50 rounded transition-colors'
+          }
+        ]
+      : []),
     {
       icon: <Trash2 className="w-4 h-4" />,
       onClick: () => onDelete(muestra),
@@ -289,8 +314,8 @@ export const MuestraListDetail = ({
       ? TECNICA_COLUMNS_WITH_RESULTS
       : TECNICA_COLUMNS_WITHOUT_RESULTS
 
-  // Contenido expandido con las técnicas (sólo en modo standalone)
-  const expandedContent = isChild ? undefined : (
+  // Contenido expandido con las técnicas (sólo en modo standalone o cuando childCanExpand)
+  const expandedContent = isChild && !childCanExpand ? undefined : (
     <div className="space-y-2">
       {isLoading ? (
         <p className="text-sm text-surface-600">Cargando técnicas...</p>
@@ -339,8 +364,8 @@ export const MuestraListDetail = ({
         rowClassName={isChild ? childRowClassName : ''}
       />
 
-      {/* Contenido expandido — sólo en modo standalone, gestionado con estado local */}
-      {!isChild && expanded && expandedContent && (
+      {/* Contenido expandido — en modo standalone o cuando childCanExpand, gestionado con estado local */}
+      {(!isChild || childCanExpand) && expanded && expandedContent && (
         <div className="px-4 pb-4 border-t border-surface-200 bg-surface-50">
           <div className="mt-2">{expandedContent}</div>
         </div>

@@ -5,6 +5,7 @@ import { Tecnica } from '@/features/workList/interfaces/worklist.types'
 import { TecnicaProc } from '../../interfaces/plantillaTecnica.types'
 import { Template, TemplateValues } from '../../interfaces/template.types'
 import { TecnicasListPDF } from './TecnicasListPDF'
+import { TecnicasTemplatePDF } from './TecnicasTemplatePDF'
 import { PipetasListPDF } from './PipetasListPDF'
 import { ReactivosListPDF } from './ReactivosListPDF'
 import { PasosListPDF } from './PasosListPDF'
@@ -111,12 +112,16 @@ export const PlantillaTecnicaPDF = ({
         </View>
 
         {/* Sección: Técnicas del Worklist */}
-        <TecnicasListPDF tecnicas={tecnicas} />
+        {template && template.scope === 'TECNICA' ? (
+          <TecnicasTemplatePDF tecnicas={tecnicas} template={template} />
+        ) : (
+          <TecnicasListPDF tecnicas={tecnicas} />
+        )}
 
         {/* Grid principal: Cálculos (2/3) + Checklist/Pasos (1/3) */}
         <View style={localStyles.mainGrid}>
           <View style={localStyles.calcColumn}>
-            {template && templateValues && calculatedValues && (
+            {template && template.scope !== 'TECNICA' && templateValues && calculatedValues && (
               <DynamicTemplatePDF
                 template={template}
                 values={templateValues}

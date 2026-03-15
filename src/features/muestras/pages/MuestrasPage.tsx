@@ -292,6 +292,11 @@ export const MuestrasPage = () => {
                 group={item as MuestraGroup}
                 onEdit={m => navigate(`/muestras/${m.id_muestra}/editar`)}
                 onDelete={handleDelete}
+                onEditGroup={group =>
+                  navigate(
+                    `/muestras/${group.parent.id_muestra}/editar?estudio=${encodeURIComponent(group.key)}&groupEdit=true`
+                  )
+                }
                 parentFieldSpans={COLUMN_CONFIG.map(col => col.span)}
               />
             ) : (

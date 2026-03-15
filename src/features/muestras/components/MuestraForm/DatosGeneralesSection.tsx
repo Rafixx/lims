@@ -20,11 +20,14 @@ interface DatosGeneralesSectionProps {
   isDuplicating?: boolean
   /** Sólo true cuando tipo=Tubo y cantidad=1; en cualquier otro caso oculta y vacía el campo */
   showCodigoExterno?: boolean
+  /** Modo edición grupal: oculta campos per-placa (codigo_epi, codigo_externo) y deshabilita estudio */
+  isGroupEdit?: boolean
 }
 
 export const DatosGeneralesSection = ({
   isDuplicating = false,
-  showCodigoExterno = true
+  showCodigoExterno = true,
+  isGroupEdit = false
 }: DatosGeneralesSectionProps) => {
   const {
     control,
@@ -150,42 +153,47 @@ export const DatosGeneralesSection = ({
             className={muestraStyle}
           />
 
-          <FormField
-            id="codigo_externo"
-            label="Código externo"
-            inputProps={{
-              ...register('codigo_externo'),
-              type: 'text',
-              disabled: isDuplicating || !showCodigoExterno
-            }}
-            error={showCodigoExterno ? errors.codigo_externo?.message : undefined}
-            hint={
-              !showCodigoExterno
-                ? 'Se asignará individualmente a cada muestra tras la creación'
-                : undefined
-            }
-            required={showCodigoExterno}
-            className={muestraStyle}
-          />
-          <FormField
-            id={`codigo_epi`}
-            label="Código EPIDISEASE"
-            inputProps={{
-              ...register(`codigo_epi`),
-              type: 'text',
-              placeholder: 'Ej: EPI2025-001',
-              disabled: isDuplicating
-            }}
-            error={errors.codigo_epi?.message}
-            className={muestraStyle}
-          />
+          {!isGroupEdit && (
+            <FormField
+              id="codigo_externo"
+              label="Código externo"
+              inputProps={{
+                ...register('codigo_externo'),
+                type: 'text',
+                disabled: isDuplicating || !showCodigoExterno
+              }}
+              error={showCodigoExterno ? errors.codigo_externo?.message : undefined}
+              hint={
+                !showCodigoExterno
+                  ? 'Se asignará individualmente a cada muestra tras la creación'
+                  : undefined
+              }
+              required={showCodigoExterno}
+              className={muestraStyle}
+            />
+          )}
+          {!isGroupEdit && (
+            <FormField
+              id={`codigo_epi`}
+              label="Código EPIDISEASE"
+              inputProps={{
+                ...register(`codigo_epi`),
+                type: 'text',
+                placeholder: 'Ej: EPI2025-001',
+                disabled: isDuplicating
+              }}
+              error={errors.codigo_epi?.message}
+              className={muestraStyle}
+            />
+          )}
           <FormField
             id={`estudio`}
             label="Número de estudio"
             inputProps={{
               ...register(`estudio`),
               type: 'text',
-              placeholder: 'Ej: estudio-12345'
+              placeholder: 'Ej: estudio-12345',
+              disabled: isGroupEdit
             }}
             error={errors.estudio?.message}
             className={muestraStyle}

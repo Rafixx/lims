@@ -87,6 +87,17 @@ class MuestrasService {
     )
     return response.data
   }
+
+  async bulkUpdateByEstudio(
+    estudio: string,
+    data: Partial<Muestra>
+  ): Promise<{ updated: number; mensaje: string }> {
+    const response = await apiClient.put<{ updated: number; mensaje: string }>(
+      `${this.basePath}/estudio/${encodeURIComponent(estudio)}/bulk`,
+      data
+    )
+    return response.data
+  }
 }
 
 export const muestrasService = new MuestrasService()

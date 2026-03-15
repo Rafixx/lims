@@ -8,7 +8,7 @@ import { Button } from '@/shared/components/molecules/Button'
 import { SendIcon } from 'lucide-react'
 import { Muestra } from '../../interfaces/muestras.types'
 import { getDefaultMuestra } from '../../interfaces/defaults'
-import { useCreateMuestra, useUpdateMuestra } from '../../hooks/useMuestras'
+import { useCreateMuestra, useUpdateMuestra, useBulkUpdateByEstudio } from '../../hooks/useMuestras'
 import { MuestraGroupSection } from './DatosGroupSection'
 
 // Tipo extendido para incluir técnicas en el formulario
@@ -26,6 +26,8 @@ interface Props {
   }
   isDuplicating?: boolean
   cantidad?: number
+  isGroupEdit?: boolean
+  groupEstudio?: string
 }
 
 export const muestraStyle = 'border-2 border-l-accent'
@@ -37,7 +39,9 @@ export const MuestraForm = ({
   isMuestraGroup,
   generatedCodigos,
   isDuplicating = false,
-  cantidad
+  cantidad,
+  isGroupEdit = false,
+  groupEstudio
 }: Props) => {
   // Combinar valores por defecto con códigos generados si existen
   const defaultValues = useMemo(() => {
@@ -64,6 +68,7 @@ export const MuestraForm = ({
 
   const createMutation = useCreateMuestra()
   const updateMutation = useUpdateMuestra()
+  const bulkUpdateMutation = useBulkUpdateByEstudio()
 
   const { notify } = useNotification()
 
@@ -91,12 +96,13 @@ export const MuestraForm = ({
           <DatosGeneralesSection
             isDuplicating={isDuplicating}
             showCodigoExterno={showCodigoExterno}
+            isGroupEdit={isGroupEdit}
           />
         )
       }
     ]
 
-    if (isMuestraGroup) {
+    if (isMuestraGroup && !isGroupEdit) {
       baseTabs.push({
         id: 'placa',
         label: 'Placa',
@@ -105,7 +111,7 @@ export const MuestraForm = ({
     }
 
     return baseTabs
-  }, [isMuestraGroup, isDuplicating, showCodigoExterno, isEditing])
+  }, [isMuestraGroup, isDuplicating, showCodigoExterno, isEditing, isGroupEdit])
 
   // Callback para capturar las técnicas seleccionadas
   const handleTecnicasChange = useCallback((tecnicas: { id_tecnica_proc: number }[]) => {
@@ -115,6 +121,15 @@ export const MuestraForm = ({
   const handleSubmitForm: SubmitHandler<Muestra> = async formValues => {
     try {
       setIsSubmitting(true)
+
+      // Modo edición grupal: actualizar todas las placas del estudio
+      if (isGroupEdit && groupEstudio) {
+        await bulkUpdateMutation.mutateAsync({ estudio: groupEstudio, data: formValues })
+        notify('Grupo actualizado correctamente', 'success')
+        onSuccess?.()
+        return
+      }
+
       const isEditingForm = Boolean(formValues.id_muestra && formValues.id_muestra > 0)
 
       if (formValues.tipo_array === true && !isEditingForm) {
@@ -216,6 +231,12 @@ export const MuestraForm = ({
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(handleSubmitForm)} className="relative flex flex-col h-full">
             <div className="flex-grow overflow-y-auto">
+              {isGroupEdit && groupEstudio && (
+                <div className="bg-info-50 border border-info-200 rounded-lg p-3 mb-4 text-sm text-info-800">
+                  <strong>Edición grupal:</strong> Los cambios se aplicarán a todas las placas del
+                  estudio <strong>{groupEstudio}</strong>.
+                </div>
+              )}
               <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
             </div>
 
@@ -228,10 +249,11 @@ export const MuestraForm = ({
                   <SendIcon className="w-4 h-4 mr-2" />
                   {isSubmitting
                     ? 'Guardando...'
-                    : initialValues?.id_muestra
-                      ? 'Actualizar'
-                      : 'Crear'}{' '}
-                  Muestra
+                    : isGroupEdit
+                      ? 'Actualizar Grupo'
+                      : initialValues?.id_muestra
+                        ? 'Actualizar Muestra'
+                        : 'Crear Muestra'}
                 </div>
               </Button>
             </div>

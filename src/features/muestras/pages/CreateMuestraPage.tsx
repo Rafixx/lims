@@ -25,6 +25,10 @@ export const CreateMuestraPage = () => {
   const isDuplicating = Boolean(duplicarId)
   const duplicarMuestraId = duplicarId ? parseInt(duplicarId) : undefined
 
+  // Modo edición grupal (registro masivo)
+  const isGroupEdit = searchParams.get('groupEdit') === 'true'
+  const groupEstudio = searchParams.get('estudio') ?? undefined
+
   const muestraId = id ? parseInt(id) : undefined
   const isEditing = Boolean(muestraId && muestraId > 0)
 
@@ -174,23 +178,27 @@ export const CreateMuestraPage = () => {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-surface-900">
-                {isEditing
-                  ? 'Editar Muestra'
-                  : isDuplicating
-                    ? 'Nueva Prueba para Muestra Existente'
-                    : 'Nueva Muestra'}
+                {isGroupEdit
+                  ? 'Editar Grupo de Placas'
+                  : isEditing
+                    ? 'Editar Muestra'
+                    : isDuplicating
+                      ? 'Nueva Prueba para Muestra Existente'
+                      : 'Nueva Muestra'}
               </h1>
               <p className="text-surface-600 mt-1 text-sm">
-                {isEditing
-                  ? 'Modificar los datos de la muestra existente'
-                  : isDuplicating
-                    ? 'Crear una nueva prueba utilizando los datos de la muestra seleccionada'
-                    : 'Crear una nueva muestra en el sistema'}
+                {isGroupEdit
+                  ? `Los cambios se aplicarán a todas las placas del estudio ${groupEstudio}`
+                  : isEditing
+                    ? 'Modificar los datos de la muestra existente'
+                    : isDuplicating
+                      ? 'Crear una nueva prueba utilizando los datos de la muestra seleccionada'
+                      : 'Crear una nueva muestra en el sistema'}
               </p>
             </div>
 
-            {/* Controles de tipo y cantidad — solo en modo creación */}
-            {!isEditing && !isDuplicating ? (
+            {/* Controles de tipo y cantidad — solo en modo creación (no en edición individual ni grupal) */}
+            {!isEditing && !isDuplicating && !isGroupEdit ? (
               <div className="flex items-center gap-3">
                 <ToggleButton<boolean>
                   label=""
@@ -219,14 +227,16 @@ export const CreateMuestraPage = () => {
         <Card className="bg-white shadow-sm">
           <div className="p-6">
             <MuestraForm
-              key={`${muestraId || 'new'}-${isEditing && muestra ? Boolean(muestra.tipo_array) : isMuestraGroup}-${isDuplicating}`}
+              key={`${muestraId || 'new'}-${isEditing && muestra ? Boolean(muestra.tipo_array) : isMuestraGroup}-${isDuplicating}-${isGroupEdit}`}
               initialValues={initialFormValues}
               onSuccess={handleSuccess}
               onCancel={handleCancel}
               isMuestraGroup={isEditing && muestra ? Boolean(muestra.tipo_array) : isMuestraGroup}
               generatedCodigos={formGeneratedCodigos}
               isDuplicating={isDuplicating}
-              cantidad={!isEditing && !isDuplicating && !isMuestraGroup ? cantidad : undefined}
+              cantidad={!isEditing && !isDuplicating && !isMuestraGroup && !isGroupEdit ? cantidad : undefined}
+              isGroupEdit={isGroupEdit}
+              groupEstudio={groupEstudio}
             />
           </div>
         </Card>

@@ -7,7 +7,7 @@
 // - Hijas usan los mismos spans que el padre (parentFieldSpans).
 
 import { useState } from 'react'
-import { ChevronRight, ChevronDown, Layers, Upload } from 'lucide-react'
+import { ChevronRight, ChevronDown, Layers, Upload, Edit } from 'lucide-react'
 import { MuestraGroup } from '../../interfaces/muestras.types'
 import { MuestraListDetail } from './MuestraListDetail'
 import { EstadoBadge } from '@/shared/components/atoms/EstadoBadge'
@@ -18,16 +18,18 @@ interface Props {
   group: MuestraGroup
   onEdit: (m: import('../../interfaces/muestras.types').Muestra) => void
   onDelete: (m: import('../../interfaces/muestras.types').Muestra) => void
+  onEditGroup: (group: MuestraGroup) => void
   parentFieldSpans: number[]
 }
 
-export const MuestraGroupRow = ({ group, onEdit, onDelete, parentFieldSpans }: Props) => {
+export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFieldSpans }: Props) => {
   const [expanded, setExpanded] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
   const { parent, children, key } = group
 
   const total = children.length
   const allHaveCodExterno = children.every(m => !!m.codigo_externo)
+  const isAllPlacas = children.every(m => m.tipo_array === true)
 
   // Layout del padre — se usan spans propios (suma = 12):
   // Estudio(2) Cliente(1) Paciente(1) Tipo(1) Prueba(2) Count(1) Recepción(1) Estado(1) Acciones(2)
@@ -45,7 +47,7 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, parentFieldSpans }: P
             <ChevronRight className="w-3.5 h-3.5 shrink-0 text-primary-500" />
           )}
           <span className="inline-flex items-center rounded-full bg-primary-50 border border-primary-200 px-2 py-0.5 text-xs font-semibold text-primary-700 ml-0.5">
-            {total} muestras
+            {total} {isAllPlacas ? 'placas' : 'muestras'}
           </span>
         </div>
       )
@@ -129,11 +131,25 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, parentFieldSpans }: P
         </div>
       )
     },
-    // [9] Acciones (span 2) — Upload alineado a la derecha
+    // [9] Acciones (span 2) — Edit (si grupo de placas) + Upload alineados a la derecha
     {
       span: 2,
       content: (
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-1">
+          {isAllPlacas && (
+            <button
+              type="button"
+              onClick={e => {
+                e.stopPropagation()
+                onEditGroup(group)
+              }}
+              title="Editar datos compartidos del grupo"
+              className="rounded p-1 transition-colors text-primary-600 hover:bg-primary-50"
+              aria-label="Editar grupo"
+            >
+              <Edit className="h-4 w-4" />
+            </button>
+          )}
           <button
             type="button"
             onClick={e => {
@@ -209,6 +225,8 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, parentFieldSpans }: P
               onDelete={onDelete}
               fieldSpans={parentFieldSpans}
               isChild
+              childCanExpand={isAllPlacas}
+              hideEditAndDuplicate={isAllPlacas}
             />
           ))}
         </div>
