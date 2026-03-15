@@ -515,9 +515,6 @@ export const TecnicasTemplateTable = ({ tecnicas, template, onSave, isSaving = f
                         ({node.unit})
                       </span>
                     )}
-                    {node.required && (
-                      <span className="text-danger-500 ml-0.5 font-bold">*</span>
-                    )}
                   </div>
                 </th>
               ))}

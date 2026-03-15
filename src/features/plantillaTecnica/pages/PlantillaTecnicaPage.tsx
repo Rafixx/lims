@@ -196,6 +196,7 @@ export const PlantillaTecnicaPage = () => {
                   initialValues={savedValues}
                   onSave={handleSaveTemplateValues}
                   isSaving={saveValuesMutation.isPending}
+                  totalMuestras={worklist.tecnicas.length}
                 />
               </section>
             )}

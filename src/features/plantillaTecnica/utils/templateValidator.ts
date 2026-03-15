@@ -82,13 +82,8 @@ export function validateValues(
   for (const input of inputs) {
     const value = values[input.key]
 
-    // Validar required
-    if (input.required && (value === undefined || value === null || value === '')) {
-      errors[input.key] = `${input.label} es obligatorio`
-      continue
-    }
-
-    // Si no hay valor y no es requerido, skip validación de tipo
+    // Los campos dinámicos nunca son obligatorios en la UI
+    // Si no hay valor, skip validación de tipo
     if (value === undefined || value === null || value === '') {
       continue
     }

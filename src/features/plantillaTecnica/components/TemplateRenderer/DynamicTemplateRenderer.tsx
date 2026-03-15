@@ -13,6 +13,8 @@ interface Props {
   initialValues?: TemplateValues
   onSave: (values: TemplateValues) => Promise<void>
   isSaving?: boolean
+  /** Número total de muestras en el worklist. Se usa para auto-rellenar campos de "pocillos". */
+  totalMuestras?: number
 }
 
 /**
@@ -21,18 +23,25 @@ interface Props {
  * - Renderiza inputs, calcs, groups, procedures
  * - Calcula valores en tiempo real
  * - Persiste solo inputs en worklist.json_data
+ * - Los campos dinámicos nunca son obligatorios
+ * - Auto-rellena campos cuya etiqueta contenga "pocillo" con totalMuestras
  */
 export const DynamicTemplateRenderer = ({
   template,
   initialValues = {},
   onSave,
-  isSaving = false
+  isSaving = false,
+  totalMuestras
 }: Props) => {
-  const [values, setValues] = useState<TemplateValues>(() => mergeValues(template, initialValues))
+  const [values, setValues] = useState<TemplateValues>(() => {
+    const merged = mergeValues(template, initialValues)
+    return autoFillPocillos(merged, template.nodes, initialValues, totalMuestras)
+  })
 
   useEffect(() => {
-    setValues(mergeValues(template, initialValues))
-  }, [template, initialValues])
+    const merged = mergeValues(template, initialValues)
+    setValues(autoFillPocillos(merged, template.nodes, initialValues, totalMuestras))
+  }, [template, initialValues, totalMuestras])
 
   const validation = useMemo(() => validateValues(template, values), [template, values])
 
@@ -78,13 +87,13 @@ export const DynamicTemplateRenderer = ({
           {validation.isValid ? (
             <>
               <CheckCircle2 className="w-4 h-4 text-success-600" />
-              <span className="text-success-700">Todos los campos completados</span>
+              <span className="text-success-700">Listo para guardar</span>
             </>
           ) : (
             <>
               <AlertCircle className="w-4 h-4 text-warning-500" />
               <span className="text-surface-500">
-                {errorCount} {errorCount === 1 ? 'campo requerido' : 'campos requeridos'} sin completar
+                {errorCount} {errorCount === 1 ? 'campo con valor inválido' : 'campos con valores inválidos'}
               </span>
             </>
           )}
@@ -175,4 +184,40 @@ function collectInputKeys(nodes: TemplateNode[], acc: Set<string>): void {
       collectInputKeys(node.children, acc)
     }
   }
+}
+
+const POCILLOS_RE = /pocillo/i
+
+/**
+ * Auto-rellena campos cuya etiqueta contenga "pocillo" con totalMuestras,
+ * pero solo si el campo no tiene un valor guardado explícitamente.
+ */
+function autoFillPocillos(
+  values: TemplateValues,
+  nodes: TemplateNode[],
+  savedValues: TemplateValues,
+  totalMuestras?: number
+): TemplateValues {
+  if (totalMuestras === undefined) return values
+
+  const result = { ...values }
+
+  const fill = (nodeList: TemplateNode[]) => {
+    for (const node of nodeList) {
+      if (node.type === 'input' && POCILLOS_RE.test(node.label)) {
+        const hasSavedValue =
+          savedValues[node.key] !== undefined &&
+          savedValues[node.key] !== null &&
+          savedValues[node.key] !== ''
+        if (!hasSavedValue) {
+          result[node.key] = totalMuestras
+        }
+      } else if (node.type === 'group') {
+        fill(node.children)
+      }
+    }
+  }
+
+  fill(nodes)
+  return result
 }

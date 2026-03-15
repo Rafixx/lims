@@ -103,7 +103,6 @@ export const InputNodeRenderer = ({ node, value, error, onChange }: Props) => {
     <div className="space-y-1">
       <Label htmlFor={node.key} className="text-xs">
         {node.label}
-        {node.required && <span className="text-danger-500 ml-0.5">*</span>}
       </Label>
       {renderInput()}
       {error && <p className="text-xs text-danger-600">{error}</p>}
