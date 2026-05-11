@@ -18,11 +18,12 @@ interface Props {
   group: MuestraGroup
   onEdit: (m: import('../../interfaces/muestras.types').Muestra) => void
   onDelete: (m: import('../../interfaces/muestras.types').Muestra) => void
+  onComplete?: (m: import('../../interfaces/muestras.types').Muestra) => void
   onEditGroup: (group: MuestraGroup) => void
   parentFieldSpans: number[]
 }
 
-export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFieldSpans }: Props) => {
+export const MuestraGroupRow = ({ group, onEdit, onDelete, onComplete, onEditGroup, parentFieldSpans }: Props) => {
   const [expanded, setExpanded] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
   const { parent, children, key } = group
@@ -223,6 +224,7 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
               muestra={child}
               onEdit={onEdit}
               onDelete={onDelete}
+              onComplete={onComplete}
               fieldSpans={parentFieldSpans}
               isChild
               childCanExpand={isAllPlacas}

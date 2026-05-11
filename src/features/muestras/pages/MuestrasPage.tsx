@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMuestras, useMuestrasStats, useDeleteMuestra } from '../hooks/useMuestras'
+import { useCambiarEstadoMuestra } from '@/shared/hooks/useEstados'
+import { ESTADO_MUESTRA } from '@/shared/interfaces/estados.types'
 import { Muestra } from '../interfaces/muestras.types'
 import { MuestraFilter } from '../components/MuestraFilter'
 import { ListPage } from '../../../shared/components/organisms/ListPage'
@@ -42,10 +44,12 @@ export const MuestrasPage = () => {
   const { muestras, isLoading, error, refetch } = useMuestras()
   const { stats, isLoading: statsLoading } = useMuestrasStats()
   const deleteMuestraMutation = useDeleteMuestra()
+  const cambiarEstadoMutation = useCambiarEstadoMuestra()
   const navigate = useNavigate()
   const { confirm } = useConfirmation()
   const { notify } = useNotification()
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isCompleting, setIsCompleting] = useState(false)
   const [sortKey, setSortKey] = useState<string>('f_recepcion')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
@@ -216,6 +220,34 @@ export const MuestrasPage = () => {
     }
   }
 
+  const handleComplete = async (muestra: Muestra) => {
+    const identificador = muestra.codigo_epi || muestra.codigo_externo || `#${muestra.id_muestra}`
+    const confirmed = await confirm({
+      title: 'Completar proceso',
+      message: `¿Marcar la muestra "${identificador}" como completada? Esta acción cambiará su estado a Completada.`,
+      confirmText: 'Sí, completar',
+      cancelText: 'Cancelar',
+      type: 'warning'
+    })
+
+    if (!confirmed) return
+
+    setIsCompleting(true)
+    try {
+      await cambiarEstadoMutation.mutateAsync({
+        id: muestra.id_muestra,
+        nuevoEstadoId: ESTADO_MUESTRA.COMPLETADA,
+        comentario: 'Proceso completado desde gestión de muestras'
+      })
+      notify('Proceso completado correctamente', 'success')
+      refetch()
+    } catch {
+      notify('Error al completar el proceso', 'error')
+    } finally {
+      setIsCompleting(false)
+    }
+  }
+
   const handlers = {
     onNew: () => navigate('/muestras/nueva')
     // onSecondaryAction: () => navigate('/muestras/nueva?tipo=grupo')
@@ -248,7 +280,7 @@ export const MuestrasPage = () => {
         items: sortedMuestras,
         total: muestras?.length,
         filtered: sortedMuestras.length,
-        isLoading: isLoading || isDeleting,
+        isLoading: isLoading || isDeleting || isCompleting,
         error,
         refetch
       }}
@@ -290,6 +322,7 @@ export const MuestrasPage = () => {
                 group={item as MuestraGroup}
                 onEdit={m => navigate(`/muestras/${m.id_muestra}/editar`)}
                 onDelete={handleDelete}
+                onComplete={handleComplete}
                 onEditGroup={group =>
                   navigate(
                     `/muestras/${group.parent.id_muestra}/editar?estudio=${encodeURIComponent(group.key)}&groupEdit=true`
@@ -303,6 +336,7 @@ export const MuestrasPage = () => {
                 muestra={item as Muestra}
                 onEdit={m => navigate(`/muestras/${m.id_muestra}/editar`)}
                 onDelete={handleDelete}
+                onComplete={handleComplete}
                 fieldSpans={COLUMN_CONFIG.map(col => col.span)}
               />
             )

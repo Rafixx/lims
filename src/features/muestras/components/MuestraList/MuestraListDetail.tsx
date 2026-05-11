@@ -1,6 +1,7 @@
 import { ReactNode, useMemo, useState } from 'react'
-import { Edit, Trash2, Plus, Grid3X3, Upload, TestTube2, ChevronDown, ChevronRight } from 'lucide-react'
+import { Edit, Trash2, Plus, Grid3X3, Upload, TestTube2, ChevronDown, ChevronRight, CheckCircle } from 'lucide-react'
 import { Muestra, Tecnica, TecnicaAgrupada } from '../../interfaces/muestras.types'
+import { canCompleteMuestra } from '../../utils/canCompleteMuestra'
 import { useNavigate } from 'react-router-dom'
 import { useTecnicasAgrupadasByMuestra, useMuestraArray } from '../../hooks/useMuestras'
 import { TecnicaListHeader } from './TecnicaListHeader'
@@ -15,6 +16,7 @@ interface MuestraListDetailProps {
   muestra: Muestra
   onEdit: (muestra: Muestra) => void
   onDelete: (muestra: Muestra) => void
+  onComplete?: (muestra: Muestra) => void
   fieldSpans: number[]
   /** Modo hijo dentro de un grupo: layout compacto (cod_ext + cod_epi + estado + acciones) */
   isChild?: boolean
@@ -53,6 +55,7 @@ export const MuestraListDetail = ({
   muestra,
   onEdit,
   onDelete,
+  onComplete,
   fieldSpans,
   isChild = false,
   childCanExpand = false,
@@ -259,6 +262,16 @@ export const MuestraListDetail = ({
             onClick: () => onEdit(muestra),
             title: 'Editar',
             className: 'p-1 text-primary-600 hover:bg-primary-50 rounded transition-colors'
+          }
+        ]
+      : []),
+    ...(onComplete && canCompleteMuestra(muestra)
+      ? [
+          {
+            icon: <CheckCircle className="w-4 h-4" />,
+            onClick: () => onComplete(muestra),
+            title: 'Completar proceso',
+            className: 'p-1 text-success-600 hover:bg-success-50 rounded transition-colors'
           }
         ]
       : []),
