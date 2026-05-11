@@ -27,10 +27,36 @@ export const StepDatosAdministrativos = ({ formData, onChange }: Props) => {
   return (
     <div className="space-y-6">
       <p className="text-sm text-surface-500">
-        Todos los campos de esta sección son opcionales.
+        La fecha de recepción es obligatoria. Los demás campos son opcionales.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Fecha de Recepción — OBLIGATORIO */}
+        <div className={fieldClass}>
+          <label className={labelClass}>
+            Fecha de recepción <span className="text-danger-600">*</span>
+          </label>
+          <input
+            type="datetime-local"
+            className={inputClass}
+            value={formData.f_recepcion || ''}
+            onChange={e => onChange({ f_recepcion: e.target.value })}
+            required
+          />
+        </div>
+
+        {/* Código externo de placa */}
+        <div className={fieldClass}>
+          <label className={labelClass}>Código externo de placa</label>
+          <input
+            type="text"
+            className={inputClass}
+            placeholder="Ej: LAB-EXT-2024-001"
+            value={formData.codigo_externo_placa || ''}
+            onChange={e => onChange({ codigo_externo_placa: e.target.value })}
+          />
+          <p className="text-xs text-surface-500">Referencia del laboratorio externo para esta placa</p>
+        </div>
         {/* Cliente */}
         <div className={fieldClass}>
           <label className={labelClass}>Cliente</label>
