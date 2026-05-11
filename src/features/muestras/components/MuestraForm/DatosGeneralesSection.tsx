@@ -8,7 +8,6 @@ import type { Muestra } from '../../interfaces/muestras.types'
 import {
   useClientes,
   usePruebas,
-  usePacientes,
   useTiposMuestra,
   useCentros,
   useTecnicosLaboratorio,
@@ -52,7 +51,6 @@ export const DatosGeneralesSection = ({
 
   // Carga de datos - usando hooks existentes o temporales
   const { data: pruebas = [], isLoading: loadingPruebas } = usePruebas()
-  const { data: pacientes = [], isLoading: loadingPacientes } = usePacientes()
   const { data: clientes = [], isLoading: loadingClientes } = useClientes()
   const { data: tiposMuestra = [], isLoading: loadingTipos } = useTiposMuestra()
   const { data: centros = [], isLoading: loadingCentros } = useCentros()
@@ -78,20 +76,6 @@ export const DatosGeneralesSection = ({
             disabled={isDuplicating}
             // error={errors.muestras?.[index]?.id_paciente?.message}
           />
-          <EntitySelect
-            name={`paciente.id`}
-            control={control}
-            label="Paciente"
-            options={pacientes}
-            isLoading={loadingPacientes}
-            getValue={paciente => paciente.id}
-            getLabel={paciente => paciente.nombre}
-            required
-            className={muestraStyle}
-            disabled={isDuplicating}
-            // error={errors.muestras?.[index]?.id_paciente?.message}
-          />
-
           <EntitySelect
             name={`prueba.id`}
             control={control}
@@ -135,7 +119,7 @@ export const DatosGeneralesSection = ({
           <EntitySelect
             name={`tecnico_resp.id_usuario`}
             control={control}
-            label="Técnico Responsable"
+            label="Técnico de registro"
             options={tec_resp}
             isLoading={loadingTecResp}
             getValue={tec => tec.id_usuario}
@@ -212,18 +196,6 @@ export const DatosGeneralesSection = ({
               placeholder: 'Ej: Temperatura ambiente, refrigerada...'
             }}
             error={errors.solicitud?.condiciones_envio?.message}
-            className={muestraStyle}
-          />
-
-          <FormField
-            id={`solicitud.tiempo_hielo`}
-            label="Tiempo en Hielo"
-            inputProps={{
-              ...register(`solicitud.tiempo_hielo`),
-              type: 'text',
-              placeholder: 'Ej: 2 horas, No aplica...'
-            }}
-            error={errors.solicitud?.tiempo_hielo?.message}
             className={muestraStyle}
           />
 

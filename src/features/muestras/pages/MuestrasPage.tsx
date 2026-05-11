@@ -23,13 +23,12 @@ import { groupMuestrasByEstudio } from '../utils/groupMuestras'
 import { MuestraGroup } from '../interfaces/muestras.types'
 
 // Configuración de columnas — spans deben sumar exactamente 12 (grid-cols-12)
-// 1+1+1+1+1+2+1+1+1+2 = 12 ✓
+// 1+1+2+1+2+1+1+1+2 = 12 ✓
 // Acciones con span 2 para acomodar todos los botones (Upload, Duplicar, Editar, Eliminar)
 const COLUMN_CONFIG = [
   { label: 'Cód EXT', span: 1, sortKey: 'codigo_externo' },
   { label: 'Cód EPI', span: 1, sortKey: 'codigo_epi' },
-  { label: 'Cliente', span: 1, sortKey: 'cliente' },
-  { label: 'Paciente', span: 1, sortKey: 'paciente' },
+  { label: 'Cliente', span: 2, sortKey: 'cliente' },
   { label: 'Tipo Muestra', span: 1, sortKey: 'tipo_muestra' },
   { label: 'Prueba', span: 2, sortKey: 'prueba' },
   { label: 'Estudio', span: 1, sortKey: 'estudio' },
@@ -59,8 +58,7 @@ export const MuestrasPage = () => {
         filterFn: createMultiFieldSearchFilter<Muestra>(muestra => [
           muestra.codigo_epi,
           muestra.codigo_externo,
-          muestra.solicitud?.cliente?.nombre,
-          muestra.paciente?.nombre
+          muestra.solicitud?.cliente?.nombre
         ])
       },
       numeroEstudio: {
@@ -129,9 +127,6 @@ export const MuestrasPage = () => {
             b.solicitud?.cliente?.nombre || ''
           )
           break
-        case 'paciente':
-          cmp = (a.paciente?.nombre || '').localeCompare(b.paciente?.nombre || '')
-          break
         case 'tipo_muestra':
           cmp = (a.tipo_muestra?.tipo_muestra || '').localeCompare(
             b.tipo_muestra?.tipo_muestra || ''
@@ -163,7 +158,6 @@ export const MuestrasPage = () => {
       'Cód EPI',
       'Estudio',
       'Cliente',
-      'Paciente',
       'Tipo Muestra',
       'Prueba',
       'Recepción',
@@ -174,7 +168,6 @@ export const MuestrasPage = () => {
       m.codigo_epi || '',
       m.estudio || '',
       m.solicitud?.cliente?.nombre || '',
-      m.paciente?.nombre || '',
       m.tipo_muestra?.tipo_muestra || '',
       m.prueba?.prueba || '',
       m.f_recepcion ? formatDate(m.f_recepcion) : '',
