@@ -4,6 +4,11 @@ import {
   calcPositionsPerPlate,
   calcPlatesNeeded
 } from '../../../hooks/useRegistroMasivo'
+import {
+  PLATE_FORMATS,
+  getFormatKey,
+  findFormat,
+} from '../../../utils/plateFormats'
 
 const inputClass =
   'border border-surface-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 w-full bg-white'
@@ -19,6 +24,9 @@ export const StepConfiguracionPlacas = ({ formData, onChange }: Props) => {
   const posPerPlate = calcPositionsPerPlate(formData.plate_width, formData.plate_heightLetter)
   const total = typeof formData.total_muestras === 'number' ? formData.total_muestras : 0
   const numPlates = total > 0 ? calcPlatesNeeded(total, posPerPlate) : 0
+
+  const selectedFormatKey = getFormatKey(formData.plate_width, formData.plate_heightLetter)
+  const isCustomFormat = !findFormat(formData.plate_width, formData.plate_heightLetter)
 
   const buildPlateCode = (index: number) => {
     const prefix = formData.code_prefix || 'PLACA'
@@ -43,6 +51,39 @@ export const StepConfiguracionPlacas = ({ formData, onChange }: Props) => {
         posPerPlate={posPerPlate}
         numPlates={numPlates}
       />
+
+      {/* Formato de placa */}
+      <div className={fieldClass}>
+        <label className={labelClass}>Formato de placa</label>
+        <select
+          className={inputClass}
+          value={isCustomFormat ? 'custom' : selectedFormatKey}
+          onChange={e => {
+            const val = e.target.value
+            if (val === 'custom') return
+            const [wStr, h] = val.split('x')
+            const w = parseInt(wStr, 10)
+            const fmt = findFormat(w, h)
+            if (fmt) {
+              onChange({ plate_width: fmt.width, plate_heightLetter: fmt.heightLetter })
+            }
+          }}
+        >
+          {PLATE_FORMATS.map(fmt => (
+            <option
+              key={getFormatKey(fmt.width, fmt.heightLetter)}
+              value={getFormatKey(fmt.width, fmt.heightLetter)}
+            >
+              {fmt.label}
+            </option>
+          ))}
+          {isCustomFormat && (
+            <option value="custom">
+              Personalizado — {formData.plate_width} cols × {formData.plate_heightLetter} filas
+            </option>
+          )}
+        </select>
+      </div>
 
       {/* Prefijo de código */}
       <div className={fieldClass}>
