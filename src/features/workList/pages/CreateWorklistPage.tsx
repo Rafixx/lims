@@ -155,11 +155,15 @@ export const CreateWorklistPage = () => {
                     // Limpiar técnicas seleccionadas al cambiar de proceso
                     setSelectedTecnicas(new Set())
 
-                    if (procesoNombre) {
+                    if (procesoNombre && !nombre) {
+                      // Primera selección: generar código automáticamente
                       handleGenerateNombre(procesoNombre)
-                    } else {
+                    } else if (!procesoNombre) {
+                      // Si se deselecciona, limpiar también el nombre
                       setNombre('')
                     }
+                    // Si ya hay nombre y se cambia de proceso: no regenerar
+                    // para evitar huecos en la secuencia del backend
                   }}
                   required
                   disabled={loadingPosiblesTecnicasProc}
@@ -210,6 +214,12 @@ export const CreateWorklistPage = () => {
                 )}
                 {nombre && !isGeneratingCodigo && !worklistCodigoError && (
                   <p className="text-xs text-gray-500 mt-1">Patrón: LYY.NNNNN</p>
+                )}
+                {nombre && selectedTecnicaProc && (
+                  <p className="text-xs text-warning-600 mt-1">
+                    El código &quot;{nombre}&quot; ya fue reservado. Si cambias de proceso, usa el
+                    botón ↺ para regenerar manualmente.
+                  </p>
                 )}
               </div>
             </div>
