@@ -7,7 +7,9 @@ import { Muestra } from '../interfaces/muestras.types'
  * pero el backend espera campos escalares de FK (e.g. id_tipo_muestra).
  * Esta función extrae esos IDs y los expone al nivel raíz del payload.
  */
-export const buildMuestraPayload = (data: Muestra): Muestra & {
+export const buildMuestraPayload = (
+  data: Muestra
+): Muestra & {
   id_tipo_muestra?: number
   id_prueba?: number
   id_centro?: number
@@ -26,6 +28,6 @@ export const buildMuestraPayload = (data: Muestra): Muestra & {
     // El técnico responsable usa id_usuario como clave primaria
     id_tecnico_resp: data.tecnico_resp?.id_usuario || undefined,
     // El cliente está anidado en solicitud
-    id_solicitud_cliente: data.solicitud?.cliente?.id || undefined,
+    id_solicitud_cliente: data.solicitud?.cliente?.id || undefined
   }
 }

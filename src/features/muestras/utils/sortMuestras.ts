@@ -16,14 +16,10 @@ export const sortMuestras = (
         cmp = (a.codigo_epi || '').localeCompare(b.codigo_epi || '')
         break
       case 'cliente':
-        cmp = (a.solicitud?.cliente?.nombre || '').localeCompare(
-          b.solicitud?.cliente?.nombre || ''
-        )
+        cmp = (a.solicitud?.cliente?.nombre || '').localeCompare(b.solicitud?.cliente?.nombre || '')
         break
       case 'tipo_muestra':
-        cmp = (a.tipo_muestra?.tipo_muestra || '').localeCompare(
-          b.tipo_muestra?.tipo_muestra || ''
-        )
+        cmp = (a.tipo_muestra?.tipo_muestra || '').localeCompare(b.tipo_muestra?.tipo_muestra || '')
         break
       case 'prueba':
         cmp = (a.prueba?.prueba || '').localeCompare(b.prueba?.prueba || '')

@@ -7,7 +7,7 @@ export type PlateFormat = {
 export const PLATE_FORMATS: PlateFormat[] = [
   { label: '96 pocillos — 12 columnas × 8 filas (A–H)', width: 12, heightLetter: 'H' },
   { label: '96 pocillos — 8 columnas × 12 filas (A–L)', width: 8, heightLetter: 'L' },
-  { label: '48 pocillos — 8 columnas × 6 filas (A–F)', width: 8, heightLetter: 'F' },
+  { label: '48 pocillos — 8 columnas × 6 filas (A–F)', width: 8, heightLetter: 'F' }
 ]
 
 export const calcPositionsPerPlate = (width: number, heightLetter: string): number => {
