@@ -46,8 +46,8 @@ export const MuestrasPage = () => {
   const { confirm } = useConfirmation()
   const { notify } = useNotification()
   const [isDeleting, setIsDeleting] = useState(false)
-  const [sortKey, setSortKey] = useState<string>('')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const [sortKey, setSortKey] = useState<string>('f_recepcion')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
   // Configuración de filtros específica para muestras
   const filterConfig = useMemo(
