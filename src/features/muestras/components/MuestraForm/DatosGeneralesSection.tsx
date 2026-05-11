@@ -22,12 +22,15 @@ interface DatosGeneralesSectionProps {
   showCodigoExterno?: boolean
   /** Modo edición grupal: oculta campos per-placa (codigo_epi, codigo_externo) y deshabilita estudio */
   isGroupEdit?: boolean
+  /** Modo edición: deshabilita campos que no deben modificarse tras la creación */
+  isEditing?: boolean
 }
 
 export const DatosGeneralesSection = ({
   isDuplicating = false,
   showCodigoExterno = true,
-  isGroupEdit = false
+  isGroupEdit = false,
+  isEditing = false
 }: DatosGeneralesSectionProps) => {
   const {
     control,
@@ -160,7 +163,7 @@ export const DatosGeneralesSection = ({
               inputProps={{
                 ...register('codigo_externo'),
                 type: 'text',
-                disabled: isDuplicating || !showCodigoExterno
+                disabled: isDuplicating || !showCodigoExterno || isEditing
               }}
               error={showCodigoExterno ? errors.codigo_externo?.message : undefined}
               hint={
@@ -168,7 +171,7 @@ export const DatosGeneralesSection = ({
                   ? 'Se asignará individualmente a cada muestra tras la creación'
                   : undefined
               }
-              required={showCodigoExterno}
+              required={showCodigoExterno && !isEditing}
               className={muestraStyle}
             />
           )}
@@ -180,8 +183,9 @@ export const DatosGeneralesSection = ({
                 ...register(`codigo_epi`),
                 type: 'text',
                 placeholder: 'Ej: EPI2025-001',
-                disabled: isDuplicating
+                disabled: true
               }}
+              hint="Asignado automáticamente por el sistema"
               error={errors.codigo_epi?.message}
               className={muestraStyle}
             />
@@ -241,7 +245,7 @@ export const DatosGeneralesSection = ({
 
       {/* Cronología de la Muestra */}
       <div className="bg-gray-50 p-4 rounded-lg">
-        <TimelineEventsSection />
+        <TimelineEventsSection isEditing={isEditing} />
       </div>
     </div>
   )

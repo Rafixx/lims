@@ -97,6 +97,7 @@ export const MuestraForm = ({
             isDuplicating={isDuplicating}
             showCodigoExterno={showCodigoExterno}
             isGroupEdit={isGroupEdit}
+            isEditing={isEditing}
           />
         )
       }
@@ -131,6 +132,13 @@ export const MuestraForm = ({
       }
 
       const isEditingForm = Boolean(formValues.id_muestra && formValues.id_muestra > 0)
+
+      // Validar que f_recepcion esté establecido al crear una muestra
+      if (!isEditingForm && !formValues.f_recepcion) {
+        notify('La fecha de recepción es obligatoria. Por favor, complétala en la sección de cronología.', 'error')
+        setIsSubmitting(false)
+        return
+      }
 
       if (formValues.tipo_array === true && !isEditingForm) {
         // Validar que la configuración de placa esté completa (solo al crear)
