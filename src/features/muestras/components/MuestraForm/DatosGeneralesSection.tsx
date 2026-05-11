@@ -74,7 +74,6 @@ export const DatosGeneralesSection = ({
             required
             className={muestraStyle}
             disabled={isDuplicating}
-            // error={errors.muestras?.[index]?.id_paciente?.message}
           />
           <EntitySelect
             name={`prueba.id`}
