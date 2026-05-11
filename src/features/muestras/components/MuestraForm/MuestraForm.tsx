@@ -164,8 +164,6 @@ export const MuestraForm = ({
         return
       }
 
-      const isEditing = Boolean(formValues.id_muestra && formValues.id_muestra > 0)
-
       // Incluir las técnicas seleccionadas en los datos del formulario
       const formDataWithTecnicas: MuestraFormData = {
         ...formValues,
@@ -174,7 +172,7 @@ export const MuestraForm = ({
 
       if (import.meta.env.DEV) {
         console.log('[📋 MuestraForm] Guardando muestra:', {
-          modo: isEditing ? 'EDICIÓN' : 'CREACIÓN',
+          modo: isEditingForm ? 'EDICIÓN' : 'CREACIÓN',
           id: formValues.id_muestra,
           tipo_array: formValues.tipo_array,
           array_config: formValues.array_config,
@@ -183,7 +181,7 @@ export const MuestraForm = ({
         })
       }
 
-      if (isEditing) {
+      if (isEditingForm) {
         // Actualizar muestra existente
         await updateMutation.mutateAsync({
           id: formValues.id_muestra!,
