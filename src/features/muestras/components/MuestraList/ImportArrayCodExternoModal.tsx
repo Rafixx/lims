@@ -21,6 +21,7 @@ import { Button } from '@/shared/components/molecules/Button'
 import { useMuestraArray, useImportArrayCodExterno } from '../../hooks/useMuestras'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import type { ArrayCodExternoPar, MuestraArray } from '../../interfaces/muestras.types'
+import { generatePlateTemplate, downloadCsv } from '../../utils/csvTemplateUtils'
 
 // ---------------------------------------------------------------------------
 // Descarga de plantilla CSV
@@ -108,6 +109,10 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
     downloadTemplate(muestraId, arrayPositions)
   }
 
+  const handleDownloadBlankTemplate = () => {
+    downloadCsv(generatePlateTemplate(), 'plantilla_placa_96.csv')
+  }
+
   const handleFileSelect = (file: File) => {
     setParseError('')
     setParsedPares([])
@@ -192,6 +197,20 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
               Plantilla CSV
             </Button>
           </div>
+        </div>
+
+        {/* Plantilla genérica de 96 pocillos */}
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-surface-500">¿Sin posiciones cargadas?</span>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={handleDownloadBlankTemplate}
+          >
+            <Download className="h-3.5 w-3.5" />
+            Descargar plantilla (96 pocillos)
+          </Button>
         </div>
 
         {/* Paso 2: subir archivo relleno */}
