@@ -188,9 +188,14 @@ export const MuestrasPage = () => {
   }
 
   const handleDelete = async (muestra: Muestra) => {
+    // Fix C: diferenciar el mensaje según si es placa (tipo_array) o tubo individual.
+    const esPlaca = muestra.tipo_array === true
+    const identificador = muestra.codigo_epi || muestra.codigo_externo || `#${muestra.id_muestra}`
     const confirmed = await confirm({
-      title: 'Eliminar muestra',
-      message: `¿Estás seguro de que deseas eliminar la muestra ${muestra.codigo_externo || muestra.codigo_epi || `#${muestra.id_muestra}`}? Esta acción no se puede deshacer.`,
+      title: esPlaca ? 'Eliminar placa' : 'Eliminar muestra',
+      message: esPlaca
+        ? `¿Estás seguro de que deseas eliminar la placa "${identificador}"? Se eliminarán todas las muestras asociadas. Esta acción no se puede deshacer.`
+        : `¿Estás seguro de que deseas eliminar la muestra "${identificador}"? Esta acción no se puede deshacer.`,
       confirmText: 'Sí, eliminar',
       cancelText: 'Cancelar',
       type: 'danger'
