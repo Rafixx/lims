@@ -164,7 +164,7 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
             className={[
               'rounded p-1 transition-colors',
               allHaveCodExterno
-                ? 'text-purple-600 hover:bg-purple-50'
+                ? 'text-success-600 hover:bg-success-50'
                 : 'text-primary-600 hover:bg-primary-50'
             ].join(' ')}
             aria-label="Importar códigos externos"

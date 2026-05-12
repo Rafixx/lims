@@ -250,7 +250,7 @@ export const MuestraListDetail = ({
               ? 'Reimportar códigos externos de placa (sobreescribir existentes)'
               : 'Importar códigos externos de placa desde CSV',
             className: allArrayPositionsHaveCodes
-              ? 'p-1 text-purple-600 hover:bg-purple-50 rounded transition-colors'
+              ? 'p-1 text-success-600 hover:bg-success-50 rounded transition-colors'
               : 'p-1 text-accent-600 hover:bg-accent-50 rounded transition-colors'
           }
         ]
