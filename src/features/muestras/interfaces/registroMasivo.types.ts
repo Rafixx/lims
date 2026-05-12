@@ -8,6 +8,7 @@ export type RegistroMasivoRequest = {
     heightLetter: string
     code_prefix: string
   }
+  f_recepcion: string
   id_cliente?: number
   id_paciente?: number
   id_centro?: number
@@ -16,6 +17,7 @@ export type RegistroMasivoRequest = {
   condiciones_envio?: string
   tiempo_hielo?: string
   observaciones?: string
+  codigo_externo_placa?: string
 }
 
 export type RegistroMasivoResult = {
@@ -36,6 +38,8 @@ export type RegistroMasivoFormData = {
   plate_width: number
   plate_heightLetter: string
   code_prefix: string
+  f_recepcion: string
+  codigo_externo_placa: string
   id_cliente: number | null
   id_paciente: number | null
   id_centro: number | null

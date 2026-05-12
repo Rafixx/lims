@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react'
 import { EditableList } from '@/shared/components/organisms/EditableList'
 import { Modal } from '@/shared/components/molecules/Modal'
 import { Button } from '@/shared/components/molecules/Button'
-import { Input } from '@/shared/components/molecules/Input'
+import { useTecnicasProc } from '@/shared/hooks/useDim_tables'
 import type { TecnicaProc } from '@/shared/interfaces/dim_tables.types'
 import type { TecnicaLocal } from '../hooks/usePruebaTecnicas'
 
@@ -25,33 +25,26 @@ export const PruebaTecnicasCreate = ({
   onReorder
 }: PruebaTecnicasCreateProps) => {
   const [modalOpen, setModalOpen] = useState(false)
-  const [inputNombre, setInputNombre] = useState('')
+  const [selectedNombre, setSelectedNombre] = useState('')
   const [error, setError] = useState('')
 
+  const { data: tecnicasSistema = [], isLoading: loadingTecnicas } = useTecnicasProc()
+
+  // Filtrar las que ya están en la lista actual
+  const disponibles = tecnicasSistema.filter(
+    ts => !tecnicas.some(t => t.tecnica_proc.toLowerCase() === ts.tecnica_proc.toLowerCase())
+  )
+
   const handleAdd = () => {
-    const nombre = inputNombre.trim()
+    const nombre = selectedNombre.trim()
     if (!nombre) {
-      setError('El nombre es obligatorio')
-      return
-    }
-    const isDuplicate = tecnicas.some(
-      t => t.tecnica_proc.toLowerCase() === nombre.toLowerCase()
-    )
-    if (isDuplicate) {
-      setError('Ya existe una técnica con ese nombre')
+      setError('Selecciona una técnica')
       return
     }
     onAdd(nombre)
-    setInputNombre('')
+    setSelectedNombre('')
     setError('')
     setModalOpen(false)
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      handleAdd()
-    }
   }
 
   return (
@@ -62,7 +55,7 @@ export const PruebaTecnicasCreate = ({
           type="button"
           title="Añadir técnica de procesamiento"
           onClick={() => {
-            setInputNombre('')
+            setSelectedNombre('')
             setError('')
             setModalOpen(true)
           }}
@@ -91,32 +84,54 @@ export const PruebaTecnicasCreate = ({
 
       <Modal
         isOpen={modalOpen}
-        title="Nueva técnica"
+        title="Añadir técnica"
         onClose={() => setModalOpen(false)}
         widthClass="w-full max-w-sm"
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">
-              Nombre de la técnica
+            <label htmlFor="tecnica-select-create" className="block text-sm font-medium text-surface-700 mb-1">
+              Técnica
             </label>
-            <Input
-              autoFocus
-              value={inputNombre}
-              onChange={e => {
-                setInputNombre(e.target.value)
-                setError('')
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder="Ej: PCR, ELISA..."
-            />
+            {loadingTecnicas ? (
+              <p className="text-xs text-surface-400">Cargando técnicas...</p>
+            ) : disponibles.length === 0 ? (
+              <p className="text-xs text-surface-400 italic">
+                No hay técnicas disponibles en el sistema.
+              </p>
+            ) : (
+              <select
+                id="tecnica-select-create"
+                autoFocus
+                value={selectedNombre}
+                onChange={e => {
+                  setSelectedNombre(e.target.value)
+                  setError('')
+                }}
+                className="w-full px-3 py-2 border border-surface-300 rounded-md bg-white
+                  text-surface-700 text-sm focus:outline-none focus:ring-2
+                  focus:ring-primary-400 focus:border-primary-400"
+              >
+                <option value="">Selecciona una técnica...</option>
+                {disponibles.map(t => (
+                  <option key={t.id} value={t.tecnica_proc}>
+                    {t.tecnica_proc}
+                  </option>
+                ))}
+              </select>
+            )}
             {error && <p className="mt-1 text-xs text-danger-600">{error}</p>}
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="secondary" size="sm" onClick={() => setModalOpen(false)}>
               Cancelar
             </Button>
-            <Button variant="primary" size="sm" onClick={handleAdd}>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleAdd}
+              disabled={!selectedNombre || loadingTecnicas}
+            >
               Añadir
             </Button>
           </div>
@@ -150,20 +165,32 @@ export const PruebaTecnicasEdit = ({
   onReorder
 }: PruebaTecnicasEditProps) => {
   const [modalOpen, setModalOpen] = useState(false)
-  const [inputNombre, setInputNombre] = useState('')
+  const [selectedNombre, setSelectedNombre] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
+  const { data: tecnicasSistema = [], isLoading: loadingTecnicas } = useTecnicasProc()
+
+  // Técnicas del sistema que no están ya activas en esta prueba
+  const disponibles = tecnicasSistema.filter(
+    ts => !activas.some(a => a.tecnica_proc.toLowerCase() === ts.tecnica_proc.toLowerCase())
+  )
+
+  // Detecta si la técnica seleccionada coincide con una inactiva (para reactivar en lugar de crear)
+  const sugerida = inactivas.find(
+    t => t.tecnica_proc.toLowerCase() === selectedNombre.trim().toLowerCase()
+  )
+
   const handleAdd = async () => {
-    const nombre = inputNombre.trim()
+    const nombre = selectedNombre.trim()
     if (!nombre) {
-      setError('El nombre es obligatorio')
+      setError('Selecciona una técnica')
       return
     }
     setSaving(true)
     try {
       await onAdd(nombre)
-      setInputNombre('')
+      setSelectedNombre('')
       setError('')
       setModalOpen(false)
     } catch (e) {
@@ -173,18 +200,6 @@ export const PruebaTecnicasEdit = ({
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      handleAdd()
-    }
-  }
-
-  // Sugiere reactivar si el nombre coincide con alguna inactiva
-  const sugerida = inactivas.find(
-    t => t.tecnica_proc.toLowerCase() === inputNombre.trim().toLowerCase()
-  )
-
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -193,7 +208,7 @@ export const PruebaTecnicasEdit = ({
           type="button"
           title="Añadir técnica de procesamiento"
           onClick={() => {
-            setInputNombre('')
+            setSelectedNombre('')
             setError('')
             setModalOpen(true)
           }}
@@ -228,19 +243,45 @@ export const PruebaTecnicasEdit = ({
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-surface-700 mb-1">
-              Nombre de la técnica
+            <label htmlFor="tecnica-select-edit" className="block text-sm font-medium text-surface-700 mb-1">
+              Técnica
             </label>
-            <Input
-              autoFocus
-              value={inputNombre}
-              onChange={e => {
-                setInputNombre(e.target.value)
-                setError('')
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder="Ej: PCR, ELISA..."
-            />
+            {loadingTecnicas ? (
+              <p className="text-xs text-surface-400">Cargando técnicas...</p>
+            ) : disponibles.length === 0 && inactivas.length === 0 ? (
+              <p className="text-xs text-surface-400 italic">
+                No hay técnicas disponibles en el sistema.
+              </p>
+            ) : (
+              <select
+                id="tecnica-select-edit"
+                autoFocus
+                value={selectedNombre}
+                onChange={e => {
+                  setSelectedNombre(e.target.value)
+                  setError('')
+                }}
+                className="w-full px-3 py-2 border border-surface-300 rounded-md bg-white
+                  text-surface-700 text-sm focus:outline-none focus:ring-2
+                  focus:ring-primary-400 focus:border-primary-400"
+              >
+                <option value="">Selecciona una técnica...</option>
+                {disponibles.map(t => (
+                  <option key={t.id} value={t.tecnica_proc}>
+                    {t.tecnica_proc}
+                  </option>
+                ))}
+                {inactivas.length > 0 && (
+                  <optgroup label="Desactivadas (se reactivarán)">
+                    {inactivas.map(t => (
+                      <option key={t.id} value={t.tecnica_proc}>
+                        {t.tecnica_proc}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
+            )}
             {error && <p className="mt-1 text-xs text-danger-600">{error}</p>}
             {sugerida && (
               <p className="mt-1.5 text-xs text-info-600">
@@ -252,7 +293,13 @@ export const PruebaTecnicasEdit = ({
             <Button variant="secondary" size="sm" onClick={() => setModalOpen(false)}>
               Cancelar
             </Button>
-            <Button variant="primary" size="sm" loading={saving} onClick={handleAdd}>
+            <Button
+              variant="primary"
+              size="sm"
+              loading={saving}
+              onClick={handleAdd}
+              disabled={!selectedNombre || loadingTecnicas}
+            >
               {sugerida ? 'Reactivar' : 'Añadir'}
             </Button>
           </div>

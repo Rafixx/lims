@@ -27,7 +27,12 @@ interface TimelineEvent {
   verifyField?: keyof Muestra
 }
 
-export const TimelineEventsSection = () => {
+interface TimelineEventsSectionProps {
+  /** Modo edición: bloquea la modificación de f_recepcion */
+  isEditing?: boolean
+}
+
+export const TimelineEventsSection = ({ isEditing = false }: TimelineEventsSectionProps) => {
   const { watch, setValue, control } = useFormContext<Muestra>()
   const [editingField, setEditingField] = useState<string | null>(null)
   const [tempDateValue, setTempDateValue] = useState<string | null>(null)
@@ -202,18 +207,26 @@ export const TimelineEventsSection = () => {
             ? watchedValues[event.verifyField as keyof typeof watchedValues]
             : null
 
+          const isRecepcionLocked = event.id === 'f_recepcion' && isEditing
+          const isRecepcionRequired = event.id === 'f_recepcion' && !isEditing
+
           return (
             <button
               key={event.id}
               type="button"
-              onClick={() => setEditingField(event.id)}
+              onClick={() => {
+                if (isRecepcionLocked) return
+                setEditingField(event.id)
+              }}
               className={`
                 relative p-3 rounded-lg border-2 transition-all text-left
-                hover:shadow-md hover:-translate-y-0.5
+                ${isRecepcionLocked ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-md hover:-translate-y-0.5'}
                 ${
-                  isCompleted
-                    ? 'border-success-200 bg-success-50 hover:border-success-300'
-                    : 'border-surface-200 bg-white hover:border-primary-300'
+                  isRecepcionRequired && !isCompleted
+                    ? 'border-danger-300 bg-white'
+                    : isCompleted
+                      ? 'border-success-200 bg-success-50 hover:border-success-300'
+                      : 'border-surface-200 bg-white hover:border-primary-300'
                 }
               `}
             >

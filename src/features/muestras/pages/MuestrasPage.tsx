@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMuestras, useMuestrasStats, useDeleteMuestra } from '../hooks/useMuestras'
+import { useCambiarEstadoMuestra } from '@/shared/hooks/useEstados'
+import { ESTADO_MUESTRA } from '@/shared/interfaces/estados.types'
 import { Muestra } from '../interfaces/muestras.types'
 import { MuestraFilter } from '../components/MuestraFilter'
 import { ListPage } from '../../../shared/components/organisms/ListPage'
@@ -23,13 +25,12 @@ import { groupMuestrasByEstudio } from '../utils/groupMuestras'
 import { MuestraGroup } from '../interfaces/muestras.types'
 
 // Configuración de columnas — spans deben sumar exactamente 12 (grid-cols-12)
-// 1+1+1+1+1+2+1+1+1+2 = 12 ✓
+// 1+1+2+1+2+1+1+1+2 = 12 ✓
 // Acciones con span 2 para acomodar todos los botones (Upload, Duplicar, Editar, Eliminar)
 const COLUMN_CONFIG = [
   { label: 'Cód EXT', span: 1, sortKey: 'codigo_externo' },
   { label: 'Cód EPI', span: 1, sortKey: 'codigo_epi' },
-  { label: 'Cliente', span: 1, sortKey: 'cliente' },
-  { label: 'Paciente', span: 1, sortKey: 'paciente' },
+  { label: 'Cliente', span: 2, sortKey: 'cliente' },
   { label: 'Tipo Muestra', span: 1, sortKey: 'tipo_muestra' },
   { label: 'Prueba', span: 2, sortKey: 'prueba' },
   { label: 'Estudio', span: 1, sortKey: 'estudio' },
@@ -43,12 +44,14 @@ export const MuestrasPage = () => {
   const { muestras, isLoading, error, refetch } = useMuestras()
   const { stats, isLoading: statsLoading } = useMuestrasStats()
   const deleteMuestraMutation = useDeleteMuestra()
+  const cambiarEstadoMutation = useCambiarEstadoMuestra()
   const navigate = useNavigate()
   const { confirm } = useConfirmation()
   const { notify } = useNotification()
   const [isDeleting, setIsDeleting] = useState(false)
-  const [sortKey, setSortKey] = useState<string>('')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const [isCompleting, setIsCompleting] = useState(false)
+  const [sortKey, setSortKey] = useState<string>('f_recepcion')
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
   // Configuración de filtros específica para muestras
   const filterConfig = useMemo(
@@ -59,8 +62,7 @@ export const MuestrasPage = () => {
         filterFn: createMultiFieldSearchFilter<Muestra>(muestra => [
           muestra.codigo_epi,
           muestra.codigo_externo,
-          muestra.solicitud?.cliente?.nombre,
-          muestra.paciente?.nombre
+          muestra.solicitud?.cliente?.nombre
         ])
       },
       numeroEstudio: {
@@ -129,9 +131,6 @@ export const MuestrasPage = () => {
             b.solicitud?.cliente?.nombre || ''
           )
           break
-        case 'paciente':
-          cmp = (a.paciente?.nombre || '').localeCompare(b.paciente?.nombre || '')
-          break
         case 'tipo_muestra':
           cmp = (a.tipo_muestra?.tipo_muestra || '').localeCompare(
             b.tipo_muestra?.tipo_muestra || ''
@@ -163,7 +162,6 @@ export const MuestrasPage = () => {
       'Cód EPI',
       'Estudio',
       'Cliente',
-      'Paciente',
       'Tipo Muestra',
       'Prueba',
       'Recepción',
@@ -174,7 +172,6 @@ export const MuestrasPage = () => {
       m.codigo_epi || '',
       m.estudio || '',
       m.solicitud?.cliente?.nombre || '',
-      m.paciente?.nombre || '',
       m.tipo_muestra?.tipo_muestra || '',
       m.prueba?.prueba || '',
       m.f_recepcion ? formatDate(m.f_recepcion) : '',
@@ -195,9 +192,14 @@ export const MuestrasPage = () => {
   }
 
   const handleDelete = async (muestra: Muestra) => {
+    // Fix C: diferenciar el mensaje según si es placa (tipo_array) o tubo individual.
+    const esPlaca = muestra.tipo_array === true
+    const identificador = muestra.codigo_epi || muestra.codigo_externo || `#${muestra.id_muestra}`
     const confirmed = await confirm({
-      title: 'Eliminar muestra',
-      message: `¿Estás seguro de que deseas eliminar la muestra ${muestra.codigo_externo || muestra.codigo_epi || `#${muestra.id_muestra}`}? Esta acción no se puede deshacer.`,
+      title: esPlaca ? 'Eliminar placa' : 'Eliminar muestra',
+      message: esPlaca
+        ? `¿Estás seguro de que deseas eliminar la placa "${identificador}"? Se eliminarán todas las muestras asociadas. Esta acción no se puede deshacer.`
+        : `¿Estás seguro de que deseas eliminar la muestra "${identificador}"? Esta acción no se puede deshacer.`,
       confirmText: 'Sí, eliminar',
       cancelText: 'Cancelar',
       type: 'danger'
@@ -215,6 +217,34 @@ export const MuestrasPage = () => {
       console.error('Error deleting muestra:', error)
     } finally {
       setIsDeleting(false)
+    }
+  }
+
+  const handleComplete = async (muestra: Muestra) => {
+    const identificador = muestra.codigo_epi || muestra.codigo_externo || `#${muestra.id_muestra}`
+    const confirmed = await confirm({
+      title: 'Completar proceso',
+      message: `¿Marcar la muestra "${identificador}" como completada? Esta acción cambiará su estado a Completada.`,
+      confirmText: 'Sí, completar',
+      cancelText: 'Cancelar',
+      type: 'warning'
+    })
+
+    if (!confirmed) return
+
+    setIsCompleting(true)
+    try {
+      await cambiarEstadoMutation.mutateAsync({
+        id: muestra.id_muestra,
+        nuevoEstadoId: ESTADO_MUESTRA.COMPLETADA,
+        comentario: 'Proceso completado desde gestión de muestras'
+      })
+      notify('Proceso completado correctamente', 'success')
+      refetch()
+    } catch {
+      notify('Error al completar el proceso', 'error')
+    } finally {
+      setIsCompleting(false)
     }
   }
 
@@ -250,7 +280,7 @@ export const MuestrasPage = () => {
         items: sortedMuestras,
         total: muestras?.length,
         filtered: sortedMuestras.length,
-        isLoading: isLoading || isDeleting,
+        isLoading: isLoading || isDeleting || isCompleting,
         error,
         refetch
       }}
@@ -292,6 +322,7 @@ export const MuestrasPage = () => {
                 group={item as MuestraGroup}
                 onEdit={m => navigate(`/muestras/${m.id_muestra}/editar`)}
                 onDelete={handleDelete}
+                onComplete={handleComplete}
                 onEditGroup={group =>
                   navigate(
                     `/muestras/${group.parent.id_muestra}/editar?estudio=${encodeURIComponent(group.key)}&groupEdit=true`
@@ -305,6 +336,7 @@ export const MuestrasPage = () => {
                 muestra={item as Muestra}
                 onEdit={m => navigate(`/muestras/${m.id_muestra}/editar`)}
                 onDelete={handleDelete}
+                onComplete={handleComplete}
                 fieldSpans={COLUMN_CONFIG.map(col => col.span)}
               />
             )

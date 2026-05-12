@@ -1,28 +1,20 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import muestrasService from '../services/muestras.services'
 import { RegistroMasivoRequest, RegistroMasivoResult } from '../interfaces/registroMasivo.types'
+import {
+  calcPositionsPerPlate as calcPositionsPerPlateUtil,
+  calcPlatesNeeded as calcPlatesNeededUtil,
+  calcEmptyPositions as calcEmptyPositionsUtil,
+} from '../utils/plateFormats'
 
-export const letterToNumber = (letter: string): number => {
-  const upper = letter.toUpperCase()
-  if (upper.length !== 1 || upper < 'A' || upper > 'Z') return 0
-  return upper.charCodeAt(0) - 64
-}
-
-export const calcPositionsPerPlate = (width: number, heightLetter: string): number => {
-  const h = letterToNumber(heightLetter)
-  if (h === 0 || width <= 0) return 0
-  return width * h
-}
-
-export const calcPlatesNeeded = (totalMuestras: number, posPerPlate: number): number => {
-  if (posPerPlate <= 0 || totalMuestras <= 0) return 0
-  return Math.ceil(totalMuestras / posPerPlate)
-}
+// Re-export from plateFormats for backward compatibility with existing consumers
+export const calcPositionsPerPlate = calcPositionsPerPlateUtil
+export const calcPlatesNeeded = calcPlatesNeededUtil
 
 export const calcEmptyPositions = (totalMuestras: number, posPerPlate: number): number => {
   if (posPerPlate <= 0 || totalMuestras <= 0) return 0
-  const plates = calcPlatesNeeded(totalMuestras, posPerPlate)
-  return plates * posPerPlate - totalMuestras
+  const plates = calcPlatesNeededUtil(totalMuestras, posPerPlate)
+  return calcEmptyPositionsUtil(totalMuestras, posPerPlate, plates)
 }
 
 export const useRegistroMasivo = () => {

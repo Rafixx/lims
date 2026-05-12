@@ -1,5 +1,5 @@
 import { useForm, FormProvider, SubmitHandler } from 'react-hook-form'
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { MuestraAsidePreview } from './MuestraAsidePreview'
 import { DatosGeneralesSection } from './DatosGeneralesSection'
@@ -10,6 +10,7 @@ import { Muestra } from '../../interfaces/muestras.types'
 import { getDefaultMuestra } from '../../interfaces/defaults'
 import { useCreateMuestra, useUpdateMuestra, useBulkUpdateByEstudio } from '../../hooks/useMuestras'
 import { MuestraGroupSection } from './DatosGroupSection'
+import { buildMuestraPayload } from '../../utils/buildMuestraPayload'
 
 // Tipo extendido para incluir técnicas en el formulario
 type MuestraFormData = Muestra & {
@@ -59,7 +60,18 @@ export const MuestraForm = ({
     defaultValues
   })
 
-  const { watch, handleSubmit, setValue } = methods
+  const { watch, handleSubmit, setValue, reset } = methods
+
+  // Fix A: sincronizar el formulario cuando initialValues llega del servidor de forma asíncrona.
+  // useForm solo aplica defaultValues en el primer render; si los datos llegan después del
+  // mount (por carga asíncrona o por cambio de referencia), hay que llamar a reset() explícitamente.
+  useEffect(() => {
+    if (initialValues?.id_muestra && initialValues.id_muestra > 0) {
+      reset(initialValues)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialValues?.id_muestra])
+
   const [activeTab, setActiveTab] = useState<string>('general')
   const isEditing = Boolean(initialValues?.id_muestra && initialValues.id_muestra > 0)
   if (isMuestraGroup && !watch('tipo_array')) {
@@ -97,6 +109,7 @@ export const MuestraForm = ({
             isDuplicating={isDuplicating}
             showCodigoExterno={showCodigoExterno}
             isGroupEdit={isGroupEdit}
+            isEditing={isEditing}
           />
         )
       }
@@ -132,6 +145,13 @@ export const MuestraForm = ({
 
       const isEditingForm = Boolean(formValues.id_muestra && formValues.id_muestra > 0)
 
+      // Validar que f_recepcion esté establecido al crear una muestra
+      if (!isEditingForm && !formValues.f_recepcion) {
+        notify('La fecha de recepción es obligatoria. Por favor, complétala en la sección de cronología.', 'error')
+        setIsSubmitting(false)
+        return
+      }
+
       if (formValues.tipo_array === true && !isEditingForm) {
         // Validar que la configuración de placa esté completa (solo al crear)
         const { code, width, height, heightLetter } = formValues.array_config || {}
@@ -156,17 +176,17 @@ export const MuestraForm = ({
         return
       }
 
-      const isEditing = Boolean(formValues.id_muestra && formValues.id_muestra > 0)
-
-      // Incluir las técnicas seleccionadas en los datos del formulario
+      // Fix B: transformar objetos anidados (tipo_muestra, prueba, centro…) a IDs escalares
+      // que el backend espera (id_tipo_muestra, id_prueba, id_centro…).
+      // Incluir las técnicas seleccionadas en los datos del formulario.
       const formDataWithTecnicas: MuestraFormData = {
-        ...formValues,
+        ...buildMuestraPayload(formValues),
         tecnicas: selectedTecnicas
       }
 
       if (import.meta.env.DEV) {
         console.log('[📋 MuestraForm] Guardando muestra:', {
-          modo: isEditing ? 'EDICIÓN' : 'CREACIÓN',
+          modo: isEditingForm ? 'EDICIÓN' : 'CREACIÓN',
           id: formValues.id_muestra,
           tipo_array: formValues.tipo_array,
           array_config: formValues.array_config,
@@ -175,7 +195,7 @@ export const MuestraForm = ({
         })
       }
 
-      if (isEditing) {
+      if (isEditingForm) {
         // Actualizar muestra existente
         await updateMutation.mutateAsync({
           id: formValues.id_muestra!,

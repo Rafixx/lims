@@ -18,44 +18,38 @@ import {
 const toStandalone = (m: Muestra): MuestraStandalone => ({ ...m, isGrouped: false as const })
 
 export const groupMuestrasByEstudio = (muestras: Muestra[]): MuestraListItem[] => {
+  // Pre-agrupar por key para conocer el tamaño de cada grupo
   const grouped = new Map<string, Muestra[]>()
-  const ungrouped: Muestra[] = []
+  for (const m of muestras) {
+    const key = m.estudio?.trim() ?? ''
+    if (!key) continue
+    const bucket = grouped.get(key)
+    if (bucket) {
+      bucket.push(m)
+    } else {
+      grouped.set(key, [m])
+    }
+  }
+
+  // Recorrer en el orden original (ya ordenado) emitiendo cada grupo
+  // en la posición de su primer elemento para preservar el sort.
+  const result: MuestraListItem[] = []
+  const emittedKeys = new Set<string>()
 
   for (const m of muestras) {
     const key = m.estudio?.trim() ?? ''
     if (!key) {
-      ungrouped.push(m)
-    } else {
-      const bucket = grouped.get(key)
-      if (bucket) {
-        bucket.push(m)
+      result.push(toStandalone(m))
+    } else if (!emittedKeys.has(key)) {
+      emittedKeys.add(key)
+      const children = grouped.get(key)!
+      if (children.length === 1) {
+        result.push(toStandalone(children[0]))
       } else {
-        grouped.set(key, [m])
+        result.push({ isGrouped: true, key, parent: children[0], children })
       }
     }
-  }
-
-  const result: MuestraListItem[] = []
-
-  // Preserve insertion order: iterate in the order keys were first seen
-  for (const [key, children] of grouped) {
-    if (children.length === 1) {
-      // Single-element group → treat as standalone
-      result.push(toStandalone(children[0]))
-    } else {
-      const group: MuestraGroup = {
-        isGrouped: true,
-        key,
-        parent: children[0],
-        children
-      }
-      result.push(group)
-    }
-  }
-
-  // Append ungrouped standalones at the end
-  for (const m of ungrouped) {
-    result.push(toStandalone(m))
+    // ya emitido este grupo → omitir
   }
 
   return result

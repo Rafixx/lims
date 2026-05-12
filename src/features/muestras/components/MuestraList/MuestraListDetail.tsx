@@ -1,6 +1,7 @@
 import { ReactNode, useMemo, useState } from 'react'
-import { Edit, Trash2, Plus, Grid3X3, Upload, TestTube2, ChevronDown, ChevronRight } from 'lucide-react'
+import { Edit, Trash2, Plus, Grid3X3, Upload, TestTube2, ChevronDown, ChevronRight, CheckCircle } from 'lucide-react'
 import { Muestra, Tecnica, TecnicaAgrupada } from '../../interfaces/muestras.types'
+import { canCompleteMuestra } from '../../utils/canCompleteMuestra'
 import { useNavigate } from 'react-router-dom'
 import { useTecnicasAgrupadasByMuestra, useMuestraArray } from '../../hooks/useMuestras'
 import { TecnicaListHeader } from './TecnicaListHeader'
@@ -15,6 +16,7 @@ interface MuestraListDetailProps {
   muestra: Muestra
   onEdit: (muestra: Muestra) => void
   onDelete: (muestra: Muestra) => void
+  onComplete?: (muestra: Muestra) => void
   fieldSpans: number[]
   /** Modo hijo dentro de un grupo: layout compacto (cod_ext + cod_epi + estado + acciones) */
   isChild?: boolean
@@ -53,6 +55,7 @@ export const MuestraListDetail = ({
   muestra,
   onEdit,
   onDelete,
+  onComplete,
   fieldSpans,
   isChild = false,
   childCanExpand = false,
@@ -82,8 +85,8 @@ export const MuestraListDetail = ({
 
   // Modo hijo (dentro de un grupo): mismas columnas que el padre, pero sólo
   // cod_ext + cod_epi + estado en los campos; el resto vacío.
-  // fieldSpans = parentFieldSpans = [1,1,1,1,1,2,1,1,1,2]
-  // renderChildFields → 9 elementos (el span de acciones es el último del array)
+  // fieldSpans = parentFieldSpans = [1,1,2,1,2,1,1,1,2]
+  // renderChildFields → 8 elementos (el span de acciones es el último del array)
   const renderChildFields = (): ReactNode[] => [
     // [0] Cód EXT (span 1) — icono de tipo + (chevron si childCanExpand) + código
     <div key={`ext-${muestra.id_muestra}`} className="flex items-center gap-1 min-w-0">
@@ -118,19 +121,17 @@ export const MuestraListDetail = ({
     >
       {muestra.codigo_epi || '—'}
     </span>,
-    // [2] Cliente (span 1) — vacío
+    // [2] Cliente (span 2) — vacío
     <span key={`c2-${muestra.id_muestra}`} />,
-    // [3] Paciente (span 1) — vacío
+    // [3] TipoMuestra (span 1) — vacío
     <span key={`c3-${muestra.id_muestra}`} />,
-    // [4] TipoMuestra (span 1) — vacío
+    // [4] Prueba (span 2) — vacío
     <span key={`c4-${muestra.id_muestra}`} />,
-    // [5] Prueba (span 2) — vacío
+    // [5] Estudio (span 1) — vacío
     <span key={`c5-${muestra.id_muestra}`} />,
-    // [6] Estudio (span 1) — vacío
+    // [6] Recepción (span 1) — vacío
     <span key={`c6-${muestra.id_muestra}`} />,
-    // [7] Recepción (span 1) — vacío
-    <span key={`c7-${muestra.id_muestra}`} />,
-    // [8] Estado (span 1)
+    // [7] Estado (span 1)
     <div key={`estado-${muestra.id_muestra}`} className="min-w-0">
       {muestra.estadoInfo ? (
         <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={true} />
@@ -140,8 +141,8 @@ export const MuestraListDetail = ({
     </div>
   ]
 
-  // Modo standalone: 9 campos — orden idéntico al COLUMN_CONFIG de MuestrasPage:
-  // CódEXT(1) CódEPI(1) Cliente(1) Paciente(1) TipoMuestra(1) Prueba(2) Estudio(1) Recepción(1) Estado(1) Actions(2)
+  // Modo standalone: 8 campos — orden idéntico al COLUMN_CONFIG de MuestrasPage:
+  // CódEXT(1) CódEPI(1) Cliente(2) TipoMuestra(1) Prueba(2) Estudio(1) Recepción(1) Estado(1) Actions(2)
   const renderStandaloneFields = (): ReactNode[] => [
     // [0] Código EXTERNO (span 1) — icono de tipo + chevron expand + código
     // Chevron va justo después del typeIcon para consistencia con MuestraGroupRow (Layers → chevron)
@@ -175,7 +176,7 @@ export const MuestraListDetail = ({
     >
       {muestra.codigo_epi || '—'}
     </span>,
-    // [2] Cliente (span 1)
+    // [2] Cliente (span 2)
     <span
       key={`cliente-${muestra.solicitud?.cliente?.id}`}
       className="block text-xs text-surface-700 truncate"
@@ -183,15 +184,7 @@ export const MuestraListDetail = ({
     >
       {muestra.solicitud?.cliente?.nombre || '—'}
     </span>,
-    // [3] Paciente (span 1)
-    <span
-      key={`paciente-${muestra.paciente?.id}`}
-      className="block text-xs text-surface-800 font-medium truncate"
-      title={muestra.paciente?.nombre || ''}
-    >
-      {muestra.paciente?.nombre || '—'}
-    </span>,
-    // [4] Tipo de muestra (span 1)
+    // [3] Tipo de muestra (span 1)
     <span
       key={`tipo-${muestra.tipo_muestra?.id}`}
       className="block text-xs text-surface-600 truncate"
@@ -199,7 +192,7 @@ export const MuestraListDetail = ({
     >
       {muestra.tipo_muestra?.tipo_muestra || '—'}
     </span>,
-    // [5] Prueba (span 2)
+    // [4] Prueba (span 2)
     <span
       key={`prueba-${muestra.prueba?.id}`}
       className="block text-xs text-surface-700 truncate"
@@ -207,7 +200,7 @@ export const MuestraListDetail = ({
     >
       {muestra.prueba?.prueba || '—'}
     </span>,
-    // [6] Estudio (span 1)
+    // [5] Estudio (span 1)
     <span
       key={`estudio-${muestra.id_muestra}`}
       className="block text-xs text-surface-600 truncate"
@@ -215,14 +208,14 @@ export const MuestraListDetail = ({
     >
       {muestra.estudio || '—'}
     </span>,
-    // [7] Fecha Recepción (span 1)
+    // [6] Fecha Recepción (span 1)
     <span
       key={`fecha-${muestra.id_muestra}`}
       className="block text-xs text-surface-500 font-mono whitespace-nowrap"
     >
       {formatDateTime(muestra.f_recepcion)}
     </span>,
-    // [8] Estado (span 1)
+    // [7] Estado (span 1)
     <div key={`estado-${muestra.id_muestra}`} className="min-w-0">
       {muestra.estadoInfo ? (
         <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={true} />
@@ -247,11 +240,10 @@ export const MuestraListDetail = ({
             icon: <Upload className="w-4 h-4" />,
             onClick: () => setImportArrayModalOpen(true),
             title: allArrayPositionsHaveCodes
-              ? 'Todas las posiciones ya tienen código externo'
+              ? 'Reimportar códigos externos de placa (sobreescribir existentes)'
               : 'Importar códigos externos de placa desde CSV',
-            disabled: allArrayPositionsHaveCodes,
             className: allArrayPositionsHaveCodes
-              ? 'p-1 text-surface-300 cursor-not-allowed rounded transition-colors'
+              ? 'p-1 text-success-600 hover:bg-success-50 rounded transition-colors'
               : 'p-1 text-accent-600 hover:bg-accent-50 rounded transition-colors'
           }
         ]
@@ -269,6 +261,16 @@ export const MuestraListDetail = ({
             onClick: () => onEdit(muestra),
             title: 'Editar',
             className: 'p-1 text-primary-600 hover:bg-primary-50 rounded transition-colors'
+          }
+        ]
+      : []),
+    ...(onComplete && canCompleteMuestra(muestra)
+      ? [
+          {
+            icon: <CheckCircle className="w-4 h-4" />,
+            onClick: () => onComplete(muestra),
+            title: 'Completar proceso',
+            className: 'p-1 text-success-600 hover:bg-success-50 rounded transition-colors'
           }
         ]
       : []),

@@ -3,6 +3,30 @@ import { X, Upload, FileSpreadsheet } from 'lucide-react'
 import { FileUploader } from '@/shared/components/molecules/FileUploader'
 import { Button } from '@/shared/components/molecules/Button'
 
+// ---------------------------------------------------------------------------
+// Plantillas CSV para equipos de medición
+// ---------------------------------------------------------------------------
+const RESULT_TEMPLATES = {
+  Qubit: ['Sample ID,Original sample conc.,Unit,Dilution factor', ',,ng/µL,'].join('\n'),
+  Nanodrop: [
+    'Sample ID,Nucleic Acid Conc.,A260,A280,260/280,260/230',
+    ',,,,,',
+  ].join('\n'),
+} as const
+
+const handleDownloadResultTemplate = (type: keyof typeof RESULT_TEMPLATES): void => {
+  const csv = RESULT_TEMPLATES[type]
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `plantilla_${type.toLowerCase()}.csv`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
 interface ImportResultsModalProps {
   isOpen: boolean
   onClose: () => void
@@ -108,6 +132,22 @@ export const ImportResultsModal = ({
                 <li>Los datos deben corresponder a las técnicas de este worklist</li>
                 <li>El tamaño máximo del archivo es 10MB</li>
               </ul>
+            </div>
+
+            {/* Plantillas descargables */}
+            <div className="border border-surface-200 rounded-lg p-4 mb-4">
+              <p className="text-sm font-medium text-surface-700 mb-2">Descargar plantilla:</p>
+              <div className="flex gap-2">
+                <Button variant="secondary" onClick={() => handleDownloadResultTemplate('Qubit')}>
+                  Plantilla Qubit
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => handleDownloadResultTemplate('Nanodrop')}
+                >
+                  Plantilla Nanodrop
+                </Button>
+              </div>
             </div>
 
             {/* File Uploader */}
