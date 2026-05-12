@@ -154,20 +154,14 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
             type="button"
             onClick={e => {
               e.stopPropagation()
-              if (!allHaveCodExterno) setImportModalOpen(true)
+              setImportModalOpen(true)
             }}
-            disabled={allHaveCodExterno}
             title={
               allHaveCodExterno
-                ? 'Todas las muestras ya tienen código externo'
+                ? 'Reimportar códigos externos (sobreescribir existentes)'
                 : 'Importar códigos externos desde CSV'
             }
-            className={[
-              'rounded p-1 transition-colors',
-              allHaveCodExterno
-                ? 'cursor-not-allowed text-surface-300'
-                : 'text-primary-600 hover:bg-primary-50'
-            ].join(' ')}
+            className="rounded p-1 transition-colors text-primary-600 hover:bg-primary-50"
             aria-label="Importar códigos externos"
           >
             <Upload className="h-4 w-4" />
