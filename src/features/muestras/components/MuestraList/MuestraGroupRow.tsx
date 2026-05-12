@@ -161,7 +161,12 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
                 ? 'Reimportar códigos externos (sobreescribir existentes)'
                 : 'Importar códigos externos desde CSV'
             }
-            className="rounded p-1 transition-colors text-primary-600 hover:bg-primary-50"
+            className={[
+              'rounded p-1 transition-colors',
+              allHaveCodExterno
+                ? 'text-purple-600 hover:bg-purple-50'
+                : 'text-primary-600 hover:bg-primary-50'
+            ].join(' ')}
             aria-label="Importar códigos externos"
           >
             <Upload className="h-4 w-4" />
