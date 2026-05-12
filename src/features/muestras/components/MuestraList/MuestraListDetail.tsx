@@ -240,11 +240,10 @@ export const MuestraListDetail = ({
             icon: <Upload className="w-4 h-4" />,
             onClick: () => setImportArrayModalOpen(true),
             title: allArrayPositionsHaveCodes
-              ? 'Todas las posiciones ya tienen código externo'
+              ? 'Reimportar códigos externos de placa (sobreescribir existentes)'
               : 'Importar códigos externos de placa desde CSV',
-            disabled: allArrayPositionsHaveCodes,
             className: allArrayPositionsHaveCodes
-              ? 'p-1 text-surface-300 cursor-not-allowed rounded transition-colors'
+              ? 'p-1 text-success-600 hover:bg-success-50 rounded transition-colors'
               : 'p-1 text-accent-600 hover:bg-accent-50 rounded transition-colors'
           }
         ]
