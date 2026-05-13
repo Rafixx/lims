@@ -31,11 +31,8 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
   const allHaveCodExterno = children.every(m => !!m.codigo_externo)
   const isAllPlacas = children.every(m => m.tipo_array === true)
 
-  // Layout del padre — se usan spans propios (suma = 12):
-  // Estudio(2) Cliente(1) Paciente(1) Tipo(1) Prueba(2) Count(1) Recepción(1) Estado(1) Acciones(2)
-  // Col[0] toma span 2 (fusiona CódEXT + CódEPI) para acomodar mejor el estudio.
   const cols: { content: React.ReactNode; span: number }[] = [
-    // [0+1] Chevron + Layers + badge contador de muestras (span 2)
+    // [0] Chevron + Layers + badge contador (span 2 — fusiona CódEXT+CódEPI)
     {
       span: 2,
       content: (
@@ -52,7 +49,7 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
         </div>
       )
     },
-    // [2] Cliente
+    // [1] Cliente
     {
       span: 1,
       content: (
@@ -64,19 +61,7 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
         </span>
       )
     },
-    // [3] Paciente
-    {
-      span: 1,
-      content: (
-        <span
-          className="block text-xs text-surface-700 font-medium truncate"
-          title={parent.paciente?.nombre ?? ''}
-        >
-          {parent.paciente?.nombre || '—'}
-        </span>
-      )
-    },
-    // [4] Tipo muestra
+    // [2] Tipo muestra  [era [3], Paciente eliminado]
     {
       span: 1,
       content: (
@@ -88,7 +73,7 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
         </span>
       )
     },
-    // [5] Prueba (span 2)
+    // [3] Prueba (span 2)  [era [4]]
     {
       span: 2,
       content: (
@@ -100,7 +85,7 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
         </span>
       )
     },
-    // [6] Nombre del estudio
+    // [4] Estudio  [era [5]]
     {
       span: 1,
       content: (
@@ -109,7 +94,7 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
         </span>
       )
     },
-    // [7] Recepción
+    // [5] Recepción  [era [6]]
     {
       span: 1,
       content: (
@@ -118,7 +103,12 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
         </span>
       )
     },
-    // [8] Estado (span 1)
+    // [6] vacío — alinea con la columna Técnicas de las filas hijas
+    {
+      span: 1,
+      content: <span />
+    },
+    // [7] Estado  [era [7]]
     {
       span: 1,
       content: (
@@ -131,7 +121,7 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
         </div>
       )
     },
-    // [9] Acciones (span 2) — Edit (si grupo de placas) + Upload alineados a la derecha
+    // [8] Acciones (span 2)
     {
       span: 2,
       content: (
@@ -224,7 +214,7 @@ export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFi
               onDelete={onDelete}
               fieldSpans={parentFieldSpans}
               isChild
-              childCanExpand={isAllPlacas}
+              childCanExpand={true}
               hideEditAndDuplicate={isAllPlacas}
             />
           ))}

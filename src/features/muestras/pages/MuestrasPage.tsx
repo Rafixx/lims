@@ -23,19 +23,19 @@ import { groupMuestrasByEstudio } from '../utils/groupMuestras'
 import { MuestraGroup } from '../interfaces/muestras.types'
 
 // Configuración de columnas — spans deben sumar exactamente 12 (grid-cols-12)
-// 1+1+1+1+1+2+1+1+1+2 = 12 ✓
-// Acciones con span 2 para acomodar todos los botones (Upload, Duplicar, Editar, Eliminar)
+// 1+1+1+1+2+1+1+1+1+2 = 12 ✓
+// Paciente eliminado; Técnicas añadido entre Recepción y Estado
 const COLUMN_CONFIG = [
-  { label: 'Cód EXT', span: 1, sortKey: 'codigo_externo' },
-  { label: 'Cód EPI', span: 1, sortKey: 'codigo_epi' },
-  { label: 'Cliente', span: 1, sortKey: 'cliente' },
-  { label: 'Paciente', span: 1, sortKey: 'paciente' },
+  { label: 'Cód EXT',      span: 1, sortKey: 'codigo_externo' },
+  { label: 'Cód EPI',      span: 1, sortKey: 'codigo_epi' },
+  { label: 'Cliente',      span: 1, sortKey: 'cliente' },
   { label: 'Tipo Muestra', span: 1, sortKey: 'tipo_muestra' },
-  { label: 'Prueba', span: 2, sortKey: 'prueba' },
-  { label: 'Estudio', span: 1, sortKey: 'estudio' },
-  { label: 'Recepción', span: 1, sortKey: 'f_recepcion' },
-  { label: 'Estado', span: 1, sortKey: 'estado' },
-  { label: 'Acciones', span: 2, className: 'text-right' }
+  { label: 'Prueba',       span: 2, sortKey: 'prueba' },
+  { label: 'Estudio',      span: 1, sortKey: 'estudio' },
+  { label: 'Recepción',    span: 1, sortKey: 'f_recepcion' },
+  { label: 'Técnicas',     span: 1 },
+  { label: 'Estado',       span: 1, sortKey: 'estado' },
+  { label: 'Acciones',     span: 2, className: 'text-right' }
 ]
 
 // src/features/muestras/pages/MuestrasPage.tsx
@@ -128,9 +128,6 @@ export const MuestrasPage = () => {
           cmp = (a.solicitud?.cliente?.nombre || '').localeCompare(
             b.solicitud?.cliente?.nombre || ''
           )
-          break
-        case 'paciente':
-          cmp = (a.paciente?.nombre || '').localeCompare(b.paciente?.nombre || '')
           break
         case 'tipo_muestra':
           cmp = (a.tipo_muestra?.tipo_muestra || '').localeCompare(
