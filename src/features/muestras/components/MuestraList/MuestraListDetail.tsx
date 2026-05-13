@@ -1,12 +1,21 @@
-import { ReactNode, useMemo, useState } from 'react'
-import { Edit, Trash2, Plus, Grid3X3, Upload, TestTube2, ChevronDown, ChevronRight, CheckCircle } from 'lucide-react'
-import { Muestra, Tecnica, TecnicaAgrupada } from '../../interfaces/muestras.types'
+import { ReactNode, useState } from 'react'
+import {
+  Edit,
+  Trash2,
+  Plus,
+  Grid3X3,
+  Upload,
+  TestTube2,
+  ChevronDown,
+  ChevronRight,
+  CheckCircle
+} from 'lucide-react'
+import { Muestra } from '../../interfaces/muestras.types'
 import { canCompleteMuestra } from '../../utils/canCompleteMuestra'
 import { useNavigate } from 'react-router-dom'
 import { useTecnicasAgrupadasByMuestra, useMuestraArray } from '../../hooks/useMuestras'
-import { TecnicaListHeader } from './TecnicaListHeader'
-import { TecnicaListDetail } from './TecnicaListDetail'
-import { TecnicaAgrupadaListDetail } from './TecnicaAgrupadaListDetail'
+import { TecnicasSummaryExpanded, TecnicaStateChips } from './TecnicasSummaryExpanded'
+import { aggregateTecnicaStates } from '../../utils/aggregateTecnicaStates'
 import { ListDetail, ListDetailAction } from '@/shared/components/organisms/ListDetail'
 import { EstadoBadge } from '@/shared/components/atoms/EstadoBadge'
 import { formatDateTime } from '@/shared/utils/helpers'
@@ -25,27 +34,6 @@ interface MuestraListDetailProps {
   /** Oculta los botones Editar y Duplicar (para hijas de grupo masivo) */
   hideEditAndDuplicate?: boolean
 }
-
-// Configuración de columnas para las técnicas SIN resultados
-const TECNICA_COLUMNS_WITHOUT_RESULTS = [
-  { label: 'Fecha', span: 2 },
-  { label: 'Técnica', span: 2 },
-  { label: 'Worklist', span: 2 },
-  { label: 'Técnico', span: 2 },
-  { label: 'Estado', span: 3 },
-  { label: 'Acciones', span: 1 }
-]
-
-// Configuración de columnas para las técnicas CON resultados
-const TECNICA_COLUMNS_WITH_RESULTS = [
-  { label: 'Fecha', span: 1 },
-  { label: 'Técnica', span: 2 },
-  { label: 'Worklist', span: 1 },
-  { label: 'Técnico', span: 1 },
-  { label: 'Resultados', span: 4 },
-  { label: 'Estado', span: 2 },
-  { label: 'Acciones', span: 1 }
-]
 
 /**
  * Componente específico para renderizar el detalle de una Muestra.
@@ -68,12 +56,11 @@ export const MuestraListDetail = ({
   const { tecnicas, isLoading } = useTecnicasAgrupadasByMuestra(muestra.id_muestra)
 
   // Para muestras tipo placa: obtener posiciones para saber si ya tienen todos los códigos
-  const { arrayPositions } = useMuestraArray(muestra.tipo_array === true ? muestra.id_muestra : undefined)
+  const { arrayPositions } = useMuestraArray(
+    muestra.tipo_array === true ? muestra.id_muestra : undefined
+  )
   const allArrayPositionsHaveCodes =
     arrayPositions.length > 0 && arrayPositions.every(p => !!p.codigo_externo)
-
-  // Determinar si son técnicas agrupadas o normales
-  const isTecnicasAgrupadas = tecnicas.length > 0 && 'proceso_nombre' in tecnicas[0]
 
   // Icono de tipo: Grid3X3 para PLACA, TestTube2 para TUBO
   const typeIcon =
@@ -84,14 +71,75 @@ export const MuestraListDetail = ({
     )
 
   // Modo hijo (dentro de un grupo): mismas columnas que el padre, pero sólo
-  // cod_ext + cod_epi + estado en los campos; el resto vacío.
-  // fieldSpans = parentFieldSpans = [1,1,2,1,2,1,1,1,2]
-  // renderChildFields → 8 elementos (el span de acciones es el último del array)
-  const renderChildFields = (): ReactNode[] => [
-    // [0] Cód EXT (span 1) — icono de tipo + (chevron si childCanExpand) + código
-    <div key={`ext-${muestra.id_muestra}`} className="flex items-center gap-1 min-w-0">
-      {typeIcon}
-      {childCanExpand && (
+  // cod_ext + cod_epi + técnicas chips + estado en los campos; el resto vacío.
+  // fieldSpans = parentFieldSpans = [1,1,1,1,2,1,1,1,1,2]
+  // renderChildFields → 9 elementos (el span de acciones es el último del array)
+  const renderChildFields = (): ReactNode[] => {
+    const counts = aggregateTecnicaStates(tecnicas)
+    return [
+      // [0] Cód EXT (span 1) — icono de tipo + (chevron si childCanExpand) + código
+      <div key={`ext-${muestra.id_muestra}`} className="flex items-center gap-1 min-w-0">
+        {typeIcon}
+        {childCanExpand && (
+          <button
+            type="button"
+            onClick={() => setExpanded(v => !v)}
+            className="p-0.5 shrink-0 rounded text-surface-400 hover:text-surface-700 hover:bg-surface-100 transition-colors"
+            aria-label={expanded ? 'Contraer técnicas' : 'Expandir técnicas'}
+            title={expanded ? 'Contraer' : 'Expandir'}
+          >
+            {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+          </button>
+        )}
+        <span
+          className="block font-mono text-xs font-semibold text-primary-600 truncate"
+          title={muestra.codigo_externo || ''}
+        >
+          {muestra.codigo_externo || '—'}
+        </span>
+      </div>,
+      // [1] Cód EPI (span 1)
+      <span
+        key={`epi-${muestra.id_muestra}`}
+        className="block font-mono text-xs font-semibold text-primary-700 truncate"
+        title={muestra.codigo_epi || ''}
+      >
+        {muestra.codigo_epi || '—'}
+      </span>,
+      // [2] Cliente (span 1) — vacío
+      <span key={`c2-${muestra.id_muestra}`} />,
+      // [3] TipoMuestra (span 1) — vacío  [era [4], Paciente eliminado]
+      <span key={`c3-${muestra.id_muestra}`} />,
+      // [4] Prueba (span 2) — vacío  [era [5]]
+      <span key={`c4-${muestra.id_muestra}`} />,
+      // [5] Estudio (span 1) — vacío  [era [6]]
+      <span key={`c5-${muestra.id_muestra}`} />,
+      // [6] Recepción (span 1) — vacío  [era [7]]
+      <span key={`c6-${muestra.id_muestra}`} />,
+      // [7] Técnicas chips (span 1) — NUEVO
+      <div key={`tecnicas-${muestra.id_muestra}`} className="min-w-0">
+        <TecnicaStateChips counts={counts} />
+      </div>,
+      // [8] Estado (span 1)  [era [8]]
+      <div key={`estado-${muestra.id_muestra}`} className="min-w-0">
+        {muestra.estadoInfo ? (
+          <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={true} />
+        ) : (
+          <span className="text-surface-300 text-xs">—</span>
+        )}
+      </div>
+    ]
+  }
+
+  // Modo standalone: 9 campos — orden idéntico al COLUMN_CONFIG de MuestrasPage:
+  // CódEXT(1) CódEPI(1) Cliente(1) TipoMuestra(1) Prueba(2) Estudio(1) Recepción(1) Técnicas(1) Estado(1) Actions(2)
+  const renderStandaloneFields = (): ReactNode[] => {
+    const counts = aggregateTecnicaStates(tecnicas)
+    return [
+      // [0] Código EXTERNO (span 1) — icono de tipo + chevron expand + código
+      // Chevron va justo después del typeIcon para consistencia con MuestraGroupRow (Layers → chevron)
+      <div key={`ext-${muestra.id_muestra}`} className="flex items-center gap-1 min-w-0">
+        {typeIcon}
         <button
           type="button"
           onClick={() => setExpanded(v => !v)}
@@ -99,131 +147,80 @@ export const MuestraListDetail = ({
           aria-label={expanded ? 'Contraer técnicas' : 'Expandir técnicas'}
           title={expanded ? 'Contraer' : 'Expandir'}
         >
-          {expanded ? (
-            <ChevronDown className="w-3 h-3" />
-          ) : (
-            <ChevronRight className="w-3 h-3" />
-          )}
+          {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
         </button>
-      )}
+        <span
+          className="font-mono text-xs font-semibold text-primary-600 truncate"
+          title={muestra.codigo_externo || ''}
+        >
+          {muestra.codigo_externo || '—'}
+        </span>
+      </div>,
+      // [1] Código EPI (span 1)
       <span
-        className="block font-mono text-xs font-semibold text-primary-600 truncate"
-        title={muestra.codigo_externo || ''}
+        key={`epi-${muestra.id_muestra}`}
+        className="block font-mono text-xs font-semibold text-primary-700 truncate"
+        title={muestra.codigo_epi || ''}
       >
-        {muestra.codigo_externo || '—'}
-      </span>
-    </div>,
-    // [1] Cód EPI (span 1)
-    <span
-      key={`epi-${muestra.id_muestra}`}
-      className="block font-mono text-xs font-semibold text-primary-700 truncate"
-      title={muestra.codigo_epi || ''}
-    >
-      {muestra.codigo_epi || '—'}
-    </span>,
-    // [2] Cliente (span 2) — vacío
-    <span key={`c2-${muestra.id_muestra}`} />,
-    // [3] TipoMuestra (span 1) — vacío
-    <span key={`c3-${muestra.id_muestra}`} />,
-    // [4] Prueba (span 2) — vacío
-    <span key={`c4-${muestra.id_muestra}`} />,
-    // [5] Estudio (span 1) — vacío
-    <span key={`c5-${muestra.id_muestra}`} />,
-    // [6] Recepción (span 1) — vacío
-    <span key={`c6-${muestra.id_muestra}`} />,
-    // [7] Estado (span 1)
-    <div key={`estado-${muestra.id_muestra}`} className="min-w-0">
-      {muestra.estadoInfo ? (
-        <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={true} />
-      ) : (
-        <span className="text-surface-300 text-xs">—</span>
-      )}
-    </div>
-  ]
-
-  // Modo standalone: 8 campos — orden idéntico al COLUMN_CONFIG de MuestrasPage:
-  // CódEXT(1) CódEPI(1) Cliente(2) TipoMuestra(1) Prueba(2) Estudio(1) Recepción(1) Estado(1) Actions(2)
-  const renderStandaloneFields = (): ReactNode[] => [
-    // [0] Código EXTERNO (span 1) — icono de tipo + chevron expand + código
-    // Chevron va justo después del typeIcon para consistencia con MuestraGroupRow (Layers → chevron)
-    <div key={`ext-${muestra.id_muestra}`} className="flex items-center gap-1 min-w-0">
-      {typeIcon}
-      <button
-        type="button"
-        onClick={() => setExpanded(v => !v)}
-        className="p-0.5 shrink-0 rounded text-surface-400 hover:text-surface-700 hover:bg-surface-100 transition-colors"
-        aria-label={expanded ? 'Contraer técnicas' : 'Expandir técnicas'}
-        title={expanded ? 'Contraer' : 'Expandir'}
+        {muestra.codigo_epi || '—'}
+      </span>,
+      // [2] Cliente (span 1)
+      <span
+        key={`cliente-${muestra.solicitud?.cliente?.id}`}
+        className="block text-xs text-surface-700 truncate"
+        title={muestra.solicitud?.cliente?.nombre || ''}
       >
-        {expanded ? (
-          <ChevronDown className="w-3 h-3" />
+        {muestra.solicitud?.cliente?.nombre || '—'}
+      </span>,
+      // [3] Tipo de muestra (span 1)  [era [4], Paciente eliminado]
+      <span
+        key={`tipo-${muestra.tipo_muestra?.id}`}
+        className="block text-xs text-surface-600 truncate"
+        title={muestra.tipo_muestra?.tipo_muestra || ''}
+      >
+        {muestra.tipo_muestra?.tipo_muestra || '—'}
+      </span>,
+      // [4] Prueba (span 2)  [era [5]]
+      <span
+        key={`prueba-${muestra.prueba?.id}`}
+        className="block text-xs text-surface-700 truncate"
+        title={muestra.prueba?.prueba || ''}
+      >
+        {muestra.prueba?.prueba || '—'}
+      </span>,
+      // [5] Estudio (span 1)  [era [6]]
+      <span
+        key={`estudio-${muestra.id_muestra}`}
+        className="block text-xs text-surface-600 truncate"
+        title={muestra.estudio || ''}
+      >
+        {muestra.estudio || '—'}
+      </span>,
+      // [6] Fecha Recepción (span 1)  [era [7]]
+      <span
+        key={`fecha-${muestra.id_muestra}`}
+        className="block text-xs text-surface-500 font-mono whitespace-nowrap"
+      >
+        {formatDateTime(muestra.f_recepcion)}
+      </span>,
+      // [7] Técnicas chips (span 1) — NUEVO
+      <div key={`tecnicas-${muestra.id_muestra}`} className="min-w-0">
+        {isLoading ? (
+          <span className="text-xs text-surface-400">...</span>
         ) : (
-          <ChevronRight className="w-3 h-3" />
+          <TecnicaStateChips counts={counts} />
         )}
-      </button>
-      <span
-        className="font-mono text-xs font-semibold text-primary-600 truncate"
-        title={muestra.codigo_externo || ''}
-      >
-        {muestra.codigo_externo || '—'}
-      </span>
-    </div>,
-    // [1] Código EPI (span 1)
-    <span
-      key={`epi-${muestra.id_muestra}`}
-      className="block font-mono text-xs font-semibold text-primary-700 truncate"
-      title={muestra.codigo_epi || ''}
-    >
-      {muestra.codigo_epi || '—'}
-    </span>,
-    // [2] Cliente (span 2)
-    <span
-      key={`cliente-${muestra.solicitud?.cliente?.id}`}
-      className="block text-xs text-surface-700 truncate"
-      title={muestra.solicitud?.cliente?.nombre || ''}
-    >
-      {muestra.solicitud?.cliente?.nombre || '—'}
-    </span>,
-    // [3] Tipo de muestra (span 1)
-    <span
-      key={`tipo-${muestra.tipo_muestra?.id}`}
-      className="block text-xs text-surface-600 truncate"
-      title={muestra.tipo_muestra?.tipo_muestra || ''}
-    >
-      {muestra.tipo_muestra?.tipo_muestra || '—'}
-    </span>,
-    // [4] Prueba (span 2)
-    <span
-      key={`prueba-${muestra.prueba?.id}`}
-      className="block text-xs text-surface-700 truncate"
-      title={muestra.prueba?.prueba || ''}
-    >
-      {muestra.prueba?.prueba || '—'}
-    </span>,
-    // [5] Estudio (span 1)
-    <span
-      key={`estudio-${muestra.id_muestra}`}
-      className="block text-xs text-surface-600 truncate"
-      title={muestra.estudio || ''}
-    >
-      {muestra.estudio || '—'}
-    </span>,
-    // [6] Fecha Recepción (span 1)
-    <span
-      key={`fecha-${muestra.id_muestra}`}
-      className="block text-xs text-surface-500 font-mono whitespace-nowrap"
-    >
-      {formatDateTime(muestra.f_recepcion)}
-    </span>,
-    // [7] Estado (span 1)
-    <div key={`estado-${muestra.id_muestra}`} className="min-w-0">
-      {muestra.estadoInfo ? (
-        <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={true} />
-      ) : (
-        <span className="text-surface-300 text-xs">—</span>
-      )}
-    </div>
-  ]
+      </div>,
+      // [8] Estado (span 1)  [era [8]]
+      <div key={`estado-${muestra.id_muestra}`} className="min-w-0">
+        {muestra.estadoInfo ? (
+          <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={true} />
+        ) : (
+          <span className="text-surface-300 text-xs">—</span>
+        )}
+      </div>
+    ]
+  }
 
   const renderFields = isChild ? renderChildFields : renderStandaloneFields
 
@@ -282,73 +279,15 @@ export const MuestraListDetail = ({
     }
   ]
 
-  // ✅ Determinar si alguna técnica tiene resultados (solo para técnicas normales)
-  const hasAnyResultados = useMemo(() => {
-    if (isTecnicasAgrupadas) return false
-    return (tecnicas as Tecnica[])?.some(
-      (tecnica: Tecnica) =>
-        tecnica.resultados &&
-        tecnica.resultados.length > 0 &&
-        tecnica.resultados.some(
-          resultado =>
-            resultado.valor !== null ||
-            resultado.valor_texto ||
-            resultado.valor_fecha ||
-            resultado.tipo_res
-        )
-    )
-  }, [tecnicas, isTecnicasAgrupadas])
-
-  // Configuración de columnas para técnicas agrupadas
-  const TECNICA_COLUMNS_AGRUPADAS = [
-    { label: 'Técnica/Proceso', span: 2 },
-    { label: 'Total', span: 2 },
-    { label: 'Estados', span: 4 },
-    { label: 'Técnico', span: 2 },
-    { label: 'Estado', span: 1 },
-    { label: 'Acciones', span: 1 }
-  ]
-
-  // ✅ Usar configuración de columnas según el tipo
-  const TECNICA_COLUMNS = isTecnicasAgrupadas
-    ? TECNICA_COLUMNS_AGRUPADAS
-    : hasAnyResultados
-      ? TECNICA_COLUMNS_WITH_RESULTS
-      : TECNICA_COLUMNS_WITHOUT_RESULTS
-
   // Contenido expandido con las técnicas (sólo en modo standalone o cuando childCanExpand)
-  const expandedContent = isChild && !childCanExpand ? undefined : (
-    <div className="space-y-2">
-      {isLoading ? (
-        <p className="text-sm text-surface-600">Cargando técnicas...</p>
-      ) : tecnicas && tecnicas.length > 0 ? (
-        <>
-          <TecnicaListHeader fieldList={TECNICA_COLUMNS} />
-          {isTecnicasAgrupadas
-            ? // Renderizar técnicas agrupadas
-              (tecnicas as TecnicaAgrupada[]).map(tecnicaAgrupada => (
-                <TecnicaAgrupadaListDetail
-                  key={`agrupada-${tecnicaAgrupada.primera_tecnica_id}`}
-                  tecnicaAgrupada={tecnicaAgrupada}
-                  fieldSpans={TECNICA_COLUMNS.map(col => col.span)}
-                  muestraId={muestra.id_muestra}
-                />
-              ))
-            : // Renderizar técnicas normales
-              (tecnicas as Tecnica[]).map((tecnica: Tecnica) => (
-                <TecnicaListDetail
-                  key={`tecnica-${tecnica.id_tecnica}`}
-                  tecnica={tecnica}
-                  fieldSpans={TECNICA_COLUMNS.map(col => col.span)}
-                  hasResultados={hasAnyResultados}
-                />
-              ))}
-        </>
-      ) : (
-        <p className="text-sm text-surface-600">No hay técnicas asociadas a esta muestra.</p>
-      )}
-    </div>
-  )
+  const expandedContent =
+    isChild && !childCanExpand ? undefined : (
+      <TecnicasSummaryExpanded
+        tecnicas={tecnicas}
+        muestraId={muestra.id_muestra}
+        isLoading={isLoading}
+      />
+    )
 
   // rowClassName para filas hijas: fondo ligeramente diferenciado
   const childRowClassName =
