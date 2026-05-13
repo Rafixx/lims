@@ -5,7 +5,11 @@ import { ChevronDown, ChevronRight, Grid3x3, Loader2, Trash2 } from 'lucide-reac
 import { Tecnica, TecnicaAgrupada } from '../../interfaces/muestras.types'
 import { IndicadorEstado } from '@/shared/components/atoms/IndicadorEstado'
 import { isTecnicaInWorklist } from '@/shared/utils/helpers'
-import { useDeleteTecnica, useCancelarGrupoTecnicas, useTecnicasFromGroup } from '../../hooks/useMuestras'
+import {
+  useDeleteTecnica,
+  useCancelarGrupoTecnicas,
+  useTecnicasFromGroup
+} from '../../hooks/useMuestras'
 import { useConfirmation } from '@/shared/components/Confirmation/ConfirmationContext'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import { TecnicaStateCounts } from '../../utils/aggregateTecnicaStates'
@@ -13,11 +17,11 @@ import { TecnicaStateCounts } from '../../utils/aggregateTecnicaStates'
 // ── Chips de estado reutilizables ──────────────────────────────────────────────
 
 const CHIP_DEFS: { key: keyof TecnicaStateCounts; label: string; cls: string }[] = [
-  { key: 'pendientes',       label: 'pend',  cls: 'bg-surface-100 text-surface-700' },
-  { key: 'asignadas',        label: 'asign', cls: 'bg-info-100 text-info-700' },
-  { key: 'en_proceso',       label: 'proc',  cls: 'bg-warning-100 text-warning-700' },
-  { key: 'completadas',      label: 'ok',    cls: 'bg-success-100 text-success-700' },
-  { key: 'resultado_erroneo',label: 'err',   cls: 'bg-danger-100 text-danger-700' }
+  { key: 'pendientes', label: 'pend', cls: 'bg-surface-100 text-surface-700' },
+  { key: 'asignadas', label: 'asign', cls: 'bg-info-100 text-info-700' },
+  { key: 'en_proceso', label: 'proc', cls: 'bg-warning-100 text-warning-700' },
+  { key: 'completadas', label: 'comp', cls: 'bg-success-100 text-success-700' },
+  { key: 'resultado_erroneo', label: 'error', cls: 'bg-danger-100 text-danger-700' }
 ]
 
 export const TecnicaStateChips = ({ counts }: { counts: TecnicaStateCounts }) => {
@@ -63,7 +67,7 @@ export const TecnicasSummaryExpanded = ({ tecnicas, muestraId, isLoading }: Prop
   const isTecnicaAgrupadaType = 'proceso_nombre' in tecnicas[0]
 
   return (
-    <div className="space-y-0">
+    <div>
       {/* Header de columnas */}
       <div className="grid grid-cols-12 gap-2 px-3 py-1.5 text-xs font-medium text-surface-500 bg-surface-50 border-b border-surface-200">
         <div className="col-span-3">Técnica / Proceso</div>
@@ -75,11 +79,7 @@ export const TecnicasSummaryExpanded = ({ tecnicas, muestraId, isLoading }: Prop
 
       {isTecnicaAgrupadaType
         ? (tecnicas as TecnicaAgrupada[]).map(t => (
-            <TecnicaAgrupadaRow
-              key={t.primera_tecnica_id}
-              tecnica={t}
-              muestraId={muestraId}
-            />
+            <TecnicaAgrupadaRow key={t.primera_tecnica_id} tecnica={t} muestraId={muestraId} />
           ))
         : (tecnicas as Tecnica[]).map(t => (
             <TecnicaTuboRow key={t.id_tecnica} tecnica={t} muestraId={muestraId} />
@@ -90,13 +90,7 @@ export const TecnicasSummaryExpanded = ({ tecnicas, muestraId, isLoading }: Prop
 
 // ── Fila para técnica individual (tubos) ──────────────────────────────────────
 
-const TecnicaTuboRow = ({
-  tecnica,
-  muestraId
-}: {
-  tecnica: Tecnica
-  muestraId: number
-}) => {
+const TecnicaTuboRow = ({ tecnica, muestraId }: { tecnica: Tecnica; muestraId: number }) => {
   const navigate = useNavigate()
   const { confirm } = useConfirmation()
   const { notify } = useNotification()
@@ -198,8 +192,7 @@ const TecnicaAgrupadaRow = ({
     isExpanded
   )
 
-  const canDelete =
-    tecnica.asignadas === 0 && tecnica.en_proceso === 0 && tecnica.pendientes > 0
+  const canDelete = tecnica.asignadas === 0 && tecnica.en_proceso === 0 && tecnica.pendientes > 0
 
   const handleDelete = async () => {
     const confirmed = await confirm({
