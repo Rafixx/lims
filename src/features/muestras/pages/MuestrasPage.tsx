@@ -25,16 +25,17 @@ import { groupMuestrasByEstudio } from '../utils/groupMuestras'
 import { MuestraGroup } from '../interfaces/muestras.types'
 
 // Configuración de columnas — spans deben sumar exactamente 12 (grid-cols-12)
-// 1+1+2+1+2+1+1+1+2 = 12 ✓
-// Acciones con span 2 para acomodar todos los botones (Upload, Duplicar, Editar, Eliminar)
+// 1+1+1+1+2+1+1+1+1+2 = 12 ✓
+// Paciente eliminado; Técnicas añadido entre Recepción y Estado
 const COLUMN_CONFIG = [
   { label: 'Cód EXT', span: 1, sortKey: 'codigo_externo' },
   { label: 'Cód EPI', span: 1, sortKey: 'codigo_epi' },
-  { label: 'Cliente', span: 2, sortKey: 'cliente' },
+  { label: 'Cliente', span: 1, sortKey: 'cliente' },
   { label: 'Tipo Muestra', span: 1, sortKey: 'tipo_muestra' },
   { label: 'Prueba', span: 2, sortKey: 'prueba' },
   { label: 'Estudio', span: 1, sortKey: 'estudio' },
   { label: 'Recepción', span: 1, sortKey: 'f_recepcion' },
+  { label: 'Técnicas', span: 1 },
   { label: 'Estado', span: 1, sortKey: 'estado' },
   { label: 'Acciones', span: 2, className: 'text-right' }
 ]
