@@ -1,5 +1,14 @@
 import { ReactNode, useState } from 'react'
-import { Edit, Trash2, Plus, Grid3X3, Upload, TestTube2, ChevronDown, ChevronRight } from 'lucide-react'
+import {
+  Edit,
+  Trash2,
+  Plus,
+  Grid3X3,
+  Upload,
+  TestTube2,
+  ChevronDown,
+  ChevronRight
+} from 'lucide-react'
 import { Muestra } from '../../interfaces/muestras.types'
 import { useNavigate } from 'react-router-dom'
 import { useTecnicasAgrupadasByMuestra, useMuestraArray } from '../../hooks/useMuestras'
@@ -43,7 +52,9 @@ export const MuestraListDetail = ({
   const { tecnicas, isLoading } = useTecnicasAgrupadasByMuestra(muestra.id_muestra)
 
   // Para muestras tipo placa: obtener posiciones para saber si ya tienen todos los códigos
-  const { arrayPositions } = useMuestraArray(muestra.tipo_array === true ? muestra.id_muestra : undefined)
+  const { arrayPositions } = useMuestraArray(
+    muestra.tipo_array === true ? muestra.id_muestra : undefined
+  )
   const allArrayPositionsHaveCodes =
     arrayPositions.length > 0 && arrayPositions.every(p => !!p.codigo_externo)
 
@@ -73,11 +84,7 @@ export const MuestraListDetail = ({
             aria-label={expanded ? 'Contraer técnicas' : 'Expandir técnicas'}
             title={expanded ? 'Contraer' : 'Expandir'}
           >
-            {expanded ? (
-              <ChevronDown className="w-3 h-3" />
-            ) : (
-              <ChevronRight className="w-3 h-3" />
-            )}
+            {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
           </button>
         )}
         <span
@@ -136,11 +143,7 @@ export const MuestraListDetail = ({
           aria-label={expanded ? 'Contraer técnicas' : 'Expandir técnicas'}
           title={expanded ? 'Contraer' : 'Expandir'}
         >
-          {expanded ? (
-            <ChevronDown className="w-3 h-3" />
-          ) : (
-            <ChevronRight className="w-3 h-3" />
-          )}
+          {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
         </button>
         <span
           className="font-mono text-xs font-semibold text-primary-600 truncate"
@@ -263,13 +266,14 @@ export const MuestraListDetail = ({
   ]
 
   // Contenido expandido con las técnicas (sólo en modo standalone o cuando childCanExpand)
-  const expandedContent = isChild && !childCanExpand ? undefined : (
-    <TecnicasSummaryExpanded
-      tecnicas={tecnicas}
-      muestraId={muestra.id_muestra}
-      isLoading={isLoading}
-    />
-  )
+  const expandedContent =
+    isChild && !childCanExpand ? undefined : (
+      <TecnicasSummaryExpanded
+        tecnicas={tecnicas}
+        muestraId={muestra.id_muestra}
+        isLoading={isLoading}
+      />
+    )
 
   // rowClassName para filas hijas: fondo ligeramente diferenciado
   const childRowClassName =

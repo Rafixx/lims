@@ -9,13 +9,18 @@ export type TecnicaStateCounts = {
 }
 
 const EMPTY: TecnicaStateCounts = {
-  pendientes: 0, asignadas: 0, en_proceso: 0, completadas: 0, resultado_erroneo: 0
+  pendientes: 0,
+  asignadas: 0,
+  en_proceso: 0,
+  completadas: 0,
+  resultado_erroneo: 0
 }
 
 const categorizeTecnica = (t: Tecnica): keyof TecnicaStateCounts | null => {
   if (t.id_estado === 13) return null // CANCELADA — no contar
   const estado = (t.estadoInfo?.estado ?? '').toLowerCase()
-  if (estado.includes('error') || estado.includes('erron') || estado.includes('erróne')) return 'resultado_erroneo'
+  if (estado.includes('error') || estado.includes('erron') || estado.includes('erróne'))
+    return 'resultado_erroneo'
   if (estado.includes('complet') || estado.includes('finaliz')) return 'completadas'
   if (estado.includes('proceso') || estado.includes('iniciada')) return 'en_proceso'
   if (t.worklist || estado.includes('asignad')) return 'asignadas'
