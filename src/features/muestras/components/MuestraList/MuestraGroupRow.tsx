@@ -22,7 +22,13 @@ interface Props {
   parentFieldSpans: number[]
 }
 
-export const MuestraGroupRow = ({ group, onEdit, onDelete, onEditGroup, parentFieldSpans }: Props) => {
+export const MuestraGroupRow = ({
+  group,
+  onEdit,
+  onDelete,
+  onEditGroup,
+  parentFieldSpans
+}: Props) => {
   const [expanded, setExpanded] = useState(false)
   const [importModalOpen, setImportModalOpen] = useState(false)
   const { parent, children, key } = group
