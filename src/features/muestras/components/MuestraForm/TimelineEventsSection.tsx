@@ -331,7 +331,7 @@ export const TimelineEventsSection = ({ isEditing = false }: TimelineEventsSecti
                 <EntitySelect
                   name="id_tecnico_destruccion"
                   control={control}
-                  label="Técnico Responsable"
+                  label="Técnico de registro"
                   options={tecnicos}
                   isLoading={loadingTecnicos}
                   getValue={tec => tec.id_usuario}
@@ -343,7 +343,7 @@ export const TimelineEventsSection = ({ isEditing = false }: TimelineEventsSecti
                 <EntitySelect
                   name="id_tecnico_devolucion"
                   control={control}
-                  label="Técnico Responsable"
+                  label="Técnico de registro"
                   options={tecnicos}
                   isLoading={loadingTecnicos}
                   getValue={tec => tec.id_usuario}

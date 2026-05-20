@@ -30,10 +30,10 @@ export const PruebaTecnicasCreate = ({
 
   const { data: tecnicasSistema = [], isLoading: loadingTecnicas } = useTecnicasProc()
 
-  // Filtrar las que ya están en la lista actual
-  const disponibles = tecnicasSistema.filter(
-    ts => !tecnicas.some(t => t.tecnica_proc.toLowerCase() === ts.tecnica_proc.toLowerCase())
-  )
+  // Filtrar las que ya están en la lista actual, ordenadas alfanuméricamente
+  const disponibles = tecnicasSistema
+    .filter(ts => !tecnicas.some(t => t.tecnica_proc.toLowerCase() === ts.tecnica_proc.toLowerCase()))
+    .sort((a, b) => a.tecnica_proc.localeCompare(b.tecnica_proc, 'es', { sensitivity: 'base' }))
 
   const handleAdd = () => {
     const nombre = selectedNombre.trim()
@@ -171,10 +171,10 @@ export const PruebaTecnicasEdit = ({
 
   const { data: tecnicasSistema = [], isLoading: loadingTecnicas } = useTecnicasProc()
 
-  // Técnicas del sistema que no están ya activas en esta prueba
-  const disponibles = tecnicasSistema.filter(
-    ts => !activas.some(a => a.tecnica_proc.toLowerCase() === ts.tecnica_proc.toLowerCase())
-  )
+  // Técnicas del sistema que no están ya activas en esta prueba, ordenadas alfanuméricamente
+  const disponibles = tecnicasSistema
+    .filter(ts => !activas.some(a => a.tecnica_proc.toLowerCase() === ts.tecnica_proc.toLowerCase()))
+    .sort((a, b) => a.tecnica_proc.localeCompare(b.tecnica_proc, 'es', { sensitivity: 'base' }))
 
   // Detecta si la técnica seleccionada coincide con una inactiva (para reactivar en lugar de crear)
   const sugerida = inactivas.find(
