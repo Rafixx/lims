@@ -69,7 +69,7 @@ export const MuestraForm = ({
     if (initialValues?.id_muestra && initialValues.id_muestra > 0) {
       reset(initialValues)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialValues?.id_muestra])
 
   const [activeTab, setActiveTab] = useState<string>('general')
@@ -147,7 +147,10 @@ export const MuestraForm = ({
 
       // Validar que f_recepcion esté establecido al crear una muestra
       if (!isEditingForm && !formValues.f_recepcion) {
-        notify('La fecha de recepción es obligatoria. Por favor, complétala en la sección de cronología.', 'error')
+        notify(
+          'La fecha de recepción es obligatoria. Por favor, complétala en la sección de cronología.',
+          'error'
+        )
         setIsSubmitting(false)
         return
       }
@@ -169,7 +172,7 @@ export const MuestraForm = ({
       // Validación de técnicas (solo si aplica y no estamos editando)
       if (isMuestraGroup && !isEditingForm && selectedTecnicas.length === 0) {
         notify(
-          'Para muestras en grupo, debe seleccionar al menos una técnica en el aside lateral.',
+          'Para muestras en grupo, debe seleccionar al menos una técnica en la lista lateral.',
           'warning'
         )
         setIsSubmitting(false)

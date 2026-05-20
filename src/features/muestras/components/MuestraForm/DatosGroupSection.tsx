@@ -9,8 +9,8 @@ const PLATE_PRESETS = [
   // { label: '12×12 (144 posiciones)', width: 12, heightLetter: 'L' },
   // { label: '10×5 (50 posiciones)', width: 10, heightLetter: 'E' },
   // { label: '7×9 (63 posiciones)', width: 7, heightLetter: 'I' },
-  { label: '12x8 (96 posiciones)', width: 12, heightLetter: 'H' }
-  // { label: '16×24 (384 posiciones)', width: 16, heightLetter: 'X' }
+  { label: '12x8 (96 posiciones)', width: 12, heightLetter: 'H' },
+  { label: '8×12 (96 posiciones)', width: 8, heightLetter: 'L' }
 ] as const
 
 // Utilidades para conversión letra ↔ número
