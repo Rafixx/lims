@@ -64,11 +64,11 @@ export const DynamicTemplateRenderer = ({
   return (
     <div className="space-y-3">
       {/* Nodos de la plantilla — groups y procedures ocupan ancho completo */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {template.nodes.map(node => {
           const isFullWidth = node.type === 'group' || node.type === 'procedure'
           return (
-            <div key={node.key} className={isFullWidth ? 'col-span-2' : 'col-span-1'}>
+            <div key={node.key} className={isFullWidth ? 'col-span-1 md:col-span-2' : 'col-span-1'}>
               <TemplateNodeRenderer
                 node={node}
                 values={values}

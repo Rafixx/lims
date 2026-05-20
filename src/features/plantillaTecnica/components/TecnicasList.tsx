@@ -77,6 +77,8 @@ export const TecnicasList = ({
 
             return (
               <div key={colIndex} className="border border-surface-200 rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                <div className="min-w-[400px]">
                 {/* Encabezado */}
                 <div className="grid grid-cols-[70px_70px_1fr_90px_70px] gap-2 bg-primary-50 border-b border-surface-200 px-3 py-2">
                   <div className="text-[10px] font-bold text-surface-700 uppercase">Cód. Ext</div>
@@ -156,6 +158,8 @@ export const TecnicasList = ({
                       </div>
                     ))
                   })}
+                </div>
+                </div>
                 </div>
               </div>
             )

@@ -75,7 +75,7 @@ export const MuestraFilter = ({
         value={filters.busqueda}
         onChange={value => onFilterChange('busqueda', value)}
         placeholder="Buscar por código, cliente, paciente..."
-        className="min-w-[200px]"
+        className="w-full sm:w-auto sm:min-w-[200px]"
       />
 
       <SearchFilter
@@ -83,7 +83,7 @@ export const MuestraFilter = ({
         value={filters.numeroEstudio}
         onChange={value => onFilterChange('numeroEstudio', value)}
         placeholder="Buscar por estudio..."
-        className="min-w-[160px]"
+        className="w-full sm:w-auto sm:min-w-[160px]"
       />
 
       <SelectFilter

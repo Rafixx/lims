@@ -61,17 +61,17 @@ export const GroupNodeRenderer = ({
         {/* Layout según combinación de hijos */}
         {hasBoth ? (
           // Inputs (2/5) + Calcs (3/5) en la misma fila
-          <div className="grid grid-cols-5 gap-0">
-            <div className="col-span-2 space-y-2 pr-5">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-0">
+            <div className="md:col-span-2 space-y-2 md:pr-5">
               {renderChildren(inputChildren)}
             </div>
-            <div className="col-span-3 border-l border-surface-200 pl-5 space-y-2">
+            <div className="md:col-span-3 border-t md:border-t-0 md:border-l border-surface-200 pt-4 md:pt-0 md:pl-5 space-y-2">
               {renderChildren(calcChildren)}
             </div>
           </div>
         ) : hasInputs ? (
           // Solo inputs: cuadrícula de 2 columnas
-          <div className="grid grid-cols-2 gap-x-5 gap-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-2">
             {renderChildren(inputChildren)}
           </div>
         ) : hasCalcs ? (

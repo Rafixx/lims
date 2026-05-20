@@ -206,9 +206,9 @@ export const SeleccionarTecnicasModal = ({ onClose, onSuccess }: SeleccionarTecn
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl sm:max-w-4xl lg:max-w-6xl mx-4 sm:mx-0 max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-surface-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-surface-200">
           <h2 className="text-xl font-semibold text-surface-900">
             Añadir Muestras/Técnicas a Externalización
           </h2>
@@ -222,8 +222,8 @@ export const SeleccionarTecnicasModal = ({ onClose, onSuccess }: SeleccionarTecn
         </div>
 
         {/* Filtros y acciones */}
-        <div className="p-6 border-b border-surface-200 space-y-4">
-          <div className="flex gap-4 items-end">
+        <div className="p-4 sm:p-6 border-b border-surface-200 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-end">
             <div className="flex-1">
               <Input
                 placeholder="Buscar por estudio, código, técnica..."
@@ -268,7 +268,7 @@ export const SeleccionarTecnicasModal = ({ onClose, onSuccess }: SeleccionarTecn
         </div>
 
         {/* Lista de técnicas */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {isLoading ? (
             <div className="text-center py-8 text-surface-500">Cargando técnicas...</div>
           ) : tecnicasOrdenadas.length === 0 ? (
@@ -350,7 +350,7 @@ export const SeleccionarTecnicasModal = ({ onClose, onSuccess }: SeleccionarTecn
                     {/* Técnicas individuales del array (colapsable) */}
                     {isExpanded && (
                       <div className="px-4 pb-4 ml-7">
-                        <div className="grid grid-cols-8 gap-2">
+                        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
                           {tecnicas.map(tecnica => {
                             const tooltipParts = [
                               `Posición: ${tecnica.muestraArray?.posicion_placa || '-'}`
@@ -401,7 +401,7 @@ export const SeleccionarTecnicasModal = ({ onClose, onSuccess }: SeleccionarTecn
                         onChange={() => handleSelectTecnica(tecnica.id_tecnica)}
                         className="w-4 h-4 text-primary-600 rounded focus:ring-2 focus:ring-primary-500"
                       />
-                      <div className="flex-1 grid grid-cols-3 gap-4">
+                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
                         <div>
                           <div className="text-sm font-semibold text-surface-900">
                             {tecnica.muestra?.estudio}
@@ -430,7 +430,7 @@ export const SeleccionarTecnicasModal = ({ onClose, onSuccess }: SeleccionarTecn
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-surface-200 flex justify-end gap-4">
+        <div className="p-4 sm:p-6 border-t border-surface-200 flex justify-end gap-4">
           <Button variant="secondary" onClick={onClose}>
             Cancelar
           </Button>

@@ -171,7 +171,7 @@ export const PlantillaTecnicaPage = () => {
       />
 
       {/* Contenido Principal */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="space-y-8">
           {/* Sección: Técnicas del Worklist
               — scope TECNICA: tabla con entrada de datos integrada
@@ -187,10 +187,10 @@ export const PlantillaTecnicaPage = () => {
 
           {/* Grid principal: Cálculos (2/3) + Checklist (1/3)
               Solo se muestra el renderer de cálculos para scope WORKLIST/PLANTILLA */}
-          <div className="grid grid-cols-3 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             {/* Cálculos dinámicos — solo para scope WORKLIST/PLANTILLA */}
             {hasValidTemplate && template.scope !== 'TECNICA' && (
-              <section className="col-span-2">
+              <section className="lg:col-span-2">
                 <DynamicTemplateRenderer
                   template={template}
                   initialValues={savedValues}
@@ -203,8 +203,8 @@ export const PlantillaTecnicaPage = () => {
 
             {/* Checklist: Pasos del Protocolo */}
             <section
-              className={`sticky top-6 ${
-                hasValidTemplate && template.scope !== 'TECNICA' ? 'col-span-1' : 'col-span-3'
+              className={`lg:sticky lg:top-6 ${
+                hasValidTemplate && template.scope !== 'TECNICA' ? 'lg:col-span-1' : 'lg:col-span-3'
               }`}
             >
               <PasosList pasos={plantillaTecnica.plantillaTecnica.dimPlantillaPasos || []} />
