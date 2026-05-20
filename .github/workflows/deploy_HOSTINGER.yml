@@ -23,10 +23,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '21'
-          cache: 'npm'
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build
         env:
@@ -35,7 +39,7 @@ jobs:
           VITE_TOKEN_KEY: LIMS_TOKEN
           VITE_USE_MSW: false
 
-        run: npm run build
+        run: pnpm run build
 
       - name: Test SSH Connection
         uses: appleboy/ssh-action@master
