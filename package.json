@@ -85,5 +85,12 @@
     "workerDirectory": [
       "public"
     ]
+  },
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "msw"
+    ]
   }
 }
