@@ -27,7 +27,7 @@ export const StepDatosAdministrativos = ({ formData, onChange }: Props) => {
   return (
     <div className="space-y-6">
       <p className="text-sm text-surface-500">
-        La fecha de recepción es obligatoria. Los demás campos son opcionales.
+        La fecha de recepción y el cliente son obligatorios. Los demás campos son opcionales.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -45,21 +45,11 @@ export const StepDatosAdministrativos = ({ formData, onChange }: Props) => {
           />
         </div>
 
-        {/* Código externo de placa */}
+        {/* Cliente — OBLIGATORIO */}
         <div className={fieldClass}>
-          <label className={labelClass}>Código externo de placa</label>
-          <input
-            type="text"
-            className={inputClass}
-            placeholder="Ej: LAB-EXT-2024-001"
-            value={formData.codigo_externo_placa || ''}
-            onChange={e => onChange({ codigo_externo_placa: e.target.value })}
-          />
-          <p className="text-xs text-surface-500">Referencia del laboratorio externo para esta placa</p>
-        </div>
-        {/* Cliente */}
-        <div className={fieldClass}>
-          <label className={labelClass}>Cliente</label>
+          <label className={labelClass}>
+            Cliente <span className="text-danger-600">*</span>
+          </label>
           <select
             className={inputClass}
             disabled={clientesLoading}
@@ -70,7 +60,7 @@ export const StepDatosAdministrativos = ({ formData, onChange }: Props) => {
             }}
           >
             <option value="">
-              {clientesLoading ? 'Cargando...' : '— Seleccionar (opcional) —'}
+              {clientesLoading ? 'Cargando...' : '— Seleccionar —'}
             </option>
             {clientes.map(c => (
               <option key={c.id} value={c.id}>

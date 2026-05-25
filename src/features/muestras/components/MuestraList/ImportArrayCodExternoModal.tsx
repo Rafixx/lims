@@ -21,16 +21,20 @@ import { Button } from '@/shared/components/molecules/Button'
 import { useMuestraArray, useImportArrayCodExterno } from '../../hooks/useMuestras'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import type { ArrayCodExternoPar, MuestraArray } from '../../interfaces/muestras.types'
-import { generatePlateTemplate, downloadCsv } from '../../utils/csvTemplateUtils'
 
 // ---------------------------------------------------------------------------
 // Descarga de plantilla CSV
 // ---------------------------------------------------------------------------
-const downloadTemplate = (muestraId: number, arrayPositions: MuestraArray[]) => {
+const downloadTemplate = (
+  muestraId: number,
+  arrayPositions: MuestraArray[],
+  codigoEpiPlaca?: string
+) => {
   const BOM = '\uFEFF'
   const header = 'posicion_placa,codigo_epi,cod_externo,observaciones'
+  const placaRow = `PLACA,${codigoEpiPlaca ?? ''},, `
   const rows = arrayPositions.map(pos => `${pos.posicion_placa ?? ''},${pos.codigo_epi ?? ''},,`)
-  const csv = [header, ...rows].join('\n')
+  const csv = [header, placaRow, ...rows].join('\n')
 
   const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
@@ -106,11 +110,7 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
 
   const handleDownloadTemplate = () => {
     if (totalPosiciones === 0) return
-    downloadTemplate(muestraId, arrayPositions)
-  }
-
-  const handleDownloadBlankTemplate = () => {
-    downloadCsv(generatePlateTemplate(), 'plantilla_placa_96.csv')
+    downloadTemplate(muestraId, arrayPositions, codigoEpi)
   }
 
   const handleFileSelect = (file: File) => {
@@ -199,20 +199,6 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
           </div>
         </div>
 
-        {/* Plantilla genérica de 96 pocillos */}
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-surface-500">¿Sin posiciones cargadas?</span>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={handleDownloadBlankTemplate}
-          >
-            <Download className="h-3.5 w-3.5" />
-            Descargar plantilla (96 pocillos)
-          </Button>
-        </div>
-
         {/* Paso 2: subir archivo relleno */}
         <div>
           <p className="mb-2 text-sm font-medium text-surface-900">
@@ -260,25 +246,33 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
               </div>
               {/* Filas (scroll si hay muchas) */}
               <div className="max-h-44 overflow-y-auto">
-                {parsedPares.map((par, idx) => (
-                  <div
-                    key={idx}
-                    className="grid grid-cols-4 gap-x-2 border-b border-surface-100 px-3 py-1.5 last:border-b-0 hover:bg-surface-50"
-                  >
-                    <span className="truncate font-mono text-xs font-semibold text-accent-700">
-                      {par.posicion_placa}
-                    </span>
-                    <span className="truncate font-mono text-xs text-surface-600">
-                      {par.codigo_epi || <span className="italic text-surface-300">—</span>}
-                    </span>
-                    <span className="truncate font-mono text-xs font-semibold text-primary-700">
-                      {par.cod_externo}
-                    </span>
-                    <span className="truncate text-xs text-surface-500">
-                      {par.observaciones || <span className="italic text-surface-300">—</span>}
-                    </span>
-                  </div>
-                ))}
+                {parsedPares.map((par, idx) => {
+                  const isPlacaRow = par.posicion_placa === 'PLACA'
+                  return (
+                    <div
+                      key={idx}
+                      className={[
+                        'grid grid-cols-4 gap-x-2 border-b border-surface-100 px-3 py-1.5 last:border-b-0',
+                        isPlacaRow
+                          ? 'bg-accent-50 border-l-2 border-l-accent-400'
+                          : 'hover:bg-surface-50'
+                      ].join(' ')}
+                    >
+                      <span className="truncate font-mono text-xs font-semibold text-accent-700">
+                        {isPlacaRow ? 'PLACA' : par.posicion_placa}
+                      </span>
+                      <span className="truncate font-mono text-xs text-surface-600">
+                        {par.codigo_epi || <span className="italic text-surface-300">—</span>}
+                      </span>
+                      <span className="truncate font-mono text-xs font-semibold text-primary-700">
+                        {par.cod_externo}
+                      </span>
+                      <span className="truncate text-xs text-surface-500">
+                        {par.observaciones || <span className="italic text-surface-300">—</span>}
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
 

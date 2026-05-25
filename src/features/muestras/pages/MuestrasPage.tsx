@@ -14,6 +14,7 @@ import {
   createTodayFilter,
   createMultiFieldSearchFilter
 } from '@/shared/utils/filterUtils'
+import { getErrorMessage } from '@/shared/utils/errorUtils'
 import { MuestraListHeader } from '../components/MuestraList/MuestraListHeader'
 import { MuestraListDetail } from '../components/MuestraList/MuestraListDetail'
 import { MuestraGroupRow } from '../components/MuestraList/MuestraGroupRow'
@@ -242,8 +243,9 @@ export const MuestrasPage = () => {
       })
       notify('Proceso completado correctamente', 'success')
       refetch()
-    } catch {
-      notify('Error al completar el proceso', 'error')
+    } catch (error) {
+      console.error('Error completing muestra process:', error)
+      notify(getErrorMessage(error, 'Error al completar el proceso'), 'error')
     } finally {
       setIsCompleting(false)
     }

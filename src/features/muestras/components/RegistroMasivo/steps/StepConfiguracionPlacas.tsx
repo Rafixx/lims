@@ -87,7 +87,7 @@ export const StepConfiguracionPlacas = ({ formData, onChange }: Props) => {
 
       {/* Prefijo de código */}
       <div className={fieldClass}>
-        <label className={labelClass}>Prefijo de código de placa</label>
+        <label className={labelClass}>Prefijo de código Epidisease de placa</label>
         <input
           type="text"
           className={inputClass}
@@ -96,7 +96,7 @@ export const StepConfiguracionPlacas = ({ formData, onChange }: Props) => {
           onChange={e => onChange({ code_prefix: e.target.value })}
         />
         <p className="text-xs text-surface-500">
-          Los códigos de placa serán: {formData.code_prefix || 'PLACA'}-P001,{' '}
+          Los códigos Epidisease de placa serán: {formData.code_prefix || 'PLACA'}-P001,{' '}
           {formData.code_prefix || 'PLACA'}-P002, ...
         </p>
       </div>

@@ -70,6 +70,12 @@ export const MuestraListDetail = ({
       <TestTube2 className="w-3 h-3 shrink-0 text-primary-400" />
     )
 
+  // Para placas: el código EXT visible es codigo_externo si existe, sino array_config.code
+  const displayCodExt =
+    muestra.tipo_array === true
+      ? (muestra.codigo_externo || muestra.array_config?.code || null)
+      : (muestra.codigo_externo || null)
+
   // Modo hijo (dentro de un grupo): mismas columnas que el padre, pero sólo
   // cod_ext + cod_epi + técnicas chips + estado en los campos; el resto vacío.
   // fieldSpans = parentFieldSpans = [1,1,1,1,2,1,1,1,1,2]
@@ -93,9 +99,9 @@ export const MuestraListDetail = ({
         )}
         <span
           className="block font-mono text-xs font-semibold text-primary-600 truncate"
-          title={muestra.codigo_externo || ''}
+          title={displayCodExt || ''}
         >
-          {muestra.codigo_externo || '—'}
+          {displayCodExt || '—'}
         </span>
       </div>,
       // [1] Cód EPI (span 1)
@@ -151,9 +157,9 @@ export const MuestraListDetail = ({
         </button>
         <span
           className="font-mono text-xs font-semibold text-primary-600 truncate"
-          title={muestra.codigo_externo || ''}
+          title={displayCodExt || ''}
         >
-          {muestra.codigo_externo || '—'}
+          {displayCodExt || '—'}
         </span>
       </div>,
       // [1] Código EPI (span 1)

@@ -10,7 +10,6 @@ const buildInitialForm = (): RegistroMasivoFormData => ({
   plate_heightLetter: 'H',
   code_prefix: '',
   f_recepcion: new Date().toISOString().slice(0, 16),
-  codigo_externo_placa: '',
   id_cliente: null,
   id_paciente: null,
   id_centro: null,
@@ -39,7 +38,7 @@ const buildPayload = (
     code_prefix: formData.code_prefix || 'PLACA'
   },
   f_recepcion: formData.f_recepcion,
-  ...(formData.codigo_externo_placa ? { codigo_externo_placa: formData.codigo_externo_placa } : {})
+  id_cliente: formData.id_cliente as number
 })
 
 describe('RegistroMasivo — validaciones de estado inicial', () => {
@@ -51,30 +50,11 @@ describe('RegistroMasivo — validaciones de estado inicial', () => {
 
   it('f_recepcion tiene formato datetime-local válido (YYYY-MM-DDTHH:mm)', () => {
     const form = buildInitialForm()
-    // datetime-local format: "2026-05-11T10:30"
     expect(form.f_recepcion).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)
-  })
-
-  it('codigo_externo_placa es cadena vacía en el estado inicial', () => {
-    const form = buildInitialForm()
-    expect(form.codigo_externo_placa).toBe('')
   })
 })
 
 describe('RegistroMasivo — construcción del payload', () => {
-  it('no incluye codigo_externo_placa en el payload cuando está vacío', () => {
-    const form = buildInitialForm() // codigo_externo_placa = ''
-    const payload = buildPayload(form)
-    expect(payload).not.toHaveProperty('codigo_externo_placa')
-  })
-
-  it('incluye codigo_externo_placa en el payload cuando tiene valor', () => {
-    const form = buildInitialForm()
-    form.codigo_externo_placa = 'LAB-EXT-2024-001'
-    const payload = buildPayload(form)
-    expect(payload).toHaveProperty('codigo_externo_placa', 'LAB-EXT-2024-001')
-  })
-
   it('siempre incluye f_recepcion en el payload', () => {
     const form = buildInitialForm()
     const payload = buildPayload(form)
