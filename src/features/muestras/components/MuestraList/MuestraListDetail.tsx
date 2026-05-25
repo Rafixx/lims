@@ -8,7 +8,8 @@ import {
   TestTube2,
   ChevronDown,
   ChevronRight,
-  CheckCircle
+  CheckCircle,
+  Pencil
 } from 'lucide-react'
 import { Muestra } from '../../interfaces/muestras.types'
 import { canCompleteMuestra } from '../../utils/canCompleteMuestra'
@@ -20,6 +21,7 @@ import { ListDetail, ListDetailAction } from '@/shared/components/organisms/List
 import { EstadoBadge } from '@/shared/components/atoms/EstadoBadge'
 import { formatDateTime } from '@/shared/utils/helpers'
 import { ImportArrayCodExternoModal } from './ImportArrayCodExternoModal'
+import { EditPlacaCodigosModal } from './EditPlacaCodigosModal'
 
 interface MuestraListDetailProps {
   muestra: Muestra
@@ -51,6 +53,7 @@ export const MuestraListDetail = ({
 }: MuestraListDetailProps) => {
   const navigate = useNavigate()
   const [importArrayModalOpen, setImportArrayModalOpen] = useState(false)
+  const [editCodigosModalOpen, setEditCodigosModalOpen] = useState(false)
   // Estado de expansión gestionado aquí (no en ListDetail) para poder colocar el chevron en field[0]
   const [expanded, setExpanded] = useState(false)
   const { tecnicas, isLoading } = useTecnicasAgrupadasByMuestra(muestra.id_muestra)
@@ -235,7 +238,7 @@ export const MuestraListDetail = ({
     navigate(`/muestras/nueva?duplicar=${muestra.id_muestra}`)
   }
 
-  // Acciones: Upload (sólo tipo_array), Duplicar (si no hideEditAndDuplicate), Editar (si no hideEditAndDuplicate), Eliminar
+  // Acciones: Upload + Editar códigos (sólo tipo_array), Duplicar/Editar (si no hideEditAndDuplicate), Completar, Eliminar
   const actions: ListDetailAction[] = [
     ...(muestra.tipo_array === true
       ? [
@@ -248,6 +251,12 @@ export const MuestraListDetail = ({
             className: allArrayPositionsHaveCodes
               ? 'p-1 text-success-600 hover:bg-success-50 rounded transition-colors'
               : 'p-1 text-accent-600 hover:bg-accent-50 rounded transition-colors'
+          },
+          {
+            icon: <Pencil className="w-4 h-4" />,
+            onClick: () => setEditCodigosModalOpen(true),
+            title: 'Editar códigos de placa',
+            className: 'p-1 text-primary-600 hover:bg-primary-50 rounded transition-colors'
           }
         ]
       : []),
@@ -324,6 +333,14 @@ export const MuestraListDetail = ({
           onClose={() => setImportArrayModalOpen(false)}
           muestraId={muestra.id_muestra}
           codigoEpi={muestra.codigo_epi}
+        />
+      )}
+
+      {muestra.tipo_array === true && (
+        <EditPlacaCodigosModal
+          isOpen={editCodigosModalOpen}
+          onClose={() => setEditCodigosModalOpen(false)}
+          muestra={muestra}
         />
       )}
     </>

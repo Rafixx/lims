@@ -1,16 +1,26 @@
 import { StatCard } from '@/shared/components/molecules/StatCard'
 import { Card } from '@/shared/components/molecules/Card'
-import type { MuestraStats as MuestraStatsData } from '../interfaces/muestras.types'
 import {
-  FileText,
+  Grid3X3,
+  TestTube2,
+  Layers,
   Clock,
   CheckCircle,
-  AlertTriangle,
-  // TrendingUp,
-  Calendar,
+  XCircle,
   Activity,
-  Target
+  CalendarCheck
 } from 'lucide-react'
+
+export type MuestraStatsData = {
+  total: number
+  placas: number
+  tubos: number
+  registradas: number
+  en_proceso: number
+  completadas: number
+  rechazadas: number
+  recibidas_hoy: number
+}
 
 interface Props {
   stats?: MuestraStatsData
@@ -20,15 +30,15 @@ interface Props {
 export const MuestraStatsComponent = ({ stats, isLoading = false }: Props) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {[...Array(8)].map((_, i) => (
           <Card key={i} className="animate-pulse">
-            <div className="p-6">
+            <div className="p-4">
               <div className="flex items-center">
-                <div className="h-10 w-10 bg-surface-200 rounded"></div>
-                <div className="ml-4 flex-1">
-                  <div className="h-4 bg-surface-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-8 bg-surface-200 rounded w-1/2"></div>
+                <div className="h-8 w-8 bg-surface-200 rounded"></div>
+                <div className="ml-3 flex-1">
+                  <div className="h-3 bg-surface-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-6 bg-surface-200 rounded w-1/2"></div>
                 </div>
               </div>
             </div>
@@ -38,78 +48,74 @@ export const MuestraStatsComponent = ({ stats, isLoading = false }: Props) => {
     )
   }
 
-  // Función helper para obtener valores seguros
-  const getSafeValue = (value: number | undefined | null): number => {
-    return value ?? 0
-  }
+  const v = (n: number | undefined) => (n ?? 0).toString()
 
   return (
-    <div className="space-y-4 mb-6">
-      {/* Primera fila - Estadísticas principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="space-y-3 mb-6">
+      {/* Fila 1 — volumen */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard
-          title="Total Solicitudes"
-          value={getSafeValue(stats?.total).toString()}
-          icon={<FileText className="h-6 w-6" />}
+          title="Total Muestras"
+          value={v(stats?.total)}
+          icon={<Layers className="h-5 w-5" />}
           color="secondary"
         />
         <StatCard
-          title="Pendientes"
-          value={getSafeValue(stats?.pendientes).toString()}
-          subtitle="Esperando procesamiento"
-          icon={<Clock className="h-6 w-6" />}
+          title="Placas"
+          value={v(stats?.placas)}
+          subtitle="Tipo array"
+          icon={<Grid3X3 className="h-5 w-5" />}
+          color="info"
+        />
+        <StatCard
+          title="Tubos"
+          value={v(stats?.tubos)}
+          subtitle="Muestra individual"
+          icon={<TestTube2 className="h-5 w-5" />}
+          color="primary"
+        />
+        <StatCard
+          title="Recibidas hoy"
+          value={v(stats?.recibidas_hoy)}
+          subtitle="Fecha recepción"
+          icon={<CalendarCheck className="h-5 w-5" />}
+          color="warning"
+        />
+      </div>
+
+      {/* Fila 2 — estados */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard
+          title="Registradas"
+          value={v(stats?.registradas)}
+          subtitle="Estado inicial"
+          icon={<Clock className="h-5 w-5" />}
           color="warning"
         />
         <StatCard
-          title="En Progreso"
-          value={getSafeValue(stats?.en_proceso).toString()}
-          subtitle="Siendo procesadas"
-          icon={<Activity className="h-6 w-6" />}
+          title="En Proceso"
+          value={v(stats?.en_proceso)}
+          subtitle="En análisis"
+          icon={<Activity className="h-5 w-5" />}
           color="info"
         />
         <StatCard
           title="Completadas"
-          value={getSafeValue(stats?.completadas).toString()}
+          value={v(stats?.completadas)}
           subtitle="Finalizadas"
-          icon={<CheckCircle className="h-6 w-6" />}
+          icon={<CheckCircle className="h-5 w-5" />}
           color="success"
         />
-      </div>
-
-      {/* Segunda fila - Métricas adicionales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Vencidas"
-          value={getSafeValue(stats?.vencidas).toString()}
-          subtitle="Fuera de plazo"
-          icon={<AlertTriangle className="h-6 w-6" />}
+          title="Rechazadas"
+          value={v(stats?.rechazadas)}
+          subtitle="No procesables"
+          icon={<XCircle className="h-5 w-5" />}
           color="danger"
-        />
-        {/* <StatCard
-          title="Tiempo Promedio"
-          value={formatTime(stats?. ?? null)}
-          subtitle="De procesamiento"
-          icon={<TrendingUp className="h-6 w-6" />}
-          color="primary"
-        /> */}
-        <StatCard
-          title="Creadas Hoy"
-          value={getSafeValue(stats?.creadas_hoy).toString()}
-          subtitle="Nuevas solicitudes"
-          icon={<Calendar className="h-6 w-6" />}
-          color="info"
-        />
-        <StatCard
-          title="Completadas Hoy"
-          value={getSafeValue(stats?.completadas_hoy).toString()}
-          subtitle="Finalizadas hoy"
-          icon={<Target className="h-6 w-6" />}
-          color="success"
         />
       </div>
     </div>
   )
 }
 
-// Exportamos con el nombre original para mantener compatibilidad
 export const MuestraStats = MuestraStatsComponent

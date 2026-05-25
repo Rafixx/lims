@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMuestras, useMuestrasStats, useDeleteMuestra } from '../hooks/useMuestras'
+import { useMuestras, useDeleteMuestra } from '../hooks/useMuestras'
 import { useCambiarEstadoMuestra } from '@/shared/hooks/useEstados'
 import { ESTADO_MUESTRA } from '@/shared/interfaces/estados.types'
 import { Muestra } from '../interfaces/muestras.types'
 import { MuestraFilter } from '../components/MuestraFilter'
 import { ListPage } from '../../../shared/components/organisms/ListPage'
 import { useListFilters } from '@/shared/hooks/useListFilters'
-import { MuestraStatsComponent } from '../components/MuestraStats'
+import { MuestraStatsComponent, type MuestraStatsData } from '../components/MuestraStats'
 import { FileSpreadsheet, Layers, PlusCircle } from 'lucide-react'
 import {
   createNumericExactFilter,
@@ -44,7 +44,6 @@ const COLUMN_CONFIG = [
 // src/features/muestras/pages/MuestrasPage.tsx
 export const MuestrasPage = () => {
   const { muestras, isLoading, error, refetch } = useMuestras()
-  const { stats, isLoading: statsLoading } = useMuestrasStats()
   const deleteMuestraMutation = useDeleteMuestra()
   const cambiarEstadoMutation = useCambiarEstadoMuestra()
   const navigate = useNavigate()
@@ -107,6 +106,21 @@ export const MuestrasPage = () => {
     updateFilter,
     clearFilters
   } = useListFilters(muestras || [], filterConfig)
+
+  const stats = useMemo<MuestraStatsData>(() => {
+    const all = muestras || []
+    const today = new Date().toDateString()
+    return {
+      total: all.length,
+      placas: all.filter(m => m.tipo_array === true).length,
+      tubos: all.filter(m => m.tipo_array !== true).length,
+      registradas: all.filter(m => (m.estadoInfo?.id ?? m.id_estado) === ESTADO_MUESTRA.REGISTRADA).length,
+      en_proceso: all.filter(m => (m.estadoInfo?.id ?? m.id_estado) === ESTADO_MUESTRA.EN_PROCESO).length,
+      completadas: all.filter(m => (m.estadoInfo?.id ?? m.id_estado) === ESTADO_MUESTRA.COMPLETADA).length,
+      rechazadas: all.filter(m => (m.estadoInfo?.id ?? m.id_estado) === ESTADO_MUESTRA.RECHAZADA).length,
+      recibidas_hoy: all.filter(m => m.f_recepcion && new Date(m.f_recepcion).toDateString() === today).length
+    }
+  }, [muestras])
 
   const handleSort = (key: string) => {
     if (sortKey === key) {
@@ -257,7 +271,7 @@ export const MuestrasPage = () => {
   }
 
   const renderStats = () => (
-    <MuestraStatsComponent stats={stats ?? undefined} isLoading={statsLoading} />
+    <MuestraStatsComponent stats={stats} isLoading={isLoading} />
   )
 
   const renderFilters = () => (
