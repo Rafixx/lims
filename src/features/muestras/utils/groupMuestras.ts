@@ -46,7 +46,12 @@ export const groupMuestrasByEstudio = (muestras: Muestra[]): MuestraListItem[] =
       if (children.length === 1) {
         result.push(toStandalone(children[0]))
       } else {
-        result.push({ isGrouped: true, key, parent: children[0], children })
+        const sorted = [...children].sort((a, b) => {
+          const codeA = a.codigo_externo || a.array_config?.code || a.codigo_epi || ''
+          const codeB = b.codigo_externo || b.array_config?.code || b.codigo_epi || ''
+          return codeA.localeCompare(codeB)
+        })
+        result.push({ isGrouped: true, key, parent: sorted[0], children: sorted })
       }
     }
     // ya emitido este grupo → omitir

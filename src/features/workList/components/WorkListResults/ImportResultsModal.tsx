@@ -2,20 +2,60 @@ import { useState } from 'react'
 import { X, Upload, FileSpreadsheet } from 'lucide-react'
 import { FileUploader } from '@/shared/components/molecules/FileUploader'
 import { Button } from '@/shared/components/molecules/Button'
+import type { Tecnica } from '../../interfaces/worklist.types'
 
 // ---------------------------------------------------------------------------
-// Plantillas CSV para equipos de medición
+// Plantilla Qubit — genera una fila por técnica con los datos de la muestra
 // ---------------------------------------------------------------------------
-const RESULT_TEMPLATES = {
-  Qubit: ['Sample ID,Original sample conc.,Unit,Dilution factor', ',,ng/µL,'].join('\n'),
-  Nanodrop: [
-    'Sample ID,Nucleic Acid Conc.,A260,A280,260/280,260/230',
-    ',,,,,',
-  ].join('\n'),
-} as const
+const QUBIT_HEADER =
+  'código placa,Pocillo,codigo muestra,' +
+  'Run ID,Assay Name,Test Name,Test Date,' +
+  'Qubit tube conc.,Qubit tube conc. units,' +
+  'Original sample conc.,Original sample conc. units,' +
+  'Sample Volume (uL),Dilution Factor,' +
+  'Std 1 RFU,Std 2 RFU,Std 3 RFU,' +
+  'Excitation,Emission,Green RFU,Far Red RFU'
 
-const handleDownloadResultTemplate = (type: keyof typeof RESULT_TEMPLATES): void => {
-  const csv = RESULT_TEMPLATES[type]
+const QUBIT_EMPTY_COLS = Array(17).fill('').join(',')
+
+const buildQubitCsv = (tecnicas: Tecnica[]): string => {
+  const sorted = [...tecnicas].sort((a, b) => {
+    const ca = a.muestraArray?.codigo_epi ?? a.muestra?.codigo_epi ?? ''
+    const cb = b.muestraArray?.codigo_epi ?? b.muestra?.codigo_epi ?? ''
+    return ca.localeCompare(cb)
+  })
+  const rows = sorted.map(t => {
+    const placa = t.muestraArray?.codigo_placa ?? ''
+    const pocillo = t.muestraArray?.posicion_placa ?? ''
+    const codigo = t.muestraArray?.codigo_epi ?? t.muestra?.codigo_epi ?? ''
+    return `${placa},${pocillo},${codigo},${QUBIT_EMPTY_COLS}`
+  })
+  return '﻿' + [QUBIT_HEADER, ...rows].join('\n')
+}
+
+const NANODROP_HEADER = 'código placa,Pocillo,codigo muestra,Sample ID,Nucleic Acid Conc.,A260,A280,260/280,260/230'
+const NANODROP_EMPTY_COLS = Array(6).fill('').join(',')
+
+const buildNanodropCsv = (tecnicas: Tecnica[]): string => {
+  const sorted = [...tecnicas].sort((a, b) => {
+    const ca = a.muestraArray?.codigo_epi ?? a.muestra?.codigo_epi ?? ''
+    const cb = b.muestraArray?.codigo_epi ?? b.muestra?.codigo_epi ?? ''
+    return ca.localeCompare(cb)
+  })
+  const rows = sorted.map(t => {
+    const placa = t.muestraArray?.codigo_placa ?? ''
+    const pocillo = t.muestraArray?.posicion_placa ?? ''
+    const codigo = t.muestraArray?.codigo_epi ?? t.muestra?.codigo_epi ?? ''
+    return `${placa},${pocillo},${codigo},${NANODROP_EMPTY_COLS}`
+  })
+  return '﻿' + [NANODROP_HEADER, ...rows].join('\n')
+}
+
+const handleDownloadResultTemplate = (
+  type: 'Qubit' | 'Nanodrop',
+  tecnicas: Tecnica[]
+): void => {
+  const csv = type === 'Qubit' ? buildQubitCsv(tecnicas) : buildNanodropCsv(tecnicas)
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -32,6 +72,7 @@ interface ImportResultsModalProps {
   onClose: () => void
   onImport: (file: File) => Promise<void>
   worklistName: string
+  tecnicas: Tecnica[]
 }
 
 /**
@@ -41,7 +82,8 @@ export const ImportResultsModal = ({
   isOpen,
   onClose,
   onImport,
-  worklistName
+  worklistName,
+  tecnicas
 }: ImportResultsModalProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
@@ -138,12 +180,15 @@ export const ImportResultsModal = ({
             <div className="border border-surface-200 rounded-lg p-4 mb-4">
               <p className="text-sm font-medium text-surface-700 mb-2">Descargar plantilla:</p>
               <div className="flex gap-2">
-                <Button variant="secondary" onClick={() => handleDownloadResultTemplate('Qubit')}>
+                <Button
+                  variant="secondary"
+                  onClick={() => handleDownloadResultTemplate('Qubit', tecnicas)}
+                >
                   Plantilla Qubit
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => handleDownloadResultTemplate('Nanodrop')}
+                  onClick={() => handleDownloadResultTemplate('Nanodrop', tecnicas)}
                 >
                   Plantilla Nanodrop
                 </Button>

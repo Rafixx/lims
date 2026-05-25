@@ -34,7 +34,6 @@ const INITIAL_FORM: RegistroMasivoFormData = {
   plate_heightLetter: 'H',
   code_prefix: '',
   f_recepcion: new Date().toISOString().slice(0, 16),
-  codigo_externo_placa: '',
   id_cliente: null,
   id_paciente: null,
   id_centro: null,
@@ -100,7 +99,7 @@ export const RegistroMasivoWizard = ({ onFinish }: Props) => {
     formData.plate_heightLetter !== '' &&
     isValidHeightLetter(formData.plate_heightLetter)
 
-  const isStep3Valid = formData.f_recepcion.trim() !== ''
+  const isStep3Valid = formData.f_recepcion.trim() !== '' && formData.id_cliente !== null
 
   const isCurrentStepValid = () => {
     if (currentStep === 1) return isStep1Valid
@@ -148,7 +147,7 @@ export const RegistroMasivoWizard = ({ onFinish }: Props) => {
           code_prefix: formData.code_prefix || 'PLACA'
         },
         f_recepcion: formData.f_recepcion,
-        ...(formData.id_cliente ? { id_cliente: formData.id_cliente } : {}),
+        id_cliente: formData.id_cliente as number,
         ...(formData.id_paciente ? { id_paciente: formData.id_paciente } : {}),
         ...(formData.id_centro ? { id_centro: formData.id_centro } : {}),
         ...(formData.id_tecnico_resp ? { id_tecnico_resp: formData.id_tecnico_resp } : {}),
@@ -157,8 +156,7 @@ export const RegistroMasivoWizard = ({ onFinish }: Props) => {
           : {}),
         ...(formData.condiciones_envio ? { condiciones_envio: formData.condiciones_envio } : {}),
         ...(formData.tiempo_hielo ? { tiempo_hielo: formData.tiempo_hielo } : {}),
-        ...(formData.observaciones ? { observaciones: formData.observaciones } : {}),
-        ...(formData.codigo_externo_placa ? { codigo_externo_placa: formData.codigo_externo_placa } : {})
+        ...(formData.observaciones ? { observaciones: formData.observaciones } : {})
       }
 
       const data = await registroMasivoMutation.mutateAsync(payload)

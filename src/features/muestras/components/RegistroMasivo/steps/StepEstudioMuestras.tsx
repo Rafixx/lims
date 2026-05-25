@@ -4,7 +4,8 @@ import { PlateCalculationSummary } from '../PlateCalculationSummary'
 import { calcPositionsPerPlate } from '../../../hooks/useRegistroMasivo'
 
 const PLATE_PRESETS = [
-  { label: '12×8 (96 posiciones)', width: 12, heightLetter: 'H' }
+  { label: '12×8 (96 posiciones)', width: 12, heightLetter: 'H' },
+  { label: '8×12 (96 posiciones)', width: 8, heightLetter: 'L' }
 ] as const
 
 const inputClass =

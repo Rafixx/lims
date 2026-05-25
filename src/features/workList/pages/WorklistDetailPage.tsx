@@ -154,6 +154,7 @@ export const WorklistDetailPage = () => {
         onClose={closeImportModal}
         onImport={handleImportDataResults}
         worklistName={worklist.nombre}
+        tecnicas={worklist.tecnicas || []}
       />
 
       {/* Modal de mapeo de resultados */}

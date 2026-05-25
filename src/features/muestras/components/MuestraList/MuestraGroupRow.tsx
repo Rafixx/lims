@@ -13,6 +13,7 @@ import { MuestraListDetail } from './MuestraListDetail'
 import { EstadoBadge } from '@/shared/components/atoms/EstadoBadge'
 import { formatDateTime, getColSpanClass } from '@/shared/utils/helpers'
 import { ImportCodExternoModal } from './ImportCodExternoModal'
+import { ImportGroupArrayCodExternoModal } from './ImportGroupArrayCodExternoModal'
 
 interface Props {
   group: MuestraGroup
@@ -204,12 +205,21 @@ export const MuestraGroupRow = ({
       </div>
 
       {/* Modal de importación de códigos externos */}
-      <ImportCodExternoModal
-        isOpen={importModalOpen}
-        onClose={() => setImportModalOpen(false)}
-        estudio={key}
-        muestras={children}
-      />
+      {isAllPlacas ? (
+        <ImportGroupArrayCodExternoModal
+          isOpen={importModalOpen}
+          onClose={() => setImportModalOpen(false)}
+          estudio={key}
+          muestras={children}
+        />
+      ) : (
+        <ImportCodExternoModal
+          isOpen={importModalOpen}
+          onClose={() => setImportModalOpen(false)}
+          estudio={key}
+          muestras={children}
+        />
+      )}
 
       {/* Filas hijas — visibles sólo cuando expanded */}
       {expanded ? (
