@@ -56,6 +56,16 @@ export const PlantillaTecnicaPage = () => {
   // Validar plantilla dinámica si existe
   const hasValidTemplate = template && validateTemplate(template)
 
+  // Técnicas ordenadas por codigo_epi (muestraArray tiene prioridad sobre muestra)
+  const tecnicasOrdenadas = useMemo(() => {
+    const list = worklist?.tecnicas ?? []
+    return [...list].sort((a, b) => {
+      const epiA = a.muestraArray?.codigo_epi ?? a.muestra?.codigo_epi ?? ''
+      const epiB = b.muestraArray?.codigo_epi ?? b.muestra?.codigo_epi ?? ''
+      return epiA.localeCompare(epiB)
+    })
+  }, [worklist?.tecnicas])
+
   // Calcular valores para PDF (usando valores guardados)
   const calculatedValuesForPDF = useMemo(() => {
     if (!template || !savedValues) return {}
@@ -163,7 +173,7 @@ export const PlantillaTecnicaPage = () => {
         worklistId={worklistId}
         codigoPlantilla={plantillaTecnica.plantillaTecnica.cod_plantilla_tecnica}
         tecnicaProc={plantillaTecnica.tecnica_proc}
-        tecnicas={worklist.tecnicas}
+        tecnicas={tecnicasOrdenadas}
         plantillaTecnica={plantillaTecnica}
         template={hasValidTemplate ? template : null}
         templateValues={savedValues}
@@ -178,7 +188,7 @@ export const PlantillaTecnicaPage = () => {
               — scope WORKLIST/PLANTILLA: tabla de resultados estándar */}
           <section>
             <TecnicasList
-              tecnicas={worklist.tecnicas}
+              tecnicas={tecnicasOrdenadas}
               templateTecnica={hasValidTemplate && template.scope === 'TECNICA' ? template : undefined}
               onSaveTecnicaValues={handleSaveTecnicaValues}
               isSavingTecnica={saveTecnicaMutation.isPending}
