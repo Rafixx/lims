@@ -3,7 +3,7 @@
 module.exports = {
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest'
+    '^.+\\.(ts|tsx)$': '<rootDir>/jest.importmeta.cjs'
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',

@@ -5,6 +5,7 @@ import { UserProvider } from '@/shared/contexts/UserContext'
 import * as authService from '@/shared/services/authService'
 import { TOKEN_KEY } from '@/shared/constants/constants'
 import { NotificationProvider } from '@/shared/components/Notification/NotificationContext'
+import axios from 'axios'
 
 jest.mock('@/shared/services/authService')
 const mockedLogin = authService.login as jest.MockedFunction<typeof authService.login>
@@ -63,7 +64,15 @@ test('realiza login y redirige a dashboard', async () => {
   })
 })
 test('muestra mensaje de error si login falla', async () => {
-  mockedLogin.mockRejectedValue(new Error('Credenciales inválidas'))
+  // Simular error Axios 401 para que LoginPage muestre "Credenciales incorrectas"
+  const axiosError = new axios.AxiosError('Unauthorized', '401', undefined, undefined, {
+    status: 401,
+    statusText: 'Unauthorized',
+    data: {},
+    headers: {},
+    config: { headers: new axios.AxiosHeaders() }
+  })
+  mockedLogin.mockRejectedValue(axiosError)
 
   renderWithProviders(<LoginPage />)
 
@@ -84,6 +93,6 @@ test('muestra mensaje de error si login falla', async () => {
     })
 
     expect(localStorage.getItem(TOKEN_KEY)).toBeNull()
-    expect(screen.getByText(/credenciales inválidas|incorrectos/i)).toBeInTheDocument()
+    expect(screen.getByText(/credenciales incorrectas/i)).toBeInTheDocument()
   })
 })
