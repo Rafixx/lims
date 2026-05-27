@@ -52,6 +52,8 @@ export type Muestra = {
   id_estado?: number
   estadoInfo?: DimEstado | null
   observaciones?: string
+  plate_width?: number
+  plate_height?: number
 
   // Configuración de array para muestras tipo array
   array_config?: {
