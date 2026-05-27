@@ -20,7 +20,7 @@ export const RegistroMasivoPage = () => {
           </p>
         </div>
       </div>
-      <RegistroMasivoWizard onFinish={() => navigate('/muestras')} />
+      <RegistroMasivoWizard onFinish={() => navigate('/muestras')} onCancel={() => navigate('/muestras')} />
     </div>
   )
 }

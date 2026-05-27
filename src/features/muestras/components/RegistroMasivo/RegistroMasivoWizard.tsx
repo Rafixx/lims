@@ -48,9 +48,11 @@ const isValidHeightLetter = (l: string) => /^[A-Za-z]$/.test(l)
 
 interface Props {
   onFinish: () => void
+  onCancel?: () => void
 }
 
-export const RegistroMasivoWizard = ({ onFinish }: Props) => {
+export const RegistroMasivoWizard = ({ onFinish, onCancel }: Props) => {
+  const handleCancel = onCancel ?? onFinish
   const { notify } = useNotification()
   const registroMasivoMutation = useRegistroMasivo()
 
@@ -209,13 +211,16 @@ export const RegistroMasivoWizard = ({ onFinish }: Props) => {
       {/* Navigation buttons */}
       {currentStep < 4 && (
         <div className="flex justify-between gap-3">
-          {currentStep > 1 ? (
-            <Button variant="secondary" onClick={handlePrev}>
-              Anterior
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={handleCancel}>
+              Cancelar
             </Button>
-          ) : (
-            <div />
-          )}
+            {currentStep > 1 && (
+              <Button variant="secondary" onClick={handlePrev}>
+                Anterior
+              </Button>
+            )}
+          </div>
           <Button
             variant="primary"
             onClick={handleNext}
@@ -227,7 +232,10 @@ export const RegistroMasivoWizard = ({ onFinish }: Props) => {
       )}
 
       {currentStep === 4 && (
-        <div className="flex justify-start">
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={handleCancel}>
+            Cancelar
+          </Button>
           <Button variant="secondary" onClick={handlePrev}>
             Anterior
           </Button>
