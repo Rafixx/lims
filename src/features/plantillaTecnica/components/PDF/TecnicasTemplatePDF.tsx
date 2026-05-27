@@ -115,21 +115,21 @@ const localStyles = StyleSheet.create({
   hCellCode: {
     width: COL_CODE,
     padding: 4,
-    fontSize: 7,
+    fontSize: 6,
     fontWeight: 'bold',
     color: colors.surface[700]
   },
   hCellResultTipo: {
     width: COL_RESULT_TIPO,
     padding: 4,
-    fontSize: 7,
+    fontSize: 6,
     fontWeight: 'bold',
     color: colors.surface[700]
   },
   hCellResultValor: {
     width: COL_RESULT_VALOR,
     padding: 4,
-    fontSize: 7,
+    fontSize: 6,
     fontWeight: 'bold',
     color: colors.surface[700],
     textAlign: 'right'
@@ -137,7 +137,7 @@ const localStyles = StyleSheet.create({
   hCellResultUnidades: {
     width: COL_RESULT_UNIDADES,
     padding: 4,
-    fontSize: 7,
+    fontSize: 6,
     fontWeight: 'bold',
     color: colors.surface[700]
   },
@@ -145,14 +145,14 @@ const localStyles = StyleSheet.create({
   dCellCodeExt: {
     width: COL_CODE,
     padding: 3,
-    fontSize: 7,
+    fontSize: 6,
     color: colors.surface[500],
     fontFamily: 'Helvetica'
   },
   dCellCodeEpi: {
     width: COL_CODE,
     padding: 3,
-    fontSize: 7,
+    fontSize: 6,
     fontWeight: 'bold',
     color: colors.primary[700],
     fontFamily: 'Helvetica'
@@ -160,13 +160,13 @@ const localStyles = StyleSheet.create({
   dCellResultTipo: {
     width: COL_RESULT_TIPO,
     padding: 3,
-    fontSize: 7,
+    fontSize: 6,
     color: colors.surface[700]
   },
   dCellResultValor: {
     width: COL_RESULT_VALOR,
     padding: 3,
-    fontSize: 7,
+    fontSize: 6,
     fontWeight: 'bold',
     color: colors.success[600],
     textAlign: 'right'
@@ -174,7 +174,7 @@ const localStyles = StyleSheet.create({
   dCellResultUnidades: {
     width: COL_RESULT_UNIDADES,
     padding: 3,
-    fontSize: 7,
+    fontSize: 6,
     color: colors.surface[500]
   },
   emptyCell: {
@@ -207,7 +207,7 @@ export const TecnicasTemplatePDF = ({ tecnicas, template }: Props) => {
   const hCellDynamic = {
     width: dynamicWidth,
     padding: 4,
-    fontSize: 7,
+    fontSize: 6,
     fontWeight: 'bold' as const,
     color: colors.surface[700],
     textAlign: 'right' as const
@@ -220,7 +220,7 @@ export const TecnicasTemplatePDF = ({ tecnicas, template }: Props) => {
   const dCellInput = {
     width: dynamicWidth,
     padding: 3,
-    fontSize: 7,
+    fontSize: 6,
     color: colors.surface[800],
     textAlign: 'right' as const,
     fontFamily: 'Helvetica-Bold' as const
@@ -228,7 +228,7 @@ export const TecnicasTemplatePDF = ({ tecnicas, template }: Props) => {
   const dCellCalc = {
     width: dynamicWidth,
     padding: 3,
-    fontSize: 7,
+    fontSize: 6,
     fontWeight: 'bold' as const,
     color: colors.primary[700],
     textAlign: 'right' as const,
