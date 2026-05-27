@@ -35,32 +35,39 @@ const localStyles = StyleSheet.create({
     borderBottomColor: colors.surface[200],
     borderBottomStyle: 'solid'
   },
-  headerCellCodigo: {
-    width: '25%',
+  headerCellCodExt: {
+    width: '20%',
     padding: 4,
-    fontSize: 7,
+    fontSize: 6,
+    fontWeight: 'bold',
+    color: colors.surface[700]
+  },
+  headerCellCodEpi: {
+    width: '20%',
+    padding: 4,
+    fontSize: 6,
     fontWeight: 'bold',
     color: colors.surface[700]
   },
   headerCellTipo: {
-    width: '35%',
+    width: '30%',
     padding: 4,
-    fontSize: 7,
+    fontSize: 6,
     fontWeight: 'bold',
     color: colors.surface[700]
   },
   headerCellValor: {
-    width: '20%',
+    width: '15%',
     padding: 4,
-    fontSize: 7,
+    fontSize: 6,
     fontWeight: 'bold',
     color: colors.surface[700],
     textAlign: 'right'
   },
   headerCellUnidades: {
-    width: '20%',
+    width: '15%',
     padding: 4,
-    fontSize: 7,
+    fontSize: 6,
     fontWeight: 'bold',
     color: colors.surface[700]
   },
@@ -70,31 +77,37 @@ const localStyles = StyleSheet.create({
     borderBottomColor: colors.surface[100],
     borderBottomStyle: 'solid'
   },
-  cellCodigo: {
-    width: '25%',
+  cellCodExt: {
+    width: '20%',
     padding: 3,
-    fontSize: 7,
+    fontSize: 6,
+    color: colors.surface[500]
+  },
+  cellCodEpi: {
+    width: '20%',
+    padding: 3,
+    fontSize: 6,
     fontWeight: 'bold',
     color: colors.primary[600]
   },
   cellTipo: {
-    width: '35%',
+    width: '30%',
     padding: 3,
-    fontSize: 7,
+    fontSize: 6,
     color: colors.surface[700]
   },
   cellValor: {
-    width: '20%',
+    width: '15%',
     padding: 3,
-    fontSize: 7,
+    fontSize: 6,
     fontWeight: 'bold',
     color: colors.success[600],
     textAlign: 'right'
   },
   cellUnidades: {
-    width: '20%',
+    width: '15%',
     padding: 3,
-    fontSize: 7,
+    fontSize: 6,
     color: colors.surface[600]
   },
   emptyCell: {
@@ -103,9 +116,6 @@ const localStyles = StyleSheet.create({
   }
 })
 
-/**
- * Componente PDF para la lista de técnicas/muestras y resultados
- */
 export const TecnicasListPDF = ({ tecnicas }: TecnicasListPDFProps) => {
   const mitad = Math.ceil(tecnicas.length / 2)
   const columna1 = tecnicas.slice(0, mitad)
@@ -117,20 +127,24 @@ export const TecnicasListPDF = ({ tecnicas }: TecnicasListPDFProps) => {
     return (
       <View style={localStyles.tableContainer}>
         <View style={localStyles.headerRow}>
-          <Text style={localStyles.headerCellCodigo}>CÓDIGO</Text>
+          <Text style={localStyles.headerCellCodExt}>CÓD.EXT</Text>
+          <Text style={localStyles.headerCellCodEpi}>CÓD.EPI</Text>
           <Text style={localStyles.headerCellTipo}>TIPO RESULTADO</Text>
           <Text style={localStyles.headerCellValor}>VALOR</Text>
           <Text style={localStyles.headerCellUnidades}>UNIDADES</Text>
         </View>
 
         {tecnicasColumna.map((tecnica, tecnicaIndex) => {
-          const codigoMuestra =
-            tecnica.muestra?.codigo_epi || tecnica.muestra?.codigo_externo || '-'
+          const codExt =
+            tecnica.muestraArray?.codigo_externo ?? tecnica.muestra?.codigo_externo ?? '-'
+          const codEpi =
+            tecnica.muestraArray?.codigo_epi ?? tecnica.muestra?.codigo_epi ?? '-'
 
           if (!tecnica.resultados || tecnica.resultados.length === 0) {
             return (
               <View key={tecnicaIndex} style={localStyles.dataRow}>
-                <Text style={localStyles.cellCodigo}>{codigoMuestra}</Text>
+                <Text style={localStyles.cellCodExt}>{codExt}</Text>
+                <Text style={localStyles.cellCodEpi}>{codEpi}</Text>
                 <Text style={[localStyles.cellTipo, localStyles.emptyCell]}>Sin resultados</Text>
                 <Text style={[localStyles.cellValor, localStyles.emptyCell]}>-</Text>
                 <Text style={[localStyles.cellUnidades, localStyles.emptyCell]}>-</Text>
@@ -140,8 +154,11 @@ export const TecnicasListPDF = ({ tecnicas }: TecnicasListPDFProps) => {
 
           return tecnica.resultados.map((resultado, resultadoIndex) => (
             <View key={`${tecnicaIndex}-${resultadoIndex}`} style={localStyles.dataRow}>
-              <Text style={localStyles.cellCodigo}>
-                {resultadoIndex === 0 ? codigoMuestra : ''}
+              <Text style={localStyles.cellCodExt}>
+                {resultadoIndex === 0 ? codExt : ''}
+              </Text>
+              <Text style={localStyles.cellCodEpi}>
+                {resultadoIndex === 0 ? codEpi : ''}
               </Text>
               <Text style={localStyles.cellTipo}>{resultado.tipo_res || '-'}</Text>
               <Text style={localStyles.cellValor}>
