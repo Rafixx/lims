@@ -333,6 +333,8 @@ export const MuestraListDetail = ({
           onClose={() => setImportArrayModalOpen(false)}
           muestraId={muestra.id_muestra}
           codigoEpi={muestra.codigo_epi}
+          plateWidth={muestra.plate_width}
+          plateHeight={muestra.plate_height}
         />
       )}
 

@@ -21,6 +21,7 @@ import { Button } from '@/shared/components/molecules/Button'
 import { useMuestraArray, useImportArrayCodExterno } from '../../hooks/useMuestras'
 import { useNotification } from '@/shared/components/Notification/NotificationContext'
 import type { ArrayCodExternoPar, MuestraArray } from '../../interfaces/muestras.types'
+import { generateFullPlateTemplate, downloadCsv } from '../../utils/csvTemplateUtils'
 
 // ---------------------------------------------------------------------------
 // Descarga de plantilla CSV
@@ -92,12 +93,14 @@ interface Props {
   onClose: () => void
   muestraId: number
   codigoEpi?: string
+  plateWidth?: number
+  plateHeight?: number
 }
 
 // ---------------------------------------------------------------------------
 // Componente
 // ---------------------------------------------------------------------------
-export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoEpi }: Props) => {
+export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoEpi, plateWidth, plateHeight }: Props) => {
   const [parsedPares, setParsedPares] = useState<ArrayCodExternoPar[]>([])
   const [parseError, setParseError] = useState<string>('')
   const { notify } = useNotification()
@@ -109,8 +112,12 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
   const totalPosiciones = arrayPositions.length
 
   const handleDownloadTemplate = () => {
-    if (totalPosiciones === 0) return
-    downloadTemplate(muestraId, arrayPositions, codigoEpi)
+    if (plateWidth && plateHeight) {
+      const csv = generateFullPlateTemplate(plateWidth, plateHeight, arrayPositions, codigoEpi)
+      downloadCsv(csv, `plantilla_array_cod_externo_muestra_${muestraId}.csv`)
+    } else if (totalPosiciones > 0) {
+      downloadTemplate(muestraId, arrayPositions, codigoEpi)
+    }
   }
 
   const handleFileSelect = (file: File) => {

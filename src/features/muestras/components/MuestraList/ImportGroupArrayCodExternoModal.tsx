@@ -29,8 +29,20 @@ const buildCsv = (muestras: Muestra[], positionsByMuestra: Map<number, MuestraAr
   for (const muestra of muestras) {
     rows.push(`PLACA,${muestra.codigo_epi ?? ''},, `)
     const positions = positionsByMuestra.get(muestra.id_muestra) ?? []
-    for (const pos of positions) {
-      rows.push(`${pos.posicion_placa ?? ''},${pos.codigo_epi ?? ''},,`)
+
+    if (muestra.plate_width && muestra.plate_height) {
+      const epiByPos = new Map(positions.map(p => [p.posicion_placa, p.codigo_epi ?? '']))
+      for (let r = 0; r < muestra.plate_height; r++) {
+        const letter = String.fromCharCode('A'.charCodeAt(0) + r)
+        for (let c = 1; c <= muestra.plate_width; c++) {
+          const pos = `${letter}${String(c).padStart(2, '0')}`
+          rows.push(`${pos},${epiByPos.get(pos) ?? ''},,`)
+        }
+      }
+    } else {
+      for (const pos of positions) {
+        rows.push(`${pos.posicion_placa ?? ''},${pos.codigo_epi ?? ''},,`)
+      }
     }
   }
 
