@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { X, Upload, FileSpreadsheet, Loader2 } from 'lucide-react'
 import { FileUploader } from '@/shared/components/molecules/FileUploader'
 import { Button } from '@/shared/components/molecules/Button'
@@ -88,6 +88,7 @@ export const ImportResultsModal = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string>('')
+  const uploadingRef = useRef(false)
 
   if (!isOpen) return null
 
@@ -102,8 +103,8 @@ export const ImportResultsModal = ({
   }
 
   const handleImport = async () => {
-    if (!selectedFile) return
-
+    if (uploadingRef.current || !selectedFile) return  // guarda síncrona
+    uploadingRef.current = true
     setIsUploading(true)
     setError('')
 
@@ -114,6 +115,7 @@ export const ImportResultsModal = ({
       setError('Error al procesar el archivo. Por favor, verifica el formato.')
       console.error('Import error:', err)
     } finally {
+      uploadingRef.current = false
       setIsUploading(false)
     }
   }

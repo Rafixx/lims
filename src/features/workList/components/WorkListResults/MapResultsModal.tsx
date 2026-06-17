@@ -1,6 +1,6 @@
 // src/features/workList/components/MapResultsModal.tsx
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button } from '@/shared/components/molecules/Button'
 import { X, ArrowRight, FileText, Beaker, Loader2 } from 'lucide-react'
 import { Tecnica, MappableRow } from '../../interfaces/worklist.types'
@@ -29,6 +29,7 @@ export const MapResultsModal = ({
   const [autoMappedRows, setAutoMappedRows] = useState<Set<number>>(new Set())
   const [errors, setErrors] = useState<string[]>([])
   const [isConfirming, setIsConfirming] = useState(false)
+  const confirmingRef = useRef(false)
 
   // Inicializar mapeo automático inteligente basado en codigo_epi o posicion_placa
   useEffect(() => {
@@ -128,11 +129,14 @@ export const MapResultsModal = ({
   }
 
   const handleConfirm = async () => {
+    if (confirmingRef.current) return  // guarda síncrona: bloquea antes del re-render
     if (!validateMapping()) return
+    confirmingRef.current = true
     setIsConfirming(true)
     try {
       await onConfirm(mapping)
     } finally {
+      confirmingRef.current = false
       setIsConfirming(false)
     }
   }
