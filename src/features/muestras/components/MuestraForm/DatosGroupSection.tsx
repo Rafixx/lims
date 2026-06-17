@@ -259,10 +259,10 @@ export const MuestraGroupSection = ({ readOnly = false }: MuestraGroupSectionPro
               <div className="mt-1 text-xs text-gray-500">Plantillas predefinidas</div>
             </div>
 
-            {/* Ancho */}
+            {/* Columna */}
             <div>
               <label htmlFor="width" className="block text-sm font-medium text-gray-700 mb-2">
-                Ancho <span className="text-red-500">*</span>
+                Columna <span className="text-red-500">*</span>
               </label>
               <input
                 id="width"
@@ -299,10 +299,10 @@ export const MuestraGroupSection = ({ readOnly = false }: MuestraGroupSectionPro
               )}
             </div>
 
-            {/* Alto */}
+            {/* Fila */}
             <div>
               <label htmlFor="height" className="block text-sm font-medium text-gray-700 mb-2">
-                Alto <span className="text-red-500">*</span>
+                Fila <span className="text-red-500">*</span>
               </label>
               <input
                 id="height"
@@ -354,7 +354,7 @@ export const MuestraGroupSection = ({ readOnly = false }: MuestraGroupSectionPro
                     <div className="space-y-1 flex-1">
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                         <p className="text-xs sm:text-sm font-medium text-blue-900">
-                          Alto numérico: <span className="font-bold">{heightNumber}</span>
+                          Fila numérica: <span className="font-bold">{heightNumber}</span>
                         </p>
                         <p className="text-xs sm:text-sm font-medium text-blue-900">
                           Total: <span className="font-bold">{totalPositions}</span> posiciones

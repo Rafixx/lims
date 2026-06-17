@@ -7,6 +7,7 @@ export type RegistroMasivoRequest = {
     width: number
     heightLetter: string
     code_prefix: string
+    fill_direction?: 'row' | 'column'
   }
   f_recepcion: string
   id_cliente: number
@@ -36,6 +37,7 @@ export type RegistroMasivoFormData = {
   total_muestras: number | ''
   plate_width: number
   plate_heightLetter: string
+  plate_fillDirection: 'row' | 'column'
   code_prefix: string
   f_recepcion: string
   id_cliente: number | null

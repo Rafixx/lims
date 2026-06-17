@@ -87,8 +87,8 @@ export const useWorklistActions = ({
       // El backend trunca la tabla RAW correspondiente y carga los datos
       const response = await resultadoService.setCSVtoRAW(file)
 
-      if (!response.type) {
-        notify('Error: no se pudo determinar el tipo de instrumento', 'error')
+      if (!response.success || !response.type) {
+        notify(response.message || 'Error: no se pudo determinar el tipo de instrumento', 'error')
         return
       }
 

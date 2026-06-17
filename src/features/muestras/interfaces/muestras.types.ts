@@ -172,6 +172,7 @@ export type ArrayCodExternoPar = {
   posicion_placa: string
   cod_externo: string
   codigo_epi?: string
+  codigo_placa?: string
   observaciones?: string
 }
 

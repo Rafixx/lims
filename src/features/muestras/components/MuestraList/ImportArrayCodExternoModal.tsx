@@ -4,14 +4,15 @@
 // de una muestra de tipo placa (tipo_array = true).
 //
 // Flujo de usuario:
-//   1. Descarga la plantilla CSV (posicion_placa + codigo_epi pre-rellenos, cod_externo vacío)
-//   2. Rellena la columna cod_externo en su editor
+//   1. Descarga la plantilla CSV (codigo_placa + posicion_placa + codigo_epi pre-rellenos,
+//      codigo_externo vacío para rellenar)
+//   2. Rellena la columna codigo_externo en su editor
 //   3. Sube el mismo archivo
 //   4. Revisa la previsualización y confirma
 //
-// El CSV se parsea leyendo los pares (posicion_placa, cod_externo).
-// Se ignoran las filas con cod_externo vacío (asignación parcial permitida).
-// El backend hace match por posicion_placa.
+// Formato CSV generado (desde esta versión):
+//   codigo_placa,posicion_placa,codigo_externo,codigo_epi,observaciones
+// Se mantiene retrocompatibilidad al leer: acepta columna "cod_externo" y filas "PLACA".
 
 import { useState } from 'react'
 import { Download, AlertCircle, CheckCircle2 } from 'lucide-react'
@@ -24,20 +25,30 @@ import type { ArrayCodExternoPar, MuestraArray } from '../../interfaces/muestras
 import { generateFullPlateTemplate, downloadCsv } from '../../utils/csvTemplateUtils'
 
 // ---------------------------------------------------------------------------
-// Descarga de plantilla CSV
+// Descarga de plantilla CSV (fallback cuando no hay plate_width/plate_height)
 // ---------------------------------------------------------------------------
-const downloadTemplate = (
+const downloadFallbackTemplate = (
   muestraId: number,
   arrayPositions: MuestraArray[],
   codigoEpiPlaca?: string
 ) => {
-  const BOM = '\uFEFF'
-  const header = 'posicion_placa,codigo_epi,cod_externo,observaciones'
-  const placaRow = `PLACA,${codigoEpiPlaca ?? ''},, `
-  const rows = arrayPositions.map(pos => `${pos.posicion_placa ?? ''},${pos.codigo_epi ?? ''},,`)
-  const csv = [header, placaRow, ...rows].join('\n')
+  const BOM = '﻿'
+  const header = 'codigo_placa,posicion_placa,codigo_externo,codigo_epi,observaciones'
+  const placa = codigoEpiPlaca ?? ''
+  const sorted = [...arrayPositions].sort((a, b) => {
+    const epiA = a.codigo_epi ?? ''
+    const epiB = b.codigo_epi ?? ''
+    if (epiA && epiB) return epiA.localeCompare(epiB)
+    if (epiA) return -1
+    if (epiB) return 1
+    return (a.posicion_placa ?? '').localeCompare(b.posicion_placa ?? '')
+  })
+  const rows = sorted.map(
+    pos => `${pos.codigo_placa ?? placa},${pos.posicion_placa ?? ''},,${pos.codigo_epi ?? ''},`
+  )
+  const csv = BOM + [header, ...rows].join('\n')
 
-  const blob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' })
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
@@ -50,9 +61,9 @@ const downloadTemplate = (
 
 // ---------------------------------------------------------------------------
 // Parseo de CSV
-// Requiere columna posicion_placa y cod_externo.
-// Lee también codigo_epi y observaciones si están presentes.
-// Filtra filas donde cod_externo está vacío (asignación parcial).
+// Acepta formato nuevo: codigo_placa,posicion_placa,codigo_externo,codigo_epi,observaciones
+// Acepta formato antiguo: posicion_placa,codigo_epi,cod_externo,observaciones + fila PLACA
+// Filtra filas donde codigo_externo está vacío (asignación parcial permitida).
 // ---------------------------------------------------------------------------
 const parseCsv = (text: string): ArrayCodExternoPar[] => {
   const lines = text.trim().split(/\r?\n/)
@@ -65,10 +76,13 @@ const parseCsv = (text: string): ArrayCodExternoPar[] => {
   const posIdx = headers.findIndex(h => h === 'posicion_placa')
   if (posIdx === -1) throw new Error('El CSV no contiene la columna "posicion_placa"')
 
-  const extIdx = headers.findIndex(h => h === 'cod_externo')
-  if (extIdx === -1) throw new Error('El CSV no contiene la columna "cod_externo"')
+  // Aceptar tanto "codigo_externo" (nuevo) como "cod_externo" (antiguo)
+  const extIdx = headers.findIndex(h => h === 'codigo_externo' || h === 'cod_externo')
+  if (extIdx === -1)
+    throw new Error('El CSV no contiene la columna "codigo_externo" (o "cod_externo")')
 
   const epiIdx = headers.findIndex(h => h === 'codigo_epi')
+  const placaIdx = headers.findIndex(h => h === 'codigo_placa')
   const obsIdx = headers.findIndex(h => h === 'observaciones')
 
   return lines
@@ -79,10 +93,11 @@ const parseCsv = (text: string): ArrayCodExternoPar[] => {
         posicion_placa: cells[posIdx] ?? '',
         cod_externo: cells[extIdx] ?? '',
         codigo_epi: epiIdx >= 0 ? (cells[epiIdx] ?? '') : undefined,
-        observaciones: obsIdx >= 0 ? (cells[obsIdx] ?? '') || undefined : undefined
+        codigo_placa: placaIdx >= 0 ? (cells[placaIdx] ?? '') : undefined,
+        observaciones: obsIdx >= 0 ? cells[obsIdx]?.trim() || undefined : undefined
       }
     })
-    .filter(par => par.cod_externo !== '' && par.posicion_placa !== '')
+    .filter(par => par.cod_externo !== '' && par.posicion_placa !== '' && par.posicion_placa !== 'PLACA')
 }
 
 // ---------------------------------------------------------------------------
@@ -100,7 +115,14 @@ interface Props {
 // ---------------------------------------------------------------------------
 // Componente
 // ---------------------------------------------------------------------------
-export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoEpi, plateWidth, plateHeight }: Props) => {
+export const ImportArrayCodExternoModal = ({
+  isOpen,
+  onClose,
+  muestraId,
+  codigoEpi,
+  plateWidth,
+  plateHeight
+}: Props) => {
   const [parsedPares, setParsedPares] = useState<ArrayCodExternoPar[]>([])
   const [parseError, setParseError] = useState<string>('')
   const { notify } = useNotification()
@@ -116,7 +138,7 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
       const csv = generateFullPlateTemplate(plateWidth, plateHeight, arrayPositions, codigoEpi)
       downloadCsv(csv, `plantilla_array_cod_externo_muestra_${muestraId}.csv`)
     } else if (totalPosiciones > 0) {
-      downloadTemplate(muestraId, arrayPositions, codigoEpi)
+      downloadFallbackTemplate(muestraId, arrayPositions, codigoEpi)
     }
   }
 
@@ -182,11 +204,10 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
                   <>
                     CSV con las {totalPosiciones} posiciones de la placa (
                     <code className="rounded bg-surface-200 px-1 font-mono">posicion_placa</code> +{' '}
-                    <code className="rounded bg-surface-200 px-1 font-mono">codigo_epi</code>) y las
-                    columnas{' '}
-                    <code className="rounded bg-surface-200 px-1 font-mono">cod_externo</code> y{' '}
-                    <code className="rounded bg-surface-200 px-1 font-mono">observaciones</code>{' '}
-                    vacías para rellenar.
+                    <code className="rounded bg-surface-200 px-1 font-mono">codigo_epi</code>) y la
+                    columna{' '}
+                    <code className="rounded bg-surface-200 px-1 font-mono">codigo_externo</code>{' '}
+                    vacía para rellenar.
                   </>
                 ) : (
                   'Esta placa no tiene posiciones registradas.'
@@ -217,7 +238,7 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
             onFileSelect={handleFileSelect}
             onFileRemove={handleFileRemove}
             title="Seleccionar archivo CSV"
-            description="El archivo debe contener las columnas posicion_placa y cod_externo"
+            description="El archivo debe contener las columnas posicion_placa y codigo_externo"
             isUploading={importMutation.isPending}
             error={parseError}
           />
@@ -253,33 +274,25 @@ export const ImportArrayCodExternoModal = ({ isOpen, onClose, muestraId, codigoE
               </div>
               {/* Filas (scroll si hay muchas) */}
               <div className="max-h-44 overflow-y-auto">
-                {parsedPares.map((par, idx) => {
-                  const isPlacaRow = par.posicion_placa === 'PLACA'
-                  return (
-                    <div
-                      key={idx}
-                      className={[
-                        'grid grid-cols-4 gap-x-2 border-b border-surface-100 px-3 py-1.5 last:border-b-0',
-                        isPlacaRow
-                          ? 'bg-accent-50 border-l-2 border-l-accent-400'
-                          : 'hover:bg-surface-50'
-                      ].join(' ')}
-                    >
-                      <span className="truncate font-mono text-xs font-semibold text-accent-700">
-                        {isPlacaRow ? 'PLACA' : par.posicion_placa}
-                      </span>
-                      <span className="truncate font-mono text-xs text-surface-600">
-                        {par.codigo_epi || <span className="italic text-surface-300">—</span>}
-                      </span>
-                      <span className="truncate font-mono text-xs font-semibold text-primary-700">
-                        {par.cod_externo}
-                      </span>
-                      <span className="truncate text-xs text-surface-500">
-                        {par.observaciones || <span className="italic text-surface-300">—</span>}
-                      </span>
-                    </div>
-                  )
-                })}
+                {parsedPares.map((par, idx) => (
+                  <div
+                    key={idx}
+                    className="grid grid-cols-4 gap-x-2 border-b border-surface-100 px-3 py-1.5 last:border-b-0 hover:bg-surface-50"
+                  >
+                    <span className="truncate font-mono text-xs font-semibold text-accent-700">
+                      {par.posicion_placa}
+                    </span>
+                    <span className="truncate font-mono text-xs text-surface-600">
+                      {par.codigo_epi || <span className="italic text-surface-300">—</span>}
+                    </span>
+                    <span className="truncate font-mono text-xs font-semibold text-primary-700">
+                      {par.cod_externo}
+                    </span>
+                    <span className="truncate text-xs text-surface-500">
+                      {par.observaciones || <span className="italic text-surface-300">—</span>}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
 

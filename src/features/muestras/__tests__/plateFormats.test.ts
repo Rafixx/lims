@@ -12,11 +12,6 @@ describe('calcPositionsPerPlate', () => {
     expect(calcPositionsPerPlate(12, 'H')).toBe(96)
   })
 
-  it('calcula correctamente 8 columnas × 12 filas (L) = 96', () => {
-    // L es la 12ª letra del alfabeto
-    expect(calcPositionsPerPlate(8, 'L')).toBe(96)
-  })
-
   it('calcula correctamente 8 columnas × 6 filas (F) = 48', () => {
     expect(calcPositionsPerPlate(8, 'F')).toBe(48)
   })
@@ -84,39 +79,84 @@ describe('calcEmptyPositions', () => {
 })
 
 describe('PLATE_FORMATS', () => {
-  it('contiene al menos los dos formatos de 96 pocillos', () => {
-    const formatos96 = PLATE_FORMATS.filter(f => calcPositionsPerPlate(f.width, f.heightLetter) === 96)
-    expect(formatos96.length).toBeGreaterThanOrEqual(2)
+  it('contiene exactamente dos formatos de 96 pocillos (row-major y column-major)', () => {
+    const formatos96 = PLATE_FORMATS.filter(
+      f => calcPositionsPerPlate(f.width, f.heightLetter) === 96
+    )
+    expect(formatos96).toHaveLength(2)
   })
 
-  it('incluye el formato 12×H (12 columnas, 8 filas)', () => {
-    expect(PLATE_FORMATS.some(f => f.width === 12 && f.heightLetter === 'H')).toBe(true)
+  it('incluye formato 96 pocillos — numerar por filas (row)', () => {
+    expect(
+      PLATE_FORMATS.some(f => f.width === 12 && f.heightLetter === 'H' && f.fillDirection === 'row')
+    ).toBe(true)
   })
 
-  it('incluye el formato 8×L (8 columnas, 12 filas)', () => {
-    expect(PLATE_FORMATS.some(f => f.width === 8 && f.heightLetter === 'L')).toBe(true)
+  it('incluye formato 96 pocillos — numerar por columnas (column)', () => {
+    expect(
+      PLATE_FORMATS.some(
+        f => f.width === 12 && f.heightLetter === 'H' && f.fillDirection === 'column'
+      )
+    ).toBe(true)
+  })
+
+  it('incluye formato de 48 pocillos (8×F)', () => {
+    expect(PLATE_FORMATS.some(f => f.width === 8 && f.heightLetter === 'F')).toBe(true)
+  })
+
+  it('todos los formatos tienen fillDirection definido', () => {
+    PLATE_FORMATS.forEach(f => {
+      expect(['row', 'column']).toContain(f.fillDirection)
+    })
   })
 })
 
 describe('getFormatKey', () => {
-  it('retorna "12xH" para formato 12×H', () => {
+  it('sin fillDirection: retorna "12xH"', () => {
     expect(getFormatKey(12, 'H')).toBe('12xH')
   })
 
-  it('retorna "8xL" para formato 8×L', () => {
-    expect(getFormatKey(8, 'L')).toBe('8xL')
+  it('con fillDirection row: retorna "12xH-row"', () => {
+    expect(getFormatKey(12, 'H', 'row')).toBe('12xH-row')
+  })
+
+  it('con fillDirection column: retorna "12xH-column"', () => {
+    expect(getFormatKey(12, 'H', 'column')).toBe('12xH-column')
   })
 })
 
 describe('findFormat', () => {
-  it('encuentra el formato 12×H', () => {
+  it('encuentra el formato 12×H row-major', () => {
+    const fmt = findFormat(12, 'H', 'row')
+    expect(fmt).toBeDefined()
+    expect(fmt?.fillDirection).toBe('row')
+  })
+
+  it('encuentra el formato 12×H column-major', () => {
+    const fmt = findFormat(12, 'H', 'column')
+    expect(fmt).toBeDefined()
+    expect(fmt?.fillDirection).toBe('column')
+  })
+
+  it('sin fillDirection devuelve cualquier match de 12×H', () => {
     const fmt = findFormat(12, 'H')
     expect(fmt).toBeDefined()
-    expect(fmt?.width).toBe(12)
-    expect(fmt?.heightLetter).toBe('H')
   })
 
   it('retorna undefined para un formato no registrado', () => {
     expect(findFormat(99, 'Z')).toBeUndefined()
+  })
+})
+
+describe('PLATE_FORMATS — dirección de llenado', () => {
+  it('row-major: A01 antes que B01 en mismo lote teórico', () => {
+    // Solo verifica que la descripción del formato row mencione "filas"
+    const rowFmt = PLATE_FORMATS.find(f => f.fillDirection === 'row' && f.heightLetter === 'H')
+    expect(rowFmt?.label).toMatch(/filas/i)
+  })
+
+  it('column-major: columnas numeradas primero', () => {
+    const colFmt = PLATE_FORMATS.find(f => f.fillDirection === 'column' && f.heightLetter === 'H')
+    expect(colFmt?.label).toMatch(/columnas/i)
   })
 })

@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/shared/components/molecules/Button'
-import { X, ArrowRight, FileText, Beaker } from 'lucide-react'
+import { X, ArrowRight, FileText, Beaker, Loader2 } from 'lucide-react'
 import { Tecnica, MappableRow } from '../../interfaces/worklist.types'
 
 interface MapResultsModalProps {
   isOpen: boolean
   onClose: () => void
-  onConfirm: (mapping: Record<number, number>) => void
+  onConfirm: (mapping: Record<number, number>) => Promise<void>
   tecnicas: Tecnica[]
   mappableRows: MappableRow[]
 }
@@ -28,6 +28,7 @@ export const MapResultsModal = ({
   // Estado: técnicas mapeadas automáticamente (para deshabilitar el select)
   const [autoMappedRows, setAutoMappedRows] = useState<Set<number>>(new Set())
   const [errors, setErrors] = useState<string[]>([])
+  const [isConfirming, setIsConfirming] = useState(false)
 
   // Inicializar mapeo automático inteligente basado en codigo_epi o posicion_placa
   useEffect(() => {
@@ -126,9 +127,13 @@ export const MapResultsModal = ({
     return newErrors.length === 0
   }
 
-  const handleConfirm = () => {
-    if (validateMapping()) {
-      onConfirm(mapping)
+  const handleConfirm = async () => {
+    if (!validateMapping()) return
+    setIsConfirming(true)
+    try {
+      await onConfirm(mapping)
+    } finally {
+      setIsConfirming(false)
     }
   }
 
@@ -152,7 +157,8 @@ export const MapResultsModal = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-surface-100 rounded-lg transition-colors"
+            disabled={isConfirming}
+            className="p-2 hover:bg-surface-100 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Cerrar"
           >
             <X className="w-5 h-5 text-surface-600" />
@@ -189,7 +195,7 @@ export const MapResultsModal = ({
         </div>
 
         {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className={`flex-1 overflow-y-auto p-6 relative${isConfirming ? ' pointer-events-none select-none' : ''}`}>
           <div className="space-y-4">
             {mappableRows.map((row, index) => {
               const tecnicaAsignada = tecnicas.find(t => t.id_tecnica === mapping[index])
@@ -353,11 +359,23 @@ export const MapResultsModal = ({
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 p-6 border-t border-surface-200 bg-surface-50">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={isConfirming}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleConfirm}>
-            Confirmar Importación
+          <Button
+            variant="primary"
+            onClick={handleConfirm}
+            disabled={isConfirming}
+            className="min-w-[180px]"
+          >
+            {isConfirming ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Procesando...
+              </>
+            ) : (
+              'Confirmar Importación'
+            )}
           </Button>
         </div>
       </div>

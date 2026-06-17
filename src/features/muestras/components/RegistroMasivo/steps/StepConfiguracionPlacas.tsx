@@ -25,8 +25,8 @@ export const StepConfiguracionPlacas = ({ formData, onChange }: Props) => {
   const total = typeof formData.total_muestras === 'number' ? formData.total_muestras : 0
   const numPlates = total > 0 ? calcPlatesNeeded(total, posPerPlate) : 0
 
-  const selectedFormatKey = getFormatKey(formData.plate_width, formData.plate_heightLetter)
-  const isCustomFormat = !findFormat(formData.plate_width, formData.plate_heightLetter)
+  const selectedFormatKey = getFormatKey(formData.plate_width, formData.plate_heightLetter, formData.plate_fillDirection)
+  const isCustomFormat = !findFormat(formData.plate_width, formData.plate_heightLetter, formData.plate_fillDirection)
 
   const buildPlateCode = (index: number) => {
     const prefix = formData.code_prefix || 'PLACA'
@@ -61,18 +61,22 @@ export const StepConfiguracionPlacas = ({ formData, onChange }: Props) => {
           onChange={e => {
             const val = e.target.value
             if (val === 'custom') return
-            const [wStr, h] = val.split('x')
-            const w = parseInt(wStr, 10)
-            const fmt = findFormat(w, h)
+            const parts = val.split('-')
+            const dir = parts[parts.length - 1] as 'row' | 'column'
+            const fmt = PLATE_FORMATS.find(f => getFormatKey(f.width, f.heightLetter, f.fillDirection) === val)
             if (fmt) {
-              onChange({ plate_width: fmt.width, plate_heightLetter: fmt.heightLetter })
+              onChange({
+                plate_width: fmt.width,
+                plate_heightLetter: fmt.heightLetter,
+                plate_fillDirection: fmt.fillDirection
+              })
             }
           }}
         >
           {PLATE_FORMATS.map(fmt => (
             <option
-              key={getFormatKey(fmt.width, fmt.heightLetter)}
-              value={getFormatKey(fmt.width, fmt.heightLetter)}
+              key={getFormatKey(fmt.width, fmt.heightLetter, fmt.fillDirection)}
+              value={getFormatKey(fmt.width, fmt.heightLetter, fmt.fillDirection)}
             >
               {fmt.label}
             </option>

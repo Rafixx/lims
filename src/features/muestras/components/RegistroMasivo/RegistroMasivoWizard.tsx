@@ -32,6 +32,7 @@ const INITIAL_FORM: RegistroMasivoFormData = {
   total_muestras: '',
   plate_width: 12,
   plate_heightLetter: 'H',
+  plate_fillDirection: 'row' as const,
   code_prefix: '',
   f_recepcion: new Date().toISOString().slice(0, 16),
   id_cliente: null,
@@ -146,7 +147,8 @@ export const RegistroMasivoWizard = ({ onFinish, onCancel }: Props) => {
         plate_config: {
           width: formData.plate_width,
           heightLetter: formData.plate_heightLetter,
-          code_prefix: formData.code_prefix || 'PLACA'
+          code_prefix: formData.code_prefix || 'PLACA',
+          fill_direction: formData.plate_fillDirection
         },
         f_recepcion: formData.f_recepcion,
         id_cliente: formData.id_cliente as number,

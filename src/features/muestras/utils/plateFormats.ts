@@ -2,12 +2,28 @@ export type PlateFormat = {
   label: string
   width: number
   heightLetter: string
+  fillDirection: 'row' | 'column'
 }
 
 export const PLATE_FORMATS: PlateFormat[] = [
-  { label: '96 pocillos — 12 columnas × 8 filas (A–H)', width: 12, heightLetter: 'H' },
-  { label: '96 pocillos — 8 columnas × 12 filas (A–L)', width: 8, heightLetter: 'L' },
-  { label: '48 pocillos — 8 columnas × 6 filas (A–F)', width: 8, heightLetter: 'F' }
+  {
+    label: '96 pocillos — numerar por filas (A01, A02 … A12, B01 …)',
+    width: 12,
+    heightLetter: 'H',
+    fillDirection: 'row'
+  },
+  {
+    label: '96 pocillos — numerar por columnas (A01, B01 … H01, A02 …)',
+    width: 12,
+    heightLetter: 'H',
+    fillDirection: 'column'
+  },
+  {
+    label: '48 pocillos — 8 columnas × 6 filas (A–F)',
+    width: 8,
+    heightLetter: 'F',
+    fillDirection: 'row'
+  }
 ]
 
 export const calcPositionsPerPlate = (width: number, heightLetter: string): number => {
@@ -30,8 +46,20 @@ export const calcEmptyPositions = (
   return posPerPlate * numPlates - totalMuestras
 }
 
-export const getFormatKey = (width: number, heightLetter: string): string =>
-  `${width}x${heightLetter}`
+export const getFormatKey = (
+  width: number,
+  heightLetter: string,
+  fillDirection?: 'row' | 'column'
+): string => `${width}x${heightLetter}${fillDirection ? `-${fillDirection}` : ''}`
 
-export const findFormat = (width: number, heightLetter: string): PlateFormat | undefined =>
-  PLATE_FORMATS.find(f => f.width === width && f.heightLetter === heightLetter)
+export const findFormat = (
+  width: number,
+  heightLetter: string,
+  fillDirection?: 'row' | 'column'
+): PlateFormat | undefined =>
+  PLATE_FORMATS.find(
+    f =>
+      f.width === width &&
+      f.heightLetter === heightLetter &&
+      (fillDirection === undefined || f.fillDirection === fillDirection)
+  )

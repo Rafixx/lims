@@ -20,29 +20,33 @@ interface PlateSection {
 
 // ---------------------------------------------------------------------------
 // Generación del CSV combinado
+// Formato: codigo_placa,posicion_placa,codigo_externo,codigo_epi,observaciones
+// Una fila por posición; la columna codigo_placa identifica cada placa.
 // ---------------------------------------------------------------------------
 const buildCsv = (muestras: Muestra[], positionsByMuestra: Map<number, MuestraArray[]>): string => {
   const BOM = '﻿'
-  const header = 'posicion_placa,codigo_epi,cod_externo,observaciones'
+  const header = 'codigo_placa,posicion_placa,codigo_externo,codigo_epi,observaciones'
   const rows: string[] = [header]
 
   for (const muestra of muestras) {
-    rows.push(`PLACA,${muestra.codigo_epi ?? ''},, `)
+    const placa = muestra.codigo_epi ?? ''
     const positions = positionsByMuestra.get(muestra.id_muestra) ?? []
 
-    if (muestra.plate_width && muestra.plate_height) {
-      const epiByPos = new Map(positions.map(p => [p.posicion_placa, p.codigo_epi ?? '']))
-      for (let r = 0; r < muestra.plate_height; r++) {
-        const letter = String.fromCharCode('A'.charCodeAt(0) + r)
-        for (let c = 1; c <= muestra.plate_width; c++) {
-          const pos = `${letter}${String(c).padStart(2, '0')}`
-          rows.push(`${pos},${epiByPos.get(pos) ?? ''},,`)
-        }
-      }
-    } else {
-      for (const pos of positions) {
-        rows.push(`${pos.posicion_placa ?? ''},${pos.codigo_epi ?? ''},,`)
-      }
+    // Ordenar por codigo_epi para que el CSV refleje el orden de generación.
+    // Posiciones sin EPI van al final ordenadas por posicion_placa.
+    const sorted = [...positions].sort((a, b) => {
+      const epiA = a.codigo_epi ?? ''
+      const epiB = b.codigo_epi ?? ''
+      if (epiA && epiB) return epiA.localeCompare(epiB)
+      if (epiA) return -1
+      if (epiB) return 1
+      return (a.posicion_placa ?? '').localeCompare(b.posicion_placa ?? '')
+    })
+
+    for (const pos of sorted) {
+      rows.push(
+        `${pos.codigo_placa ?? placa},${pos.posicion_placa ?? ''},,${pos.codigo_epi ?? ''},`
+      )
     }
   }
 
@@ -68,6 +72,8 @@ const downloadCombinedTemplate = (
 
 // ---------------------------------------------------------------------------
 // Parseo del CSV multi-placa
+// Acepta formato nuevo: codigo_placa identifica la placa por fila.
+// Acepta formato antiguo: filas PLACA que cambian el contexto de placa activo.
 // ---------------------------------------------------------------------------
 const parseCsv = (text: string, muestraByEpi: Map<string, Muestra>): PlateSection[] => {
   const lines = text.trim().split(/\r?\n/)
@@ -79,9 +85,14 @@ const parseCsv = (text: string, muestraByEpi: Map<string, Muestra>): PlateSectio
   const headers = lines[0].split(delimiter).map(h => unquote(h).toLowerCase())
   const posIdx = headers.findIndex(h => h === 'posicion_placa')
   if (posIdx === -1) throw new Error('El CSV no contiene la columna "posicion_placa"')
-  const extIdx = headers.findIndex(h => h === 'cod_externo')
-  if (extIdx === -1) throw new Error('El CSV no contiene la columna "cod_externo"')
+
+  // Aceptar "codigo_externo" (nuevo) o "cod_externo" (retrocompat)
+  const extIdx = headers.findIndex(h => h === 'codigo_externo' || h === 'cod_externo')
+  if (extIdx === -1)
+    throw new Error('El CSV no contiene la columna "codigo_externo" (o "cod_externo")')
+
   const epiIdx = headers.findIndex(h => h === 'codigo_epi')
+  const placaIdx = headers.findIndex(h => h === 'codigo_placa')
   const obsIdx = headers.findIndex(h => h === 'observaciones')
 
   const sections = new Map<string, PlateSection>()
@@ -93,31 +104,36 @@ const parseCsv = (text: string, muestraByEpi: Map<string, Muestra>): PlateSectio
     const posicion = cells[posIdx] ?? ''
     const codExterno = cells[extIdx] ?? ''
     const codigoEpi = epiIdx >= 0 ? (cells[epiIdx] ?? '') : ''
+    const codigoPlaca = placaIdx >= 0 ? (cells[placaIdx] ?? '') : ''
     const observaciones = obsIdx >= 0 ? cells[obsIdx]?.trim() || undefined : undefined
 
     if (posicion === 'PLACA') {
+      // Formato antiguo: fila PLACA cambia el contexto
       currentEpi = codigoEpi
       const muestra = muestraByEpi.get(codigoEpi)
       if (muestra && !sections.has(codigoEpi)) {
         sections.set(codigoEpi, { muestra, pares: [] })
       }
-      if (muestra && codExterno !== '') {
-        sections.get(codigoEpi)!.pares.push({
-          posicion_placa: 'PLACA',
-          cod_externo: codExterno,
-          codigo_epi: codigoEpi,
-          observaciones,
-        })
-      }
-    } else if (currentEpi && posicion !== '' && codExterno !== '') {
-      const section = sections.get(currentEpi)
-      if (section) {
-        section.pares.push({
-          posicion_placa: posicion,
-          cod_externo: codExterno,
-          codigo_epi: codigoEpi || undefined,
-          observaciones,
-        })
+    } else if (posicion !== '') {
+      // Determinar la placa a la que pertenece esta fila
+      // Nuevo formato: usar codigo_placa como clave; antiguo: usar currentEpi
+      const placaKey = codigoPlaca !== '' ? codigoPlaca : (currentEpi ?? '')
+
+      if (placaKey !== '' && codExterno !== '') {
+        if (!sections.has(placaKey)) {
+          const muestra = muestraByEpi.get(placaKey)
+          if (muestra) sections.set(placaKey, { muestra, pares: [] })
+        }
+        const section = sections.get(placaKey)
+        if (section) {
+          section.pares.push({
+            posicion_placa: posicion,
+            cod_externo: codExterno,
+            codigo_epi: codigoEpi || undefined,
+            codigo_placa: codigoPlaca || undefined,
+            observaciones
+          })
+        }
       }
     }
   }
@@ -150,8 +166,8 @@ export const ImportGroupArrayCodExternoModal = ({ isOpen, onClose, estudio, mues
       queryKey: ['muestra', muestra.id_muestra, 'array'],
       queryFn: () => muestrasService.getMuestraArray(muestra.id_muestra),
       staleTime: STALE_TIME,
-      enabled: isOpen,
-    })),
+      enabled: isOpen
+    }))
   })
 
   const isLoadingPositions = positionQueries.some(q => q.isLoading)
@@ -201,7 +217,7 @@ export const ImportGroupArrayCodExternoModal = ({ isOpen, onClose, estudio, mues
       try {
         const result = await importMutation.mutateAsync({
           muestraId: section.muestra.id_muestra,
-          pares: section.pares,
+          pares: section.pares
         })
         totalUpdated += result.updated
       } catch {
@@ -237,9 +253,11 @@ export const ImportGroupArrayCodExternoModal = ({ isOpen, onClose, estudio, mues
                   'Cargando posiciones de las placas...'
                 ) : (
                   <>
-                    CSV combinado con las {muestras.length} placas del estudio. Cada placa incluye
-                    una fila <code className="rounded bg-surface-200 px-1 font-mono">PLACA</code>{' '}
-                    seguida de sus posiciones.
+                    CSV con las {muestras.length} placas del estudio. La columna{' '}
+                    <code className="rounded bg-surface-200 px-1 font-mono">codigo_placa</code>{' '}
+                    identifica cada placa; rellena{' '}
+                    <code className="rounded bg-surface-200 px-1 font-mono">codigo_externo</code>{' '}
+                    para las posiciones que quieras asignar.
                   </>
                 )}
               </p>
@@ -268,7 +286,7 @@ export const ImportGroupArrayCodExternoModal = ({ isOpen, onClose, estudio, mues
             onFileSelect={handleFileSelect}
             onFileRemove={handleFileRemove}
             title="Seleccionar archivo CSV"
-            description="El archivo debe contener las columnas posicion_placa y cod_externo"
+            description="El archivo debe contener las columnas posicion_placa y codigo_externo"
             isUploading={importMutation.isPending}
             error={parseError}
           />
@@ -287,7 +305,6 @@ export const ImportGroupArrayCodExternoModal = ({ isOpen, onClose, estudio, mues
 
             <div className="max-h-52 overflow-y-auto space-y-1.5 pr-0.5">
               {parsedSections.map(section => {
-                const placaPar = section.pares.find(p => p.posicion_placa === 'PLACA')
                 const positionPares = section.pares.filter(p => p.posicion_placa !== 'PLACA')
                 return (
                   <div
@@ -295,25 +312,23 @@ export const ImportGroupArrayCodExternoModal = ({ isOpen, onClose, estudio, mues
                     className="rounded-lg border border-surface-200 overflow-hidden"
                   >
                     {/* Cabecera de placa */}
-                    <div className="grid grid-cols-4 gap-x-2 bg-accent-50 border-b border-accent-200 px-3 py-1.5">
-                      <span className="font-mono text-xs font-semibold text-accent-700 col-span-1">
+                    <div className="grid grid-cols-3 gap-x-2 bg-accent-50 border-b border-accent-200 px-3 py-1.5">
+                      <span className="font-mono text-xs font-semibold text-accent-700 truncate">
                         PLACA
                       </span>
                       <span className="font-mono text-xs text-surface-600 truncate">
                         {section.muestra.codigo_epi}
                       </span>
-                      <span className="font-mono text-xs font-semibold text-primary-700 truncate">
-                        {placaPar?.cod_externo || <span className="italic text-surface-300">—</span>}
-                      </span>
                       <span className="text-xs text-surface-500 truncate">
-                        {placaPar?.observaciones || <span className="italic text-surface-300">—</span>}
+                        {positionPares.length} posición{positionPares.length !== 1 ? 'es' : ''}
                       </span>
                     </div>
                     {/* Resumen de posiciones */}
                     {positionPares.length > 0 && (
                       <div className="px-3 py-1.5 bg-white">
                         <span className="text-xs text-surface-500">
-                          {positionPares.length} posición{positionPares.length !== 1 ? 'es' : ''} con código externo
+                          {positionPares.length} posición{positionPares.length !== 1 ? 'es' : ''}{' '}
+                          con código externo asignado
                         </span>
                       </div>
                     )}

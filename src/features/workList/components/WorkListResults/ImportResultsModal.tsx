@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Upload, FileSpreadsheet } from 'lucide-react'
+import { X, Upload, FileSpreadsheet, Loader2 } from 'lucide-react'
 import { FileUploader } from '@/shared/components/molecules/FileUploader'
 import { Button } from '@/shared/components/molecules/Button'
 import type { Tecnica } from '../../interfaces/worklist.types'
@@ -232,8 +232,8 @@ export const ImportResultsModal = ({
             >
               {isUploading ? (
                 <>
-                  <span className="animate-spin mr-2">⏳</span>
-                  Importando...
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Procesando...
                 </>
               ) : (
                 <>
