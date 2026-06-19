@@ -19,11 +19,13 @@ const QUBIT_HEADER =
 const QUBIT_EMPTY_COLS = Array(17).fill('').join(',')
 
 const buildQubitCsv = (tecnicas: Tecnica[]): string => {
-  const sorted = [...tecnicas].sort((a, b) => {
-    const ca = a.muestraArray?.codigo_epi ?? a.muestra?.codigo_epi ?? ''
-    const cb = b.muestraArray?.codigo_epi ?? b.muestra?.codigo_epi ?? ''
-    return ca.localeCompare(cb)
-  })
+  const sorted = [...tecnicas]
+    .filter(t => !!(t.muestraArray?.codigo_epi ?? t.muestra?.codigo_epi))
+    .sort((a, b) => {
+      const ca = a.muestraArray?.codigo_epi ?? a.muestra?.codigo_epi ?? ''
+      const cb = b.muestraArray?.codigo_epi ?? b.muestra?.codigo_epi ?? ''
+      return ca.localeCompare(cb)
+    })
   const rows = sorted.map(t => {
     const placa = t.muestraArray?.codigo_placa ?? ''
     const pocillo = t.muestraArray?.posicion_placa ?? ''
@@ -37,11 +39,13 @@ const NANODROP_HEADER = 'codigo placa,Pocillo,codigo muestra,Sample ID,Nucleic A
 const NANODROP_EMPTY_COLS = Array(6).fill('').join(',')
 
 const buildNanodropCsv = (tecnicas: Tecnica[]): string => {
-  const sorted = [...tecnicas].sort((a, b) => {
-    const ca = a.muestraArray?.codigo_epi ?? a.muestra?.codigo_epi ?? ''
-    const cb = b.muestraArray?.codigo_epi ?? b.muestra?.codigo_epi ?? ''
-    return ca.localeCompare(cb)
-  })
+  const sorted = [...tecnicas]
+    .filter(t => !!(t.muestraArray?.codigo_epi ?? t.muestra?.codigo_epi))
+    .sort((a, b) => {
+      const ca = a.muestraArray?.codigo_epi ?? a.muestra?.codigo_epi ?? ''
+      const cb = b.muestraArray?.codigo_epi ?? b.muestra?.codigo_epi ?? ''
+      return ca.localeCompare(cb)
+    })
   const rows = sorted.map(t => {
     const placa = t.muestraArray?.codigo_placa ?? ''
     const pocillo = t.muestraArray?.posicion_placa ?? ''
