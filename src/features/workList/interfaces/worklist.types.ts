@@ -88,6 +88,9 @@ export interface ImportDataResultsResponse {
   success: boolean
   message: string
   type?: string
+  recordsProcessed?: number
+  resultsCreated?: number
+  errors?: string[]
 }
 
 export interface RawNanoDrop {

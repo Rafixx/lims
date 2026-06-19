@@ -144,7 +144,15 @@ export const useWorklistActions = ({
       const response = await resultadoService.importDataResults(worklistId, instrumentType, mapping)
 
       refetchWorkList()
-      notify(response.message, response.success ? 'success' : 'error')
+
+      if (response.success) {
+        notify(response.message, 'success')
+      } else {
+        // Mostrar mensaje principal + primer error detallado si hay
+        const detail =
+          response.errors && response.errors.length > 0 ? ` (${response.errors[0]})` : ''
+        notify(`${response.message}${detail}`, 'error')
+      }
 
       setShowMappingModal(false)
       setMappableRows([])
