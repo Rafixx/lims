@@ -110,18 +110,11 @@ export const MapResultsModal = ({
   const validateMapping = (): boolean => {
     const newErrors: string[] = []
 
-    // Verificar que todas las filas tengan una técnica asignada
-    mappableRows.forEach((_, index) => {
-      if (!mapping[index]) {
-        newErrors.push(`La fila ${index + 1} no tiene técnica asignada`)
-      }
-    })
-
-    // Verificar que no haya técnicas duplicadas
-    const usedTecnicas = Object.values(mapping)
-    const uniqueTecnicas = new Set(usedTecnicas)
-    if (usedTecnicas.length !== uniqueTecnicas.size) {
-      newErrors.push('No puede asignar la misma técnica a múltiples resultados')
+    // Basta con que al menos una fila tenga técnica asignada.
+    // Las filas sin asignación serán ignoradas por el backend.
+    const mappedCount = Object.values(mapping).filter(Boolean).length
+    if (mappedCount === 0) {
+      newErrors.push('Debes asignar al menos una técnica')
     }
 
     setErrors(newErrors)
