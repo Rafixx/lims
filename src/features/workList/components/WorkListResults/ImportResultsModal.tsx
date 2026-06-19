@@ -20,7 +20,7 @@ const QUBIT_EMPTY_COLS = Array(17).fill('').join(',')
 
 const buildQubitCsv = (tecnicas: Tecnica[]): string => {
   const sorted = [...tecnicas]
-    .filter(t => !!(t.muestraArray?.codigo_epi ?? t.muestra?.codigo_epi))
+    .filter(t => !!(t.muestraArray?.posicion_placa))
     .sort((a, b) => {
       const ca = a.muestraArray?.codigo_epi ?? a.muestra?.codigo_epi ?? ''
       const cb = b.muestraArray?.codigo_epi ?? b.muestra?.codigo_epi ?? ''
@@ -40,7 +40,7 @@ const NANODROP_EMPTY_COLS = Array(6).fill('').join(',')
 
 const buildNanodropCsv = (tecnicas: Tecnica[]): string => {
   const sorted = [...tecnicas]
-    .filter(t => !!(t.muestraArray?.codigo_epi ?? t.muestra?.codigo_epi))
+    .filter(t => !!(t.muestraArray?.posicion_placa))
     .sort((a, b) => {
       const ca = a.muestraArray?.codigo_epi ?? a.muestra?.codigo_epi ?? ''
       const cb = b.muestraArray?.codigo_epi ?? b.muestra?.codigo_epi ?? ''
