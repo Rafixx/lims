@@ -8,7 +8,7 @@ import type { Tecnica } from '../../interfaces/worklist.types'
 // Plantilla Qubit — genera una fila por técnica con los datos de la muestra
 // ---------------------------------------------------------------------------
 const QUBIT_HEADER =
-  'código placa,Pocillo,codigo muestra,' +
+  'codigo placa,Pocillo,codigo muestra,' +
   'Run ID,Assay Name,Test Name,Test Date,' +
   'Qubit tube conc.,Qubit tube conc. units,' +
   'Original sample conc.,Original sample conc. units,' +
@@ -33,7 +33,7 @@ const buildQubitCsv = (tecnicas: Tecnica[]): string => {
   return '﻿' + [QUBIT_HEADER, ...rows].join('\n')
 }
 
-const NANODROP_HEADER = 'código placa,Pocillo,codigo muestra,Sample ID,Nucleic Acid Conc.,A260,A280,260/280,260/230'
+const NANODROP_HEADER = 'codigo placa,Pocillo,codigo muestra,Sample ID,Nucleic Acid Conc.,A260,A280,260/280,260/230'
 const NANODROP_EMPTY_COLS = Array(6).fill('').join(',')
 
 const buildNanodropCsv = (tecnicas: Tecnica[]): string => {
