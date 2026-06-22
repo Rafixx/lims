@@ -37,7 +37,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     localStorage.removeItem(TOKEN_KEY)
     setUser(null)
-    window.location.href = '/login'
+    window.location.href = `${import.meta.env.BASE_URL}login`
   }
 
   useEffect(() => {

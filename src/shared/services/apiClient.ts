@@ -22,7 +22,7 @@ apiClient.interceptors.response.use(
   error => {
     if (error.response?.status === 403) {
       localStorage.removeItem(TOKEN_KEY)
-      window.location.href = '/login'
+      window.location.href = `${import.meta.env.BASE_URL}login`
     }
 
     // Enriquecer el mensaje de error para que todos los catch blocks
