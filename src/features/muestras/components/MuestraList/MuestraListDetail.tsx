@@ -130,9 +130,13 @@ export const MuestraListDetail = ({
         <TecnicaStateChips counts={counts} />
       </div>,
       // [8] Estado (span 1)  [era [8]]
-      <div key={`estado-${muestra.id_muestra}`} className="min-w-0">
+      <div
+        key={`estado-${muestra.id_muestra}`}
+        className="min-w-0 overflow-hidden"
+        title={muestra.estadoInfo?.estado || ''}
+      >
         {muestra.estadoInfo ? (
-          <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={true} />
+          <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={false} />
         ) : (
           <span className="text-surface-300 text-xs">—</span>
         )}
@@ -206,12 +210,20 @@ export const MuestraListDetail = ({
         {muestra.estudio || '—'}
       </span>,
       // [6] Fecha Recepción (span 1)  [era [7]]
-      <span
-        key={`fecha-${muestra.id_muestra}`}
-        className="block text-xs text-surface-500 font-mono whitespace-nowrap"
-      >
-        {formatDateTime(muestra.f_recepcion)}
-      </span>,
+      <div key={`fecha-${muestra.id_muestra}`} title={formatDateTime(muestra.f_recepcion)}>
+        {muestra.f_recepcion ? (
+          <>
+            <span className="block text-xs text-surface-500 font-mono">
+              {formatDateTime(muestra.f_recepcion).split(' ')[0]}
+            </span>
+            <span className="block text-xs text-surface-400 font-mono">
+              {formatDateTime(muestra.f_recepcion).split(' ')[1]}
+            </span>
+          </>
+        ) : (
+          <span className="text-xs text-surface-300">—</span>
+        )}
+      </div>,
       // [7] Técnicas chips (span 1) — NUEVO
       <div key={`tecnicas-${muestra.id_muestra}`} className="min-w-0">
         {isLoading ? (
@@ -221,9 +233,13 @@ export const MuestraListDetail = ({
         )}
       </div>,
       // [8] Estado (span 1)  [era [8]]
-      <div key={`estado-${muestra.id_muestra}`} className="min-w-0">
+      <div
+        key={`estado-${muestra.id_muestra}`}
+        className="min-w-0 overflow-hidden"
+        title={muestra.estadoInfo?.estado || ''}
+      >
         {muestra.estadoInfo ? (
-          <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={true} />
+          <EstadoBadge estado={muestra.estadoInfo} size="sm" showTooltip={false} />
         ) : (
           <span className="text-surface-300 text-xs">—</span>
         )}
