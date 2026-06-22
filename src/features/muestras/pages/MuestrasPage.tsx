@@ -26,18 +26,18 @@ import { groupMuestrasByEstudio } from '../utils/groupMuestras'
 import { MuestraGroup } from '../interfaces/muestras.types'
 
 // Configuración de columnas — spans deben sumar exactamente 12 (grid-cols-12)
-// 1+1+1+1+2+1+1+1+1+2 = 12 ✓
-// Paciente eliminado; Técnicas añadido entre Recepción y Estado
+// 1+1+1+1+1+1+1+1+2+2 = 12 ✓
+// Prueba reducida a 1 para ceder espacio a Estado (badge necesita ~180px mínimo)
 const COLUMN_CONFIG = [
   { label: 'Cód EXT', span: 1, sortKey: 'codigo_externo' },
   { label: 'Cód EPI', span: 1, sortKey: 'codigo_epi' },
   { label: 'Cliente', span: 1, sortKey: 'cliente' },
   { label: 'Tipo Muestra', span: 1, sortKey: 'tipo_muestra' },
-  { label: 'Prueba', span: 2, sortKey: 'prueba' },
+  { label: 'Prueba', span: 1, sortKey: 'prueba' },
   { label: 'Estudio', span: 1, sortKey: 'estudio' },
   { label: 'Recepción', span: 1, sortKey: 'f_recepcion' },
   { label: 'Técnicas', span: 1 },
-  { label: 'Estado', span: 1, sortKey: 'estado' },
+  { label: 'Estado', span: 2, sortKey: 'estado' },
   { label: 'Acciones', span: 2, className: 'text-right' }
 ]
 
@@ -325,7 +325,7 @@ export const MuestrasPage = () => {
     >
       {/* overflow-x-auto para scroll horizontal en pantallas pequeñas */}
       <div className="overflow-x-auto rounded-lg border border-surface-200 shadow-soft bg-white">
-        <div className="min-w-[720px]">
+        <div className="min-w-[800px]">
           <MuestraListHeader
             fieldList={COLUMN_CONFIG}
             sortKey={sortKey}
