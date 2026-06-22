@@ -217,8 +217,7 @@ export const CreateWorklistPage = () => {
                 )}
                 {nombre && selectedTecnicaProc && (
                   <p className="text-xs text-warning-600 mt-1">
-                    El código &quot;{nombre}&quot; ya fue reservado. Si cambias de proceso, usa el
-                    botón ↺ para regenerar manualmente.
+                    Si desea generar un nuevo código haga clic sobre el icono ↺.
                   </p>
                 )}
               </div>
