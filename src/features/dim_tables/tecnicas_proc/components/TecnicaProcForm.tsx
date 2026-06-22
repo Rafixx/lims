@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useCreateTecnicaProc, useUpdateTecnicaProc } from '@/shared/hooks/useDim_tables'
+import { useCreateTecnicaProc, useUpdateTecnicaProc, usePlantillasTecnicas } from '@/shared/hooks/useDim_tables'
 import { TecnicaProc } from '@/shared/interfaces/dim_tables.types'
 import { useNavigate } from 'react-router-dom'
 import { Save, X } from 'lucide-react'
@@ -9,7 +9,8 @@ import { useNotification } from '@/shared/components/Notification/NotificationCo
 
 const tecnicaProcSchema = z.object({
   tecnica_proc: z.string().min(1, 'El nombre de la técnica es obligatorio'),
-  orden: z.number().optional()
+  orden: z.number().optional(),
+  id_plantilla_tecnica: z.number().nullable().optional()
 })
 
 type TecnicaProcFormData = z.infer<typeof tecnicaProcSchema>
@@ -25,6 +26,11 @@ export const TecnicaProcForm = ({ initialData }: TecnicaProcFormProps) => {
 
   const createMutation = useCreateTecnicaProc()
   const updateMutation = useUpdateTecnicaProc()
+  const { data: plantillas = [] } = usePlantillasTecnicas()
+
+  const plantillasOrdenadas = [...plantillas].sort((a, b) =>
+    (a.tecnica ?? '').localeCompare(b.tecnica ?? '')
+  )
 
   const {
     register,
@@ -34,20 +40,23 @@ export const TecnicaProcForm = ({ initialData }: TecnicaProcFormProps) => {
     resolver: zodResolver(tecnicaProcSchema),
     defaultValues: {
       tecnica_proc: initialData?.tecnica_proc || '',
-      orden: initialData?.orden || undefined
+      orden: initialData?.orden || undefined,
+      id_plantilla_tecnica:
+        initialData?.id_plantilla_tecnica ?? initialData?.plantillaTecnica?.id ?? null
     }
   })
 
   const onSubmit = async (data: TecnicaProcFormData) => {
+    const payload = {
+      ...data,
+      id_plantilla_tecnica: data.id_plantilla_tecnica ?? null
+    }
     try {
       if (isEditMode && initialData?.id) {
-        await updateMutation.mutateAsync({
-          id: initialData.id,
-          data
-        })
+        await updateMutation.mutateAsync({ id: initialData.id, data: payload })
         notify('Técnica actualizada correctamente', 'success')
       } else {
-        await createMutation.mutateAsync(data)
+        await createMutation.mutateAsync(payload)
         notify('Técnica creada correctamente', 'success')
       }
       navigate('/tecnicas-proc')
@@ -91,6 +100,28 @@ export const TecnicaProcForm = ({ initialData }: TecnicaProcFormProps) => {
           disabled={isLoading}
         />
         {errors.orden && <p className="mt-1 text-sm text-estado-error">{errors.orden.message}</p>}
+      </div>
+
+      <div>
+        <label
+          htmlFor="id_plantilla_tecnica"
+          className="block text-sm font-medium text-foreground-primary mb-2"
+        >
+          Plantilla técnica
+        </label>
+        <select
+          id="id_plantilla_tecnica"
+          {...register('id_plantilla_tecnica', { setValueAs: v => (v === '' ? null : Number(v)) })}
+          className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground-primary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          disabled={isLoading}
+        >
+          <option value="">Sin plantilla</option>
+          {plantillasOrdenadas.map(p => (
+            <option key={p.id} value={p.id}>
+              {p.tecnica} ({p.cod_plantilla_tecnica})
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-border">

@@ -841,6 +841,19 @@ export const useDeleteReactivo = () => {
 }
 
 // ================================
+// HOOKS PARA PLANTILLAS_TECNICAS
+// ================================
+
+export const usePlantillasTecnicas = () => {
+  return useQuery({
+    queryKey: ['dim-tables', 'plantillas-tecnicas'],
+    queryFn: () => dimTablesService.getPlantillasTecnicas(),
+    staleTime: STALE_TIME,
+    gcTime: GC_TIME
+  })
+}
+
+// ================================
 // HOOKS PARA PLANTILLAS_PASOS
 // ================================
 

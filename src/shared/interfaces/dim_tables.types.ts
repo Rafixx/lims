@@ -63,6 +63,7 @@ export interface TecnicaProc {
   orden?: number
   activa?: boolean
   id_prueba?: number
+  id_plantilla_tecnica?: number | null
   created_by?: number
   plantillaTecnica?: PlantillaTecnica
 }
