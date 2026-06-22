@@ -82,9 +82,9 @@ export const MuestraGroupRow = ({
         </span>
       )
     },
-    // [3] Prueba (span 2)  [era [4]]
+    // [3] Prueba (span 1)
     {
-      span: 2,
+      span: 1,
       content: (
         <span
           className="block text-xs text-surface-700 truncate"
@@ -94,7 +94,7 @@ export const MuestraGroupRow = ({
         </span>
       )
     },
-    // [4] Estudio  [era [5]]
+    // [4] Estudio
     {
       span: 1,
       content: (
@@ -103,13 +103,24 @@ export const MuestraGroupRow = ({
         </span>
       )
     },
-    // [5] Recepción  [era [6]]
+    // [5] Recepción
     {
       span: 1,
       content: (
-        <span className="block text-xs text-surface-500 font-mono whitespace-nowrap">
-          {formatDateTime(parent.f_recepcion)}
-        </span>
+        <div title={formatDateTime(parent.f_recepcion)}>
+          {parent.f_recepcion ? (
+            <>
+              <span className="block text-xs text-surface-500 font-mono">
+                {formatDateTime(parent.f_recepcion).split(' ')[0]}
+              </span>
+              <span className="block text-xs text-surface-400 font-mono">
+                {formatDateTime(parent.f_recepcion).split(' ')[1]}
+              </span>
+            </>
+          ) : (
+            <span className="text-xs text-surface-300">—</span>
+          )}
+        </div>
       )
     },
     // [6] vacío — alinea con la columna Técnicas de las filas hijas
@@ -117,13 +128,13 @@ export const MuestraGroupRow = ({
       span: 1,
       content: <span />
     },
-    // [7] Estado  [era [7]]
+    // [7] Estado (span 2)
     {
-      span: 1,
+      span: 2,
       content: (
-        <div className="min-w-0">
+        <div className="min-w-0 overflow-hidden" title={parent.estadoInfo?.estado || ''}>
           {parent.estadoInfo ? (
-            <EstadoBadge estado={parent.estadoInfo} size="sm" />
+            <EstadoBadge estado={parent.estadoInfo} size="sm" showTooltip={false} />
           ) : (
             <span className="text-surface-300 text-xs">—</span>
           )}
